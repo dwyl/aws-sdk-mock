@@ -1,17 +1,17 @@
 var sinon = require('sinon');
-var aws = require('aws-sdk');
+var _AWS = require('aws-sdk');
 
 var core = {};
 var AWS = {};
 
 AWS.mock = function(service, method, replace) {
   core[service] = {};
-  core[service].awsConstructor = aws[service];
+  core[service].awsConstructor = _AWS[service];
   mockService(service, method, replace);
 }
 
 function mockService(service, method, replace) {
-  var serviceStub = sinon.stub(aws, service, function() {
+  var serviceStub = sinon.stub(_AWS, service, function() {
     var client = new core[service].awsConstructor();
     client.sandbox = sinon.sandbox.create();
     core[service].client = client;
