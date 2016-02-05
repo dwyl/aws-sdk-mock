@@ -7,19 +7,19 @@ var AWS = {};
 AWS.mock = function(service, method) {
   core[service] = {};
   core[service].awsConstructor = aws[service];
-  createStub(service, method);
+  mockService(service, method);
 }
 
-function createStub(service, method) {
+function mockService(service, method) {
   sinon.stub(aws, service, function() {
     var client = new core[service].awsConstructor();
     client.sandbox = sinon.sandbox.create();
-    applyMock(client, method);
+    mockServiceMethod(client, method);
     return client;
   });
 }
 
-function applyMock(client, method) {
+function mockServiceMethod(client, method) {
   client.sandbox.stub(client, method, function(params, callback) {
     return callback();
   });
