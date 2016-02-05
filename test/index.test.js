@@ -23,14 +23,5 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     })
   })
-  // t.test('Unmocked method should work as normal', function(st) {
-  //   awsMock.mock('SNS', 'publish', 'message');
-  //   var sns = new AWS.SNS();
-  //   sns.subscribe({}, function (err, data) {
-  //     console.log(err);
-  //     console.log(data);
-  //     st.end();
-  //   });
-  // })
   t.end();
 });
