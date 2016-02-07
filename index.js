@@ -87,9 +87,11 @@ function mockServiceMethod(service, method, replace) {
 */
 
 AWS.restore = function(service, method) {
-  var restoreService        = service && method === undefined;
-  var restoreServiceMethod  = service && method;
-  var restoreAll            = service === undefined && method === undefined;
+
+  var args                  = Array.prototype.slice.call(arguments).length;
+  var restoreService        = args === 1;
+  var restoreServiceMethod  = args === 2
+  // var restoreAll            = args === 0;
 
   if (restoreServiceMethod){
     services[service].client[method].restore();
@@ -98,8 +100,10 @@ AWS.restore = function(service, method) {
     });
   } else if (restoreService) {
     services[service].stub.restore();
+    services[service].client.sandbox.restore();
     delete services[service];
-  } else if (restoreAll) {
+  } else {
+    // restoreAll
     for (var option in services) {
       services[option].stub.restore();
       services[option].client.sandbox.restore();

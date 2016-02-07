@@ -51,17 +51,54 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     })
   })
-  // t.test('all the methods on a service are restored', function(st){
-  //   awsMock.restore('SNS');
-  //   st.end();
-  // })
-  // t.test('only the method on the service is restored', function(st){
-  //   awsMock.restore('SNS', 'publish');
-  //   st.end();
-  // })
-  // t.test('all the services are restored', function(st){
-  //   awsMock.restore('SNS', 'publish');
-  //   st.end();
-  // })
+  t.test('all the methods on a service are restored', function(st){
+    awsMock.mock('SNS', 'publish', function(params, callback){
+      callback(null, "message");
+    });
+    var sns = new AWS.SNS();
+    st.equals(AWS.SNS.isSinonProxy, true);
+
+    awsMock.restore('SNS');
+
+    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
+    st.end();
+  })
+  t.test('only the method on the service is restored', function(st){
+    awsMock.mock('SNS', 'publish', function(params, callback){
+      callback(null, "message");
+    });
+    var sns = new AWS.SNS();
+    st.equals(AWS.SNS.isSinonProxy, true);
+    st.equals(sns.publish.isSinonProxy, true);
+
+    awsMock.restore('SNS', 'publish');
+
+    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), true);
+    st.equals(sns.publish.hasOwnProperty('isSinonProxy'), false);
+    st.end();
+  })
+  t.test('all the services are restored when no arguments given to awsMock.restore', function(st){
+    awsMock.mock('SNS', 'publish', function(params, callback){
+      callback(null, "message");
+    });
+    awsMock.mock('DynamoDB', 'putItem', function(params, callback){
+      callback(null, "test");
+    });
+    var sns      = new AWS.SNS();
+    var dynamoDb = new AWS.DynamoDB();
+
+    st.equals(AWS.SNS.isSinonProxy, true);
+    st.equals(AWS.DynamoDB.isSinonProxy, true);
+    st.equals(sns.publish.isSinonProxy, true);
+    st.equals(dynamoDb.putItem.isSinonProxy, true);
+
+    awsMock.restore();
+
+    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
+    st.equals(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
+    st.equals(sns.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equals(dynamoDb.putItem.hasOwnProperty('isSinonProxy'), false);
+    st.end();
+  })
   t.end();
 });

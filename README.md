@@ -19,7 +19,11 @@ https://github.com/dwyl/learn-aws-lambda
 
 Testing your code is *essential* everywhere you need *reliability*.
 
+Using stubs means you can prevent a specific method from being called directly.
+
 ## What?
+
+Uses Sinon.js under the hood to mock the AWS SDK services and associated methods.
 
 ## *How*? (*Usage*)
 
@@ -45,8 +49,9 @@ AWS.mock('SNS', 'publish');
     TESTS
 **/
 
-AWS.restore('SNS');
+AWS.restore('SNS', 'publish');
 AWS.restore('DynamoDB');
+// or AWS.restore(); this will restore all the methods and services 
 ```
 
 ## Documentation
@@ -59,10 +64,16 @@ Replaces a method on an AWS service with a replacement function or string.
 - `method` : method on AWS service to mock e.g. 'publish' (for SNS), 'putItem' for 'DynamoDB'
 - `replace` : a string or function to replace the method
 
-### `AWS.restore(service)`
+### `AWS.restore(service, method)`
 
 Removes the mock to restore the specified AWS service
 
-- `service` : AWS service to restore
+Optional:
+- `service` : AWS service to restore - If only the service is specified, all the methods are restored
+- `method`  : Method on AWS service to restore
+
+If no arguments are given to `AWS.restore` then all the services and their associated methods are restored
+i.e. equivalent to a 'restore all' function.
+
 
 ## Background Reading
