@@ -17,6 +17,12 @@ please checkout our our
 ***Beginners Guide to AWS Lambda***:
 https://github.com/dwyl/learn-aws-lambda
 
+* [Why](#why)
+* [What](#what)
+* [Getting Started](#how)
+* [Documentation](#documentation)
+* [Background Reading](#background-reading)
+
 ## Why?
 
 Testing your code is *essential* everywhere you need *reliability*.
@@ -108,7 +114,7 @@ i.e. equivalent to a 'restore all' function.
 
 ## Background Reading
 
-* (Mocking using Sinon.js)[http://sinonjs.org/docs/]
-* (AWS Lambda)[https://github.com/dwyl/learn-aws-lambda]
+* [Mocking using Sinon.js](http://sinonjs.org/docs/)
+* [AWS Lambda](https://github.com/dwyl/learn-aws-lambda)
 
 **Contributions welcome! Please submit issues or PRs if you think of anything that needs updating/improving**
