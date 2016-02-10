@@ -1,6 +1,6 @@
 {
   "name": "aws-sdk-mock",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,10 @@
     "API-Gateway",
     "S3",
     "DynamoDB",
-    "SNS"
+    "SNS",
+    "test",
+    "mock",
+    "Node.js"
   ],
   "author": "Nikhila Ravi & Jimmy Ruts",
   "license": "ISC",
