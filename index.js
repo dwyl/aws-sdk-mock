@@ -5,7 +5,7 @@
 * - mock
 * - restore
 *
-* Mocking in done in two steps:
+* Mocking is done in two steps:
 * - mock of the constructor for the service on AWS
 * - mock of the method on the service
 **/
@@ -32,7 +32,7 @@ AWS.mock = function(service, method, replace) {
     services[service].methodMocks = []
     mockService(service, method, replace);
   } else {
-    var methodMockExists = services[service].methodMocks.indexOf(method) > -1;
+    var methodMockExists = ~services[service].methodMocks.indexOf(method);
     if (!methodMockExists) {
       mockServiceMethod(service, method, replace);
     } else { return; }
@@ -44,7 +44,7 @@ AWS.mock = function(service, method, replace) {
   are replaced
 
   Creates an instance of the service by calling the real constructor
-  i.e. var client =new AWS.SNS()
+  e.g. var client = new AWS.SNS()
   This is necessary in order to mock the method on the service in the next step
 
   Saves the stub to the services object so it can be restored after the test
@@ -87,18 +87,12 @@ function mockServiceMethod(service, method, replace) {
 */
 
 AWS.restore = function(service, method) {
-
-  var args                  = Array.prototype.slice.call(arguments).length;
-  var restoreService        = args === 1;
-  var restoreServiceMethod  = args === 2
-  // var restoreAll            = args === 0;
-
-  if (restoreServiceMethod){
+  if (method){
     services[service].client[method].restore();
     services[service].methodMocks = services[service].methodMocks.filter(function(mock){
       return mock !== method;
     });
-  } else if (restoreService) {
+  } else if (service) {
     services[service].stub.restore();
     services[service].client.sandbox.restore();
     delete services[service];
