@@ -32,7 +32,7 @@ AWS.mock = function(service, method, replace) {
     services[service].methodMocks = []
     mockService(service, method, replace);
   } else {
-    var methodMockExists = services[service].methodMocks.indexOf(method) > -1 ;
+    var methodMockExists = services[service].methodMocks.indexOf(method) > -1;
     if (!methodMockExists) {
       mockServiceMethod(service, method, replace);
     } else { return; }
