@@ -50,11 +50,12 @@ AWS.mock = function(service, method, replace) {
   Saves the stub to the services object so it can be restored after the test
 */
 function mockService(service, method, replace) {
+  var client               = new services[service].Constructor();
+  client.sandbox           = sinon.sandbox.create();
+  services[service].client = client;
+  mockServiceMethod(service, method, replace);
+
   var serviceStub = sinon.stub(_AWS, service, function() {
-    var client               = new services[service].Constructor();
-    client.sandbox           = sinon.sandbox.create();
-    services[service].client = client;
-    mockServiceMethod(service, method, replace);
     return client;
   });
   services[service].stub = serviceStub;
