@@ -51,6 +51,22 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     })
   })
+  t.test('multiple methods can be mocked on the same service', function(st){
+    awsMock.mock('Lambda', 'getFunction', function(params, callback) {
+      callback(null, 'message');
+    });
+    awsMock.mock('Lambda', 'createFunction', function(params, callback) {
+      callback(null, 'message');
+    });
+    var lambda = new AWS.Lambda();
+    lambda.getFunction({}, function(err, data) {
+      st.equals(data, 'message');
+      lambda.createFunction({}, function(err, data) {
+        st.equals(data, 'message');
+        st.end();
+      })
+    });
+  });
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
