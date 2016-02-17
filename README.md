@@ -86,6 +86,21 @@ exports.handler = function(event, context) {
 }
 ```
 
+### Don't worry about the constructor configuration
+Some constructors of the aws-sdk will require you to pass through a configuration object.
+
+```js
+var csd = new AWS.CloudSearchDomain({
+  endpoint: 'your.end.point',
+  region: 'eu-west'
+});
+```
+Most mocking solutions with throw an `InvalidEndpoint: AWS.CloudSearchDomain requires an explicit 'endpoint' configuration option` when you try to mock this.
+
+
+**aws-sdk-mock** will take care of this during mock creation so you **won't get any configuration errors**!<br>
+If configurations errors still  occur it means you passed wrong configuration in your implementation.
+
 ## Documentation
 
 ### `AWS.mock(service, method, replace)`

@@ -16,95 +16,130 @@ var _AWS  = require('aws-sdk');
 var AWS      = {};
 var services = {};
 
-/*
- Checks if a mock of a service already exists before creating it
-
- Saves the real constructor for the service so it can be invoked
- in the next step e.g save AWS.SNS to the services object
-
- Checks if a mock of a method on a service already exists before creating it
-*/
-
-AWS.mock = function(service, method, replace, config) {
+/**
+ * Stubs the service and registers the method that needs to be mocked.
+ */
+AWS.mock = function(service, method, replace) {
+  // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
     services[service]             = {};
+
+    // Save the real constructor so we can invoke it later on.
     services[service].Constructor = _AWS[service];
-    services[service].methodMocks = []
-    mockService(service, method, replace, config);
-  } else {
-    var methodMockExists = services[service].methodMocks.indexOf(method) > -1;
-    if (!methodMockExists) {
-      mockServiceMethod(service, method, replace);
-    } else { return; }
+    services[service].methodMocks = {};
+    services[service].invoked = false;
+    mockService(service);
+  }
+
+  // Register the method to be mocked out.
+  if(!services[service].methodMocks[method]) {
+    services[service].methodMocks[method] = { replace: replace };
+
+    // If the constructor was already invoked, we need to mock the method here.
+    if(services[service].invoked) {
+      mockServiceMethod(service, services[service].client, method, replace);
+    }
   }
 }
 
-/*
-  Stub the constructor for the service on AWS. e.g. calls of new AWS.SNS()
-  are replaced
+/**
+ * Stub the constructor for the service on AWS.
+ * E.g. calls of new AWS.SNS() are replaced.
+ */
+function mockService(service) {
+  var serviceStub = sinon.stub(_AWS, service, function(args) {
+    services[service].invoked = true;
 
-  Creates an instance of the service by calling the real constructor
-  e.g. var client = new AWS.SNS()
-  This is necessary in order to mock the method on the service in the next step
+    /**
+     * Create an instance of the service by calling the real constructor
+     * we stored before. E.g. var client = new AWS.SNS()
+     * This is necessary in order to mock methods on the service.
+     */
+    var client               = new services[service].Constructor(args);
+    services[service].client = client;
 
-  Saves the stub to the services object so it can be restored after the test
-*/
-function mockService(service, method, replace, config) {
-  var client               = new services[service].Constructor(config);
-  client.sandbox           = sinon.sandbox.create();
-  services[service].client = client;
-  mockServiceMethod(service, method, replace);
-
-  var serviceStub = sinon.stub(_AWS, service, function() {
+    // Once this has been triggered we can mock out all the registered methods.
+    for (var key in services[service].methodMocks) {
+      mockServiceMethod(service, client, key, services[service].methodMocks[key].replace);
+    };
     return client;
   });
   services[service].stub = serviceStub;
-}
+};
 
-/*
-  Stubs the method on the service
-
-  All AWS service methods take two arguments
-    - params: an object
-    - callback: of the form function(err, data){}
-  If the value of 'replace' is a function'it is called with the arguments
-  Otherwise the callback is called with the value of replace
-*/
-
-function mockServiceMethod(service, method, replace) {
-  var client = services[service].client;
-  services[service].methodMocks.push(method);
-  client.sandbox.stub(client, method, function(params, callback) {
+/**
+ *  Stubs the method on a service.
+ *
+ * All AWS service methods take two argument:
+ *  - params: an object.
+ *  - callback: of the form 'function(err, data) {}'.
+ */
+function mockServiceMethod(service, client, method, replace) {
+  services[service].methodMocks[method].stub = sinon.stub(client, method, function(params, callback) {
+    // If the value of 'replace' is a function we call it with the arguments.
     if(typeof(replace) === 'function') {
       return replace(params, callback);
-    } else {
+    }
+    // Else we call the callback with the value of 'replace'.
+    else {
       return callback(null, replace);
     }
   });
 }
 
-/*
-  Restores the mocks for just one method on a service, the entire service, or all mocks
-*/
-
+/**
+ * Restores the mocks for just one method on a service, the entire service, or all mocks.
+ *
+ * When no parameters are passed, everything will be reset.
+ * When only the service is passed, that specific service will be reset.
+ * When a service and method are passed, only that method will be reset.
+ */
 AWS.restore = function(service, method) {
-  if (method){
-    services[service].client[method].restore();
-    services[service].methodMocks = services[service].methodMocks.filter(function(mock){
-      return mock !== method;
-    });
-  } else if (service) {
-    services[service].stub.restore();
-    services[service].client.sandbox.restore();
-    delete services[service];
+  if(!service) {
+    restoreAllServices();
   } else {
-    // restoreAll
-    for (var option in services) {
-      services[option].stub.restore();
-      services[option].client.sandbox.restore();
-      delete services[option];
+    if (method) {
+      restoreMethod(service, method);
+    } else {
+      restoreService(service);
     }
   };
-};
+}
+
+/**
+ * Restores all mocked service and their corresponding methods.
+ */
+function restoreAllServices() {
+  for (var service in services) {
+    restoreService(service);
+  }
+}
+
+/**
+ * Restores a single mocked service and its corresponding methods.
+ */
+function restoreService(service) {
+  restoreAllMethods(service);
+  services[service].stub.restore();
+  delete services[service];
+}
+
+/**
+ * Restores all mocked methods on a service.
+ */
+function restoreAllMethods(service) {
+  for (var method in services[service].methodMocks) {
+    restoreMethod(service, method);
+  }
+}
+
+/**
+ * Restores a single mocked method on a service.
+ */
+function restoreMethod(service, method) {
+  services[service].methodMocks[method]
+  services[service].methodMocks[method].stub.restore();
+  delete services[service].methodMocks[method];
+}
 
 module.exports = AWS;
