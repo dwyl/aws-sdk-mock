@@ -25,12 +25,12 @@ var services = {};
  Checks if a mock of a method on a service already exists before creating it
 */
 
-AWS.mock = function(service, method, replace) {
+AWS.mock = function(service, method, replace, config) {
   if (!services[service]) {
     services[service]             = {};
     services[service].Constructor = _AWS[service];
     services[service].methodMocks = []
-    mockService(service, method, replace);
+    mockService(service, method, replace, config);
   } else {
     var methodMockExists = services[service].methodMocks.indexOf(method) > -1;
     if (!methodMockExists) {
@@ -49,8 +49,8 @@ AWS.mock = function(service, method, replace) {
 
   Saves the stub to the services object so it can be restored after the test
 */
-function mockService(service, method, replace) {
-  var client               = new services[service].Constructor();
+function mockService(service, method, replace, config) {
+  var client               = new services[service].Constructor(config);
   client.sandbox           = sinon.sandbox.create();
   services[service].client = client;
   mockServiceMethod(service, method, replace);
