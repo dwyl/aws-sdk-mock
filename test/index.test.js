@@ -116,17 +116,29 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(dynamoDb.putItem.hasOwnProperty('isSinonProxy'), false);
     st.end();
   })
-  t.test('should mock services with required configurations', function(st){
-    awsMock.mock('CloudSearchDomain', 'search', 'searchString', {
-      endpoint: 'mockEndpoint'
-    });
-    var csd = new AWS.CloudSearchDomain();
+  t.test('Mocked services should use the implementation configuration arguments without complaining they are missing', function(st) {
 
-    csd.search({}, function (err, data) {
-      st.equals(data, 'searchString');
-      awsMock.restore('CloudSearchDomain');
-      st.end();
+    awsMock.mock('CloudSearchDomain', 'search', function(params, callback) {
+      return callback(null, 'message');
     });
+
+    var csd = new AWS.CloudSearchDomain({
+      endpoint: 'some endpoint',
+      region: 'eu-west'
+    });
+
+    awsMock.mock('CloudSearchDomain', 'suggest', function(params, callback) {
+      return callback(null, 'message');
+    });
+
+    csd.search({}, function(err, data) {
+      st.equals(data, 'message');
+    });
+
+    csd.suggest({}, function(err, data) {
+      st.equals(data, 'message');
+    });
+    st.end();
   })
   t.end();
 });
