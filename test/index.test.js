@@ -100,22 +100,100 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('DynamoDB', 'putItem', function(params, callback){
       callback(null, "test");
     });
+    awsMock.mock('DynamoDB.DocumentClient', 'put', function(params, callback){
+      callback(null, "test");
+    });
     var sns      = new AWS.SNS();
+    var docClient = new AWS.DynamoDB.DocumentClient();
     var dynamoDb = new AWS.DynamoDB();
 
     st.equals(AWS.SNS.isSinonProxy, true);
+    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
     st.equals(AWS.DynamoDB.isSinonProxy, true);
     st.equals(sns.publish.isSinonProxy, true);
+    st.equals(docClient.put.isSinonProxy, true);
     st.equals(dynamoDb.putItem.isSinonProxy, true);
 
     awsMock.restore();
 
     st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
+    st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
     st.equals(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
     st.equals(sns.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equals(docClient.put.hasOwnProperty('isSinonProxy'), false);
     st.equals(dynamoDb.putItem.hasOwnProperty('isSinonProxy'), false);
     st.end();
   })
+  t.test('a nested service can be mocked properly', function(st){
+    awsMock.mock('DynamoDB.DocumentClient', 'put', 'message');
+    var docClient = new AWS.DynamoDB.DocumentClient();
+    awsMock.mock('DynamoDB.DocumentClient', 'put', function(params, callback) {
+      callback(null, 'test');
+    });
+    awsMock.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
+      callback(null, 'test');
+    });
+
+    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equals(docClient.put.isSinonProxy, true);
+    st.equals(docClient.get.isSinonProxy, true);
+
+    docClient.put({}, function(err, data){
+      st.equals(data, 'message');
+      docClient.get({}, function(err, data){
+        st.equals(data, 'test');
+
+        awsMock.restore('DynamoDB.DocumentClient', 'get');
+        st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+        st.equals(docClient.get.hasOwnProperty('isSinonProxy'), false);
+
+        awsMock.restore('DynamoDB.DocumentClient');
+        st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
+        st.equals(docClient.put.hasOwnProperty('isSinonProxy'), false);
+        st.end();
+      });
+    })
+  });
+  t.test('a mocked service and a mocked nested service can coexist as long as the nested service is mocked first', function(st) {
+    awsMock.mock('DynamoDB.DocumentClient', 'get', 'message');
+    awsMock.mock('DynamoDB', 'getItem', 'test');
+    var docClient = new AWS.DynamoDB.DocumentClient();
+    var dynamoDb = new AWS.DynamoDB();
+
+    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equals(AWS.DynamoDB.isSinonProxy, true);
+    st.equals(docClient.get.isSinonProxy, true);
+    st.equals(dynamoDb.getItem.isSinonProxy, true);
+
+    awsMock.restore('DynamoDB');
+    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equals(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
+    st.equals(docClient.get.isSinonProxy, true);
+    st.equals(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
+
+    awsMock.mock('DynamoDB', 'getItem', 'test');
+    var dynamoDb = new AWS.DynamoDB();
+    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equals(AWS.DynamoDB.isSinonProxy, true);
+    st.equals(docClient.get.isSinonProxy, true);
+    st.equals(dynamoDb.getItem.isSinonProxy, true);
+
+    awsMock.restore('DynamoDB.DocumentClient');
+
+    // the first assertion is true because DynamoDB is still mocked
+    st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), true);
+    st.equals(AWS.DynamoDB.isSinonProxy, true);
+    st.equals(docClient.get.hasOwnProperty('isSinonProxy'), false);
+    st.equals(dynamoDb.getItem.isSinonProxy, true);
+
+    awsMock.restore('DynamoDB');
+    st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
+    st.equals(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
+    st.equals(docClient.get.hasOwnProperty('isSinonProxy'), false);
+    st.equals(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
+    st.end();
+
+  });
   t.test('Mocked services should use the implementation configuration arguments without complaining they are missing', function(st) {
 
     awsMock.mock('CloudSearchDomain', 'search', function(params, callback) {
