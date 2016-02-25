@@ -86,6 +86,34 @@ exports.handler = function(event, context) {
 }
 ```
 
+### Nested services
+
+It is possible to mock nested services like `DynamoDB.DocumentClient`. Simply use this dot-notation name as the `service` parameter to the `mock()` and `restore()` methods:
+
+```
+AWS.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
+  callback(null, {Item: {Key: 'Value'}});
+});
+```
+
+**NB: Use caution when mocking both a nested service and its parent service.** The nested service should be mocked before and restored after its parent:
+
+```
+// OK
+AWS.mock('DynamoDB.DocumentClient', 'get', 'message');
+AWS.mock('DynamoDB', 'describeTable', 'message');
+AWS.restore('DynamoDB');
+AWS.restore('DynamoDB.DocumentClient');
+
+// Not OK
+AWS.mock('DynamoDB', 'describeTable', 'message');
+AWS.mock('DynamoDB.DocumentClient', 'get', 'message');
+
+// Not OK
+AWS.restore('DynamoDB.DocumentClient');
+AWS.restore('DynamoDB');
+```
+
 ### Don't worry about the constructor configuration
 Some constructors of the aws-sdk will require you to pass through a configuration object.
 
