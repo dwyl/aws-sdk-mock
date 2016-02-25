@@ -11,6 +11,7 @@
 **/
 
 var sinon = require('sinon');
+var traverse = require('traverse');
 var _AWS  = require('aws-sdk');
 
 var AWS      = {};
@@ -24,8 +25,11 @@ AWS.mock = function(service, method, replace) {
   if (!services[service]) {
     services[service]             = {};
 
-    // Save the real constructor so we can invoke it later on.
-    services[service].Constructor = _AWS[service];
+    /**
+     * Save the real constructor so we can invoke it later on.
+     * Uses traverse for easy access to nested services (dot-separated)
+     */
+    services[service].Constructor = traverse(_AWS).get(service.split('.'));
     services[service].methodMocks = {};
     services[service].invoked = false;
     mockService(service);
@@ -47,7 +51,11 @@ AWS.mock = function(service, method, replace) {
  * E.g. calls of new AWS.SNS() are replaced.
  */
 function mockService(service) {
-  var serviceStub = sinon.stub(_AWS, service, function(args) {
+  var nestedServices = service.split('.');
+  var method = nestedServices.pop();
+  var object = traverse(_AWS).get(nestedServices);
+
+  var serviceStub = sinon.stub(object, method, function(args) {
     services[service].invoked = true;
 
     /**
