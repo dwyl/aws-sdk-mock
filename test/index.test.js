@@ -23,6 +23,21 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     })
   })
+  t.test('method which accepts any number of arguments can be mocked', function(st) {
+    awsMock.mock('S3', 'getSignedUrl', 'message');
+    var s3 = new AWS.S3();
+    s3.getSignedUrl('getObject', {}, function(err, data) {
+      st.equals(data, 'message');
+      awsMock.mock('S3', 'upload', function(params, options, callback) {
+        callback(null, options);
+      });
+      s3.upload({}, {test: 'message'}, function(err, data) {
+        st.equals(data.test, 'message');
+        awsMock.restore('S3');
+        st.end();
+      });
+    });
+  });
   t.test('method is not re-mocked if a mock already exists', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
