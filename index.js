@@ -83,13 +83,14 @@ function mockService(service) {
  *  - callback: of the form 'function(err, data) {}'.
  */
 function mockServiceMethod(service, client, method, replace) {
-  services[service].methodMocks[method].stub = sinon.stub(client, method, function(params, callback) {
+  services[service].methodMocks[method].stub = sinon.stub(client, method, function() {
     // If the value of 'replace' is a function we call it with the arguments.
     if(typeof(replace) === 'function') {
-      return replace(params, callback);
+      return replace.apply(replace, arguments);
     }
     // Else we call the callback with the value of 'replace'.
     else {
+      var callback = arguments[arguments.length - 1];
       return callback(null, replace);
     }
   });
