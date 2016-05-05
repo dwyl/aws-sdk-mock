@@ -98,8 +98,10 @@ function mockServiceMethod(service, client, method, replace) {
         }
       }
     }
-
-    return (function invokeMock() {
+    
+    return invokeMock()
+    
+    function invokeMock() {
       // If the value of 'replace' is a function we call it with the arguments.
       if(typeof(replace) === 'function') {
         return replace.apply(replace, args);
@@ -109,7 +111,7 @@ function mockServiceMethod(service, client, method, replace) {
         var callback = args[args.length - 1];
         return callback(null, replace);
       }
-    })()
+    }
   });
 }
 
