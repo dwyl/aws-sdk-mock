@@ -87,7 +87,7 @@ function mockServiceMethod(service, client, method, replace) {
     var args = Array.prototype.slice.call(arguments);
 
     // If the method was called w/o a callback function, assume they are consuming a Promise
-    if(typeof(AWS.Promise) === 'function' && typeof(args[args.length - 1]) !== 'function') {
+    if(typeof(args[args.length - 1]) !== 'function' && typeof(AWS.Promise) === 'function') {
       return {
         promise: function() {
           return new AWS.Promise(function(resolve, reject) {
