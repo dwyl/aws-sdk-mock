@@ -98,9 +98,9 @@ function mockServiceMethod(service, client, method, replace) {
         }
       }
     }
-    
+
     return invokeMock()
-    
+
     function invokeMock() {
       // If the value of 'replace' is a function we call it with the arguments.
       if(typeof(replace) === 'function') {
@@ -172,8 +172,10 @@ function restoreMethod(service, method) {
 
 (function(){
   var setPromisesDependency = _AWS.config.setPromisesDependency;
+  /* istanbul ignore next */
+  /* only to support for older versions of aws-sdk */
   if (typeof(setPromisesDependency) === 'function') {
-    AWS.Promise = typeof(Promise) === 'function' ? Promise : null;
+    AWS.Promise = global.Promise
     _AWS.config.setPromisesDependency = function(p) {
       AWS.Promise = p;
       return setPromisesDependency(p);
