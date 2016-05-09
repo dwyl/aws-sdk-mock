@@ -44,6 +44,7 @@ AWS.mock = function(service, method, replace) {
       mockServiceMethod(service, services[service].client, method, replace);
     }
   }
+  return services[service].methodMocks[method];
 }
 
 /**
@@ -87,19 +88,19 @@ function mockServiceMethod(service, client, method, replace) {
     var args = Array.prototype.slice.call(arguments);
 
     // If the method was called w/o a callback function, assume they are consuming a Promise
-    if(typeof(args[args.length - 1]) !== 'function' && typeof(AWS.Promise) === 'function') {
+    if(typeof(args[(args.length || 1) - 1]) !== 'function' && typeof(AWS.Promise) === 'function') {
       return {
         promise: function() {
           return new AWS.Promise(function(resolve, reject) {
             // Provide a callback function for the mock to invoke
             args.push(function(err, val) { return err ? reject(err) : resolve(val) })
-            return invokeMock()
+            return invokeMock();
           })
         }
       }
+    } else {
+      return invokeMock();
     }
-
-    return invokeMock()
 
     function invokeMock() {
       // If the value of 'replace' is a function we call it with the arguments.
