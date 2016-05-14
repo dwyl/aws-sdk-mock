@@ -44,6 +44,7 @@ AWS.mock = function(service, method, replace) {
       mockServiceMethod(service, services[service].client, method, replace);
     }
   }
+  return services[service].methodMocks[method];
 }
 
 /**

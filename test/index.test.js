@@ -233,5 +233,10 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     st.end();
   })
+  t.test('Mocked service should return the sinon stub', function(st) {
+    var stub = awsMock.mock('CloudSearchDomain', 'search');
+    st.equals(stub.stub.isSinonProxy, true);
+    st.end();
+  });
   t.end();
 });

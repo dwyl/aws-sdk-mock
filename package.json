@@ -4,7 +4,7 @@
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "index.js",
   "scripts": {
-    "dev": "tape test/*.js",
+    "nocov": "tape test/*.js",
     "test": "istanbul cover ./node_modules/tape/bin/tape ./test/*.js",
     "coverage": "istanbul cover ./node_modules/tape/bin/tape ./test/*.js && istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
   },
