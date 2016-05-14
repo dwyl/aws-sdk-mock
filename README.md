@@ -129,6 +129,23 @@ Most mocking solutions with throw an `InvalidEndpoint: AWS.CloudSearchDomain req
 **aws-sdk-mock** will take care of this during mock creation so you **won't get any configuration errors**!<br>
 If configurations errors still  occur it means you passed wrong configuration in your implementation.
 
+
+### Setting the `aws-sdk` module explicitly
+
+Project structures that don't include the `aws-sdk` at the top level `node_modules` project folder will not be properly mocked.  An example of this would be installing the `aws-sdk` in a nested project directory. You can get around this by explicitly setting the path to a nested `aws-sdk` module using `setSDK()`.
+
+Example:
+```js
+var path = require('path');
+var AWS = require('aws-sdk-mock');
+
+AWS.setSDK(path.resolve('../../functions/foo/node_modules/aws-sdk'));
+
+/**
+    TESTS
+**/
+```
+
 ## Documentation
 
 ### `AWS.mock(service, method, replace)`
@@ -154,6 +171,16 @@ Removes the mock to restore the specified AWS service
 
 If `AWS.restore` is called without arguments (`AWS.restore()`) then all the services and their associated methods are restored
 i.e. equivalent to a 'restore all' function.
+
+
+### `AWS.setSDK(path)`
+
+Explicitly set the require path for the `aws-sdk`
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `path`      | string    | Required     | Path to a nested AWS SDK node module     |
+
 
 ## Background Reading
 
