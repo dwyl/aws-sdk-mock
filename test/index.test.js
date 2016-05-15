@@ -240,3 +240,26 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.end();
 });
+
+test('AWS.setSDK function should mock a specific AWS module', function(t) {
+  t.test('Specific Modules can be set for mocking', function(st) {
+    awsMock.setSDK('aws-sdk');
+    awsMock.mock('SNS', 'publish', 'message');
+    var sns = new AWS.SNS();
+    sns.publish({}, function(err, data){
+      st.equals(data, 'message');
+      awsMock.restore('SNS');
+      st.end();
+    })
+  });
+
+  t.test('Setting the aws-sdk to the wrong module can cause an exception when mocking', function(st) {
+    awsMock.setSDK('sinon');
+    st.throws(function() {
+      awsMock.mock('SNS', 'publish', 'message')
+    });
+    awsMock.setSDK('aws-sdk');
+    st.end();
+  });
+  t.end();
+});
