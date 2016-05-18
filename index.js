@@ -18,6 +18,13 @@ var AWS      = {};
 var services = {};
 
 /**
+ * Sets the aws-sdk to be mocked.
+ */
+AWS.setSDK = function(path) {
+  _AWS = require(path);
+};
+
+/**
  * Stubs the service and registers the method that needs to be mocked.
  */
 AWS.mock = function(service, method, replace) {
