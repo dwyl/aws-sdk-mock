@@ -277,5 +277,33 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     st.end();
   })
+  t.test('Mocked service should return the sinon stub', function(st) {
+    var stub = awsMock.mock('CloudSearchDomain', 'search');
+    st.equals(stub.stub.isSinonProxy, true);
+    st.end();
+  });
+  t.end();
+});
+
+test('AWS.setSDK function should mock a specific AWS module', function(t) {
+  t.test('Specific Modules can be set for mocking', function(st) {
+    awsMock.setSDK('aws-sdk');
+    awsMock.mock('SNS', 'publish', 'message');
+    var sns = new AWS.SNS();
+    sns.publish({}, function(err, data){
+      st.equals(data, 'message');
+      awsMock.restore('SNS');
+      st.end();
+    })
+  });
+
+  t.test('Setting the aws-sdk to the wrong module can cause an exception when mocking', function(st) {
+    awsMock.setSDK('sinon');
+    st.throws(function() {
+      awsMock.mock('SNS', 'publish', 'message')
+    });
+    awsMock.setSDK('aws-sdk');
+    st.end();
+  });
   t.end();
 });
