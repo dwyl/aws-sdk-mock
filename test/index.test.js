@@ -82,6 +82,50 @@ test('AWS.mock function should mock AWS service and method on the service', func
       })
     });
   });
+  if (typeof(Promise) === 'function') {
+    t.test('promises are supported', function(st){
+      awsMock.restore('Lambda', 'getFunction');
+      awsMock.restore('Lambda', 'createFunction');
+      var error = new Error('on purpose');
+      awsMock.mock('Lambda', 'getFunction', function(params, callback) {
+        callback(null, 'message');
+      });
+      awsMock.mock('Lambda', 'createFunction', function(params, callback) {
+        callback(error, 'message');
+      });
+      var lambda = new AWS.Lambda();
+      lambda.getFunction({}).promise().then(function(data) {
+        st.equals(data, 'message');
+      }).then(function(){
+        return lambda.createFunction({}).promise()
+      }).catch(function(data){
+        st.equals(data, error);
+        st.end();
+      });
+    })
+    t.test('promises can be configured', function(st){
+      awsMock.restore('Lambda', 'getFunction');
+      awsMock.mock('Lambda', 'getFunction', function(params, callback) {
+        callback(null, 'message');
+      });
+      var lambda = new AWS.Lambda();
+      function P(handler) {
+        var self = this
+        function yay (value) {
+          self.value = value
+        }
+        handler(yay, function(){})
+      }
+      P.prototype.then = function(yay) { if (this.value) yay(this.value) };
+      AWS.config.setPromisesDependency(P)
+      var promise = lambda.getFunction({}).promise()
+      st.equals(promise.constructor.name, 'P')
+      promise.then(function(data) {
+        st.equals(data, 'message');
+        st.end();
+      });
+    })
+  }
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");

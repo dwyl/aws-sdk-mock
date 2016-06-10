@@ -92,14 +92,33 @@ function mockService(service) {
  */
 function mockServiceMethod(service, client, method, replace) {
   services[service].methodMocks[method].stub = sinon.stub(client, method, function() {
-    // If the value of 'replace' is a function we call it with the arguments.
-    if(typeof(replace) === 'function') {
-      return replace.apply(replace, arguments);
+    var args = Array.prototype.slice.call(arguments);
+
+    // If the method was called w/o a callback function, assume they are consuming a Promise
+    if(typeof(args[(args.length || 1) - 1]) !== 'function' && typeof(AWS.Promise) === 'function') {
+      return {
+        promise: function() {
+          return new AWS.Promise(function(resolve, reject) {
+            // Provide a callback function for the mock to invoke
+            args.push(function(err, val) { return err ? reject(err) : resolve(val) })
+            return invokeMock();
+          })
+        }
+      }
+    } else {
+      return invokeMock();
     }
-    // Else we call the callback with the value of 'replace'.
-    else {
-      var callback = arguments[arguments.length - 1];
-      return callback(null, replace);
+
+    function invokeMock() {
+      // If the value of 'replace' is a function we call it with the arguments.
+      if(typeof(replace) === 'function') {
+        return replace.apply(replace, args);
+      }
+      // Else we call the callback with the value of 'replace'.
+      else {
+        var callback = args[args.length - 1];
+        return callback(null, replace);
+      }
     }
   });
 }
@@ -158,5 +177,18 @@ function restoreMethod(service, method) {
   services[service].methodMocks[method].stub.restore();
   delete services[service].methodMocks[method];
 }
+
+(function(){
+  var setPromisesDependency = _AWS.config.setPromisesDependency;
+  /* istanbul ignore next */
+  /* only to support for older versions of aws-sdk */
+  if (typeof(setPromisesDependency) === 'function') {
+    AWS.Promise = global.Promise
+    _AWS.config.setPromisesDependency = function(p) {
+      AWS.Promise = p;
+      return setPromisesDependency(p);
+    };
+  }
+})()
 
 module.exports = AWS;
