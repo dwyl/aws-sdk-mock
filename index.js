@@ -10,6 +10,7 @@
 * - mock of the method on the service
 **/
 
+var debug = require('debug');
 var sinon = require('sinon');
 var traverse = require('traverse');
 var _AWS  = require('aws-sdk');
@@ -155,10 +156,12 @@ function restoreAllServices() {
  * Restores a single mocked service and its corresponding methods.
  */
 function restoreService(service) {
-  restoreAllMethods(service);
-  if (services[service].stub) {
+  if (services[service]) {
+    restoreAllMethods(service);
     services[service].stub.restore();
     delete services[service];
+  } else {
+    debug.log('Service ' + service + ' was never instantiated yet you try to restore it.');
   }
 }
 
@@ -175,10 +178,13 @@ function restoreAllMethods(service) {
  * Restores a single mocked method on a service.
  */
 function restoreMethod(service, method) {
-  if (services[service] && services[service].methodMocks[method] && services[service].methodMocks[method].stub) {
+  if (services[service] && services[service].methodMocks[method]) {
     services[service].methodMocks[method].stub.restore();
     delete services[service].methodMocks[method];
+  } else {
+    debug.log('Method ' + service + ' was never instantiated yet you try to restore it.');
   }
+
 }
 
 (function(){
