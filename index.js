@@ -156,8 +156,10 @@ function restoreAllServices() {
  */
 function restoreService(service) {
   restoreAllMethods(service);
-  services[service].stub.restore();
-  delete services[service];
+  if (services[service].stub) {
+    services[service].stub.restore();
+    delete services[service];
+  }
 }
 
 /**
@@ -173,9 +175,10 @@ function restoreAllMethods(service) {
  * Restores a single mocked method on a service.
  */
 function restoreMethod(service, method) {
-  services[service].methodMocks[method]
-  services[service].methodMocks[method].stub.restore();
-  delete services[service].methodMocks[method];
+  if (services[service] && services[service].methodMocks[method] && services[service].methodMocks[method].stub) {
+    services[service].methodMocks[method].stub.restore();
+    delete services[service].methodMocks[method];
+  }
 }
 
 (function(){
