@@ -283,6 +283,18 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.end();
   });
   t.end();
+  t.test('Restore should not fail when the stub did not exist.', function (st) {
+    // This test will fail when restoring throws unneeded errors.
+    try {
+      var stub = awsMock.mock('CloudSearchDomain', 'search');
+      awsMock.restore('SES', 'sendEmail');
+      awsMock.restore('CloudSearchDomain', 'doesnotexist');
+      st.end();
+    } catch (e) {
+      console.log(e)
+    }
+
+  });
 });
 
 test('AWS.setSDK function should mock a specific AWS module', function(t) {

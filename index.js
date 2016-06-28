@@ -155,9 +155,13 @@ function restoreAllServices() {
  * Restores a single mocked service and its corresponding methods.
  */
 function restoreService(service) {
-  restoreAllMethods(service);
-  services[service].stub.restore();
-  delete services[service];
+  if (services[service]) {
+    restoreAllMethods(service);
+    services[service].stub.restore();
+    delete services[service];
+  } else {
+    console.log('Service ' + service + ' was never instantiated yet you try to restore it.');
+  }
 }
 
 /**
@@ -173,9 +177,13 @@ function restoreAllMethods(service) {
  * Restores a single mocked method on a service.
  */
 function restoreMethod(service, method) {
-  services[service].methodMocks[method]
-  services[service].methodMocks[method].stub.restore();
-  delete services[service].methodMocks[method];
+  if (services[service] && services[service].methodMocks[method]) {
+    services[service].methodMocks[method].stub.restore();
+    delete services[service].methodMocks[method];
+  } else {
+    console.log('Method ' + service + ' was never instantiated yet you try to restore it.');
+  }
+
 }
 
 (function(){
