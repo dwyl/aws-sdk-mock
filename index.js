@@ -157,7 +157,8 @@ function restoreAllServices() {
 function restoreService(service) {
   if (services[service]) {
     restoreAllMethods(service);
-    services[service].stub.restore();
+    if( services[service].stub)
+      services[service].stub.restore();
     delete services[service];
   } else {
     console.log('Service ' + service + ' was never instantiated yet you try to restore it.');
