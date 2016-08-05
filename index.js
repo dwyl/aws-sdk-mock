@@ -179,7 +179,9 @@ function restoreAllMethods(service) {
  */
 function restoreMethod(service, method) {
   if (services[service] && services[service].methodMocks[method]) {
-    services[service].methodMocks[method].stub.restore();
+    if (services[service].methodMocks[method].stub) {
+      services[service].methodMocks[method].stub.restore();
+    }
     delete services[service].methodMocks[method];
   } else {
     console.log('Method ' + service + ' was never instantiated yet you try to restore it.');
