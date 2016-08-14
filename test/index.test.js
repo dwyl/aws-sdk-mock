@@ -1,6 +1,7 @@
 var test     = require('tape');
 var awsMock = require('../index.js');
 var AWS      = require('aws-sdk');
+var isNodeStream = require('is-node-stream');
 
 test('AWS.mock function should mock AWS service and method on the service', function(t){
   t.test('mock function replaces method with a function that returns replace string', function(st){
@@ -126,6 +127,16 @@ test('AWS.mock function should mock AWS service and method on the service', func
       });
     })
   }
+  t.test('request object supports createReadStream', function(st) {
+    awsMock.mock('S3', 'getObject', 'body');
+    var s3 = new AWS.S3();
+    var req = s3.getObject('getObject', {}, function(err, data) {});
+    st.ok(isNodeStream(req.createReadStream()));
+    // with or without callback
+    req = s3.getObject('getObject', {});
+    st.ok(isNodeStream(req.createReadStream()));
+    st.end();
+  });
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
