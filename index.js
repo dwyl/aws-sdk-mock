@@ -137,11 +137,11 @@ function mockServiceMethod(service, client, method, replace) {
         return promise;
       } : undefined,
       createReadStream: function() {
-        return new Readable({
-          read: function(size) {
-            this.push(null);
-          }
-        });
+        var stream = new Readable();
+        stream._read = function(size) {
+          this.push(null);
+        };
+        return stream;
       }
     };
     // If the value of 'replace' is a function we call it with the arguments.
