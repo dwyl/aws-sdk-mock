@@ -39,6 +39,7 @@
   "devDependencies": {
     "is-node-stream": "^1.0.0",
     "istanbul": "^0.4.2",
+    "stream-to-array": "^2.3.0",
     "tape": "^4.4.0"
   }
 }

@@ -2,6 +2,7 @@ var test     = require('tape');
 var awsMock = require('../index.js');
 var AWS      = require('aws-sdk');
 var isNodeStream = require('is-node-stream');
+var streamToArray = require('stream-to-array');
 
 test('AWS.mock function should mock AWS service and method on the service', function(t){
   t.test('mock function replaces method with a function that returns replace string', function(st){
@@ -104,6 +105,26 @@ test('AWS.mock function should mock AWS service and method on the service', func
         st.end();
       });
     })
+    t.test('promises work with async completion', function(st){
+      awsMock.restore('Lambda', 'getFunction');
+      awsMock.restore('Lambda', 'createFunction');
+      var error = new Error('on purpose');
+      awsMock.mock('Lambda', 'getFunction', function(params, callback) {
+        setTimeout(callback.bind(this, null, 'message'), 10);
+      });
+      awsMock.mock('Lambda', 'createFunction', function(params, callback) {
+        setTimeout(callback.bind(this, error, 'message'), 10);
+      });
+      var lambda = new AWS.Lambda();
+      lambda.getFunction({}).promise().then(function(data) {
+        st.equals(data, 'message');
+      }).then(function(){
+        return lambda.createFunction({}).promise()
+      }).catch(function(data){
+        st.equals(data, error);
+        st.end();
+      });
+    })
     t.test('promises can be configured', function(st){
       awsMock.restore('Lambda', 'getFunction');
       awsMock.mock('Lambda', 'getFunction', function(params, callback) {
@@ -135,7 +156,13 @@ test('AWS.mock function should mock AWS service and method on the service', func
     // with or without callback
     req = s3.getObject('getObject', {});
     st.ok(isNodeStream(req.createReadStream()));
-    st.end();
+    // stream is currently always empty but that's subject to change.
+    // let's just consume it and ignore the contents
+    req = s3.getObject('getObject', {});
+    var stream = req.createReadStream();
+    streamToArray(stream, function() {
+      st.end();
+    });
   });
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
