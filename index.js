@@ -127,9 +127,9 @@ function mockServiceMethod(service, client, method, replace) {
       }
     };
     var request = {
-      promise: (typeof(AWS.Promise) === 'function') ? function() {
+      promise: havePromises ? function() {
         if (!promise) {
-          promise = new Promise(function (resolve_, reject_) {
+          promise = new AWS.Promise(function (resolve_, reject_) {
             resolve = resolve_;
             reject = reject_;
           });
