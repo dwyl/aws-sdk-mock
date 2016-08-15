@@ -13,6 +13,7 @@
 var sinon = require('sinon');
 var traverse = require('traverse');
 var _AWS  = require('aws-sdk');
+var Readable = require('stream').Readable;
 
 var AWS      = {};
 var services = {};
@@ -94,32 +95,64 @@ function mockServiceMethod(service, client, method, replace) {
   services[service].methodMocks[method].stub = sinon.stub(client, method, function() {
     var args = Array.prototype.slice.call(arguments);
 
-    // If the method was called w/o a callback function, assume they are consuming a Promise
-    if(typeof(args[(args.length || 1) - 1]) !== 'function' && typeof(AWS.Promise) === 'function') {
-      return {
-        promise: function() {
-          return new AWS.Promise(function(resolve, reject) {
-            // Provide a callback function for the mock to invoke
-            args.push(function(err, val) { return err ? reject(err) : resolve(val) })
-            return invokeMock();
-          })
+    var userArgs, userCallback;
+    if (typeof(args[(args.length || 1) - 1]) === 'function') {
+      userArgs = args.slice(0, -1);
+      userCallback = args[(args.length || 1) - 1];
+    } else {
+      userArgs = args;
+    }
+    var havePromises = typeof(AWS.Promise) === 'function';
+    var promise, resolve, reject;
+    var makeResolved = function(value) {return new AWS.Promise(function (res) { res(value); }); };
+    var makeRejected = function(value) {return new AWS.Promise(function (res, rej) { rej(value); }); };
+    var callback = function(err, data) {
+      if (havePromises) {
+        if (err) {
+          if (reject) {
+            reject(err);
+          } else {
+            promise = makeRejected(err);
+          }
+        } else {
+          if (resolve) {
+            resolve(data);
+          } else {
+            promise = makeResolved(data);
+          }
         }
       }
-    } else {
-      return invokeMock();
-    }
-
-    function invokeMock() {
-      // If the value of 'replace' is a function we call it with the arguments.
-      if(typeof(replace) === 'function') {
-        return replace.apply(replace, args);
+      if (userCallback) {
+        userCallback(err, data);
       }
-      // Else we call the callback with the value of 'replace'.
-      else {
-        var callback = args[args.length - 1];
-        return callback(null, replace);
+    };
+    var request = {
+      promise: havePromises ? function() {
+        if (!promise) {
+          promise = new AWS.Promise(function (resolve_, reject_) {
+            resolve = resolve_;
+            reject = reject_;
+          });
+        }
+        return promise;
+      } : undefined,
+      createReadStream: function() {
+        var stream = new Readable();
+        stream._read = function(size) {
+          this.push(null);
+        };
+        return stream;
       }
+    };
+    // If the value of 'replace' is a function we call it with the arguments.
+    if(typeof(replace) === 'function') {
+      replace.apply(replace, userArgs.concat([callback]));
     }
+    // Else we call the callback with the value of 'replace'.
+    else {
+      callback(null, replace);
+    }
+    return request;
   });
 }
 

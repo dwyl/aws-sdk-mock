@@ -37,6 +37,8 @@
     "traverse": "^0.6.6"
   },
   "devDependencies": {
+    "concat-stream": "^1.5.1",
+    "is-node-stream": "^1.0.0",
     "istanbul": "^0.4.2",
     "tape": "^4.4.0"
   }
