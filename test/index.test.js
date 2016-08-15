@@ -2,7 +2,7 @@ var test     = require('tape');
 var awsMock = require('../index.js');
 var AWS      = require('aws-sdk');
 var isNodeStream = require('is-node-stream');
-var streamToArray = require('stream-to-array');
+var concatStream = require('concat-stream');
 
 test('AWS.mock function should mock AWS service and method on the service', function(t){
   t.test('mock function replaces method with a function that returns replace string', function(st){
@@ -160,9 +160,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
     // let's just consume it and ignore the contents
     req = s3.getObject('getObject', {});
     var stream = req.createReadStream();
-    streamToArray(stream, function() {
+    stream.pipe(concatStream(function() {
       st.end();
-    });
+    }));
   });
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
