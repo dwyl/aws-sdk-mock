@@ -4,6 +4,8 @@ var AWS      = require('aws-sdk');
 var isNodeStream = require('is-node-stream');
 var concatStream = require('concat-stream');
 
+AWS.config.paramValidation = false;
+
 test('AWS.mock function should mock AWS service and method on the service', function(t){
   t.test('mock function replaces method with a function that returns replace string', function(st){
     awsMock.mock('SNS', 'publish', 'message');
@@ -38,6 +40,24 @@ test('AWS.mock function should mock AWS service and method on the service', func
         awsMock.restore('S3');
         st.end();
       });
+    });
+  });
+  t.test('method fails on invalid input if paramValidation is set', function(st) {
+    awsMock.mock('S3', 'getObject', {Body: 'body'});
+    var s3 = new AWS.S3({paramValidation: true});
+    s3.getObject({Bucket: 'b', notKey: 'k'}, function(err, data) {
+      st.ok(err);
+      st.notOk(data);
+      st.end();
+    });
+  });
+  t.test('method succeeds on valid input when paramValidation is set', function(st) {
+    awsMock.mock('S3', 'getObject', {Body: 'body'});
+    var s3 = new AWS.S3({paramValidation: true});
+    s3.getObject({Bucket: 'b', Key: 'k'}, function(err, data) {
+      st.notOk(err);
+      st.equals(data.Body, 'body');
+      st.end();
     });
   });
   t.test('method is not re-mocked if a mock already exists', function(st){
