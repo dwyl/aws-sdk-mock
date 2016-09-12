@@ -144,6 +144,19 @@ function mockServiceMethod(service, client, method, replace) {
         return stream;
       }
     };
+
+    if ((client.config || _AWS.config).paramValidation) {
+      try {
+        var inputRules = client.api.operations[method].input;
+        var outputRules = client.api.operations[method].output;
+        var params = userArgs[(userArgs.length || 1) - 1];
+        new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, params);
+      } catch (e) {
+        callback(e, null);
+        return request;
+      }
+    }
+
     // If the value of 'replace' is a function we call it with the arguments.
     if(typeof(replace) === 'function') {
       replace.apply(replace, userArgs.concat([callback]));
