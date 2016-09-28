@@ -373,7 +373,36 @@ test('AWS.setSDK function should mock a specific AWS module', function(t) {
       awsMock.mock('SNS', 'publish', 'message')
     });
     awsMock.setSDK('aws-sdk');
+    awsMock.restore()
+
     st.end();
   });
   t.end();
 });
+
+test('AWS.setSDKInstance function should mock a specific AWS module', function(t) {
+  t.test('Specific Modules can be set for mocking', function(st) {
+    var aws2 = require('aws-sdk')
+    awsMock.setSDKInstance(aws2);
+    awsMock.mock('SNS', 'publish', 'message2');
+    var sns = new AWS.SNS();
+    sns.publish({}, function(err, data){
+      st.equals(data, 'message2');
+      awsMock.restore('SNS');
+      st.end();
+    })
+  });
+
+  t.test('Setting the aws-sdk to the wrong instance can cause an exception when mocking', function(st) {
+    var bad = {}
+    awsMock.setSDKInstance(bad);
+    st.throws(function() {
+      awsMock.mock('SNS', 'publish', 'message')
+    });
+    awsMock.setSDKInstance(AWS);
+    awsMock.restore()
+    st.end();
+  });
+  t.end();
+});
+

@@ -146,6 +146,26 @@ AWS.setSDK(path.resolve('../../functions/foo/node_modules/aws-sdk'));
 **/
 ```
 
+### Setting the `aws-sdk` object explicitly
+
+Due to transpiling, code written in TypeScript or ES6 may not correctly mock because the `aws-sdk` object created within `aws-sdk-mock` will not be equal to the object created within the code to test. In addition, it is sometimes convenient to have multiple SDK instances in a test. For either scenario, it is possible to pass in the SDK object directly using `setSDKInstance()`.
+
+Example:
+```js
+var path = require('path');
+var AWS = require('aws-sdk-mock');
+var AWS_SDK = require('aws-sdk')
+
+AWS.setSDKInstance(AWS_SDK);
+
+/**
+    TESTS
+**/
+```
+
+
+
+
 ## Documentation
 
 ### `AWS.mock(service, method, replace)`
@@ -180,6 +200,15 @@ Explicitly set the require path for the `aws-sdk`
 | Param | Type | Optional/Required | Description     |
 | :------------- | :------------- | :------------- | :------------- |
 | `path`      | string    | Required     | Path to a nested AWS SDK node module     |
+
+### `AWS.setSDKInstance(sdk)`
+
+Explicitly set the `aws-sdk` instance to use
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `sdk`      | object    | Required     | The AWS SDK object     |
+
 
 
 ## Background Reading
