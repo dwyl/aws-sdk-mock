@@ -139,6 +139,9 @@ function mockServiceMethod(service, client, method, replace) {
       createReadStream: function() {
         var stream = new Readable();
         stream._read = function(size) {
+          if(typeof(replace) === 'string' || Buffer.isBuffer(replace)) {
+            this.push(replace);
+          }
           this.push(null);
         };
         return stream;
