@@ -327,6 +327,21 @@ test('AWS.mock function should mock AWS service and method on the service', func
       });
     })
   });
+  t.test('a nested service can be mocked properly even when paramValidation is set', function(st){
+    awsMock.mock('DynamoDB.DocumentClient', 'query', function(params, callback) {
+      callback(null, 'test');
+    });
+    var docClient = new AWS.DynamoDB.DocumentClient({paramValidation: true});
+
+    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equals(docClient.query.isSinonProxy, true);
+    docClient.query({}, function(err, data){
+      console.warn(err);
+      st.equals(data, 'test');
+      awsMock.restore('DynamoDB.DocumentClient', 'query');
+      st.end();
+    })
+  });
   t.test('a mocked service and a mocked nested service can coexist as long as the nested service is mocked first', function(st) {
     awsMock.mock('DynamoDB.DocumentClient', 'get', 'message');
     awsMock.mock('DynamoDB', 'getItem', 'test');

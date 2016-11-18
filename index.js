@@ -148,9 +148,13 @@ function mockServiceMethod(service, client, method, replace) {
       }
     };
 
-    if ((client.config || _AWS.config).paramValidation) {
+    // different locations for the paramValidation property
+    var config = (client.config || client.options || _AWS.config);
+    if (config.paramValidation) {
       try {
-        var inputRules = (client.api.operations[method] || {}).input;
+        // different strategies to find method, depending on wether the service is nested/unnested
+        var inputRules =
+          ((client.api && client.api.operations[method]) || client[method] || {}).input;
         if (inputRules) {
           var params = userArgs[(userArgs.length || 1) - 1];
           new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, params);
