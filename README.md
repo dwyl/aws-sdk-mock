@@ -62,6 +62,27 @@ AWS.restore('DynamoDB');
 // or AWS.restore(); this will restore all the methods and services
 ```
 
+You can also pass Sinon spies to the mock:
+
+```js
+var updateTableSpy = sinon.spy();
+AWS.mock('DynamoDB', 'updateTable', updateTableSpy);
+
+// Object under test
+myDynamoManager.scaleDownTable();
+
+// Assert on your Sinon spy as normal
+assert.isTrue(updateTableSpy.calledOnce, 'should update dynamo table via AWS SDK');
+var expectedParams = {
+  TableName: 'testTableName',
+  ProvisionedThroughput: {
+    ReadCapacityUnits: 1,
+    WriteCapacityUnits: 1
+  }
+};
+assert.isTrue(updateTableSpy.calledWith(expectedParams), 'should pass correct parameters');
+```
+
 **NB: The AWS Service needs to be initialised inside the function being tested in order for the SDK method to be mocked** e.g for an AWS Lambda function example 1 will cause an error `region not defined in config`  whereas in example 2 the sdk will be successfully mocked.
 
 Example 1:
