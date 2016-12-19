@@ -142,7 +142,6 @@ test('AWS.mock function should mock AWS service and method on the service', func
         st.error(reason);
       });
       awsMock.mock('S3', 'getObject', function(params, callback) {
-        console.dir(callback);
         callback('This is a test error to see if promise rejections go unhandled');
       });
       var S3 = new AWS.S3();
