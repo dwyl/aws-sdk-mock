@@ -136,6 +136,19 @@ test('AWS.mock function should mock AWS service and method on the service', func
         st.end();
       });
     })
+    t.test('no unhandled promise rejections when promises are not used', function(st) {
+      process.on('unhandledRejection', function(reason, promise) {
+        st.fail('unhandledRejection, reason follows');
+        st.error(reason);
+      });
+      awsMock.mock('S3', 'getObject', function(params, callback) {
+        console.dir(callback);
+        callback('This is a test error to see if promise rejections go unhandled');
+      });
+      var S3 = new AWS.S3();
+      S3.getObject({}, function(err, data) {});
+      st.end();
+    })
     t.test('promises work with async completion', function(st){
       awsMock.restore('Lambda', 'getFunction');
       awsMock.restore('Lambda', 'createFunction');
@@ -182,14 +195,14 @@ test('AWS.mock function should mock AWS service and method on the service', func
   t.test('request object supports createReadStream', function(st) {
     awsMock.mock('S3', 'getObject', 'body');
     var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {}, function(err, data) {});
+    var req = s3.getObject('getObject', function(err, data) {});
     st.ok(isNodeStream(req.createReadStream()));
     // with or without callback
-    req = s3.getObject('getObject', {});
+    req = s3.getObject('getObject');
     st.ok(isNodeStream(req.createReadStream()));
     // stream is currently always empty but that's subject to change.
     // let's just consume it and ignore the contents
-    req = s3.getObject('getObject', {});
+    req = s3.getObject('getObject');
     var stream = req.createReadStream();
     stream.pipe(concatStream(function() {
       awsMock.restore('S3', 'getObject');

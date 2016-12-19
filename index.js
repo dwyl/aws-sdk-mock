@@ -103,28 +103,28 @@ function mockServiceMethod(service, client, method, replace) {
       userArgs = args;
     }
     var havePromises = typeof(AWS.Promise) === 'function';
-    var promise, resolve, reject;
-    var makeResolved = function(value) {return new AWS.Promise(function (res) { res(value); }); };
-    var makeRejected = function(value) {return new AWS.Promise(function (res, rej) { rej(value); }); };
-    var callback = function(err, data) {
-      if (havePromises) {
-        if (err) {
-          if (reject) {
-            reject(err);
-          } else {
-            promise = makeRejected(err);
-          }
+    var promise, resolve, reject, storedResult;
+    var tryResolveFromStored = function() {
+      if (storedResult && promise) {
+        if (storedResult.reject) {
+          reject(storedResult.reject);
         } else {
-          if (resolve) {
-            resolve(data);
-          } else {
-            promise = makeResolved(data);
-          }
+          resolve(storedResult.resolve);
+        }
+      }
+    };
+    var callback = function(err, data) {
+      if (!storedResult) {
+        if (err) {
+          storedResult = {reject: err};
+        } else {
+          storedResult = {resolve: data};
         }
       }
       if (userCallback) {
         userCallback(err, data);
       }
+      tryResolveFromStored();
     };
     var request = {
       promise: havePromises ? function() {
@@ -134,6 +134,7 @@ function mockServiceMethod(service, client, method, replace) {
             reject = reject_;
           });
         }
+        tryResolveFromStored();
         return promise;
       } : undefined,
       createReadStream: function() {
