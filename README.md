@@ -169,7 +169,7 @@ AWS.setSDK(path.resolve('../../functions/foo/node_modules/aws-sdk'));
 
 ### Configuring promises
 
-You'll need to explicitly enable promises on `aws-sdk-mock` if you use `promise()` functionality of the AWS SDK anywhere in your code. Set the value of `AWS.Promise` to the constructor for your chosen promise library.
+If your environment lacks a global Promise contstructor (e.g. nodejs 0.10), you can explicitly set the promises on `aws-sdk-mock`. Set the value of `AWS.Promise` to the constructor for your chosen promise library.
 
 Example (if Q is your promise library of choice):
 ```js
