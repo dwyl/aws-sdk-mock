@@ -25,6 +25,10 @@ AWS.setSDK = function(path) {
   _AWS = require(path);
 };
 
+AWS.setSDKInstance = function(sdk) {
+  _AWS = sdk
+}
+
 /**
  * Stubs the service and registers the method that needs to be mocked.
  */
