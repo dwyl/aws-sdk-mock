@@ -62,6 +62,27 @@ AWS.restore('DynamoDB');
 // or AWS.restore(); this will restore all the methods and services
 ```
 
+You can also pass Sinon spies to the mock:
+
+```js
+var updateTableSpy = sinon.spy();
+AWS.mock('DynamoDB', 'updateTable', updateTableSpy);
+
+// Object under test
+myDynamoManager.scaleDownTable();
+
+// Assert on your Sinon spy as normal
+assert.isTrue(updateTableSpy.calledOnce, 'should update dynamo table via AWS SDK');
+var expectedParams = {
+  TableName: 'testTableName',
+  ProvisionedThroughput: {
+    ReadCapacityUnits: 1,
+    WriteCapacityUnits: 1
+  }
+};
+assert.isTrue(updateTableSpy.calledWith(expectedParams), 'should pass correct parameters');
+```
+
 **NB: The AWS Service needs to be initialised inside the function being tested in order for the SDK method to be mocked** e.g for an AWS Lambda function example 1 will cause an error `region not defined in config`  whereas in example 2 the sdk will be successfully mocked.
 
 Example 1:
@@ -158,13 +179,23 @@ var AWS_SDK = require('aws-sdk')
 
 AWS.setSDKInstance(AWS_SDK);
 
+
+### Configuring promises
+
+If your environment lacks a global Promise contstructor (e.g. nodejs 0.10), you can explicitly set the promises on `aws-sdk-mock`. Set the value of `AWS.Promise` to the constructor for your chosen promise library.
+
+Example (if Q is your promise library of choice):
+```js
+var AWS = require('aws-sdk-mock'),
+    Q = require('q');
+
+AWS.Promise = Q.Promise;
+
+
 /**
     TESTS
 **/
 ```
-
-
-
 
 ## Documentation
 
