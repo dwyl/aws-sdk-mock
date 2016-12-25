@@ -178,6 +178,7 @@ var AWS = require('aws-sdk-mock');
 var AWS_SDK = require('aws-sdk')
 
 AWS.setSDKInstance(AWS_SDK);
+```
 
 
 ### Configuring promises
