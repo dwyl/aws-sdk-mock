@@ -161,7 +161,7 @@ function mockServiceMethod(service, client, method, replace) {
           ((client.api && client.api.operations[method]) || client[method] || {}).input;
         if (inputRules) {
           var params = userArgs[(userArgs.length || 1) - 1];
-          new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, params);
+          new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, Object.assign({}, client.config.params, params));
         }
       } catch (e) {
         callback(e, null);
