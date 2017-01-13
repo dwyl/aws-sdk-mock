@@ -424,6 +424,65 @@ test('AWS.mock function should mock AWS service and method on the service', func
     }
 
   });
+
+  t.test('Do not send service config for validation when creating table', function(st) {
+      AWS.config.paramValidation = true;
+      awsMock.mock('DynamoDB', 'createTable', 'success');
+      const db = new AWS.DynamoDB();
+
+      db.createTable({
+          KeySchema: [
+          ],
+          AttributeDefinitions: [
+          ],
+          ProvisionedThroughput: {
+              ReadCapacityUnits: 5,
+              WriteCapacityUnits: 5
+          }
+      }, function(err, data){
+          awsMock.restore('DynamoDB');
+          AWS.config.paramValidation = false;
+          if (!err){
+            st.fail('It is supposed to give MissingParameters error');
+            st.end();
+            return;
+          }
+
+          st.equals(data, null);
+          st.end();
+      });
+
+  });
+
+  t.test('Send service config for validation when creating table', function(st) {
+    AWS.config.paramValidation = true;
+    awsMock.mock('DynamoDB', 'createTable', 'success');
+    const db = new AWS.DynamoDB({
+      params : {TableName:'TestDB'},
+    });
+
+    db.createTable({
+        KeySchema: [
+        ],
+        AttributeDefinitions: [
+        ],
+        ProvisionedThroughput: {
+            ReadCapacityUnits: 1,
+            WriteCapacityUnits: 1
+        }
+    }, function(err, data) {
+      AWS.config.paramValidation = false;
+      awsMock.restore('DynamoDB');
+      if (err) {
+          st.fail('Mock did not succeed');
+          st.end();
+          return;
+      }
+      st.equals(data, 'success');
+      st.end();
+    });
+  });
+
 });
 
 test('AWS.setSDK function should mock a specific AWS module', function(t) {
