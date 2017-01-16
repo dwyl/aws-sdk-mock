@@ -161,7 +161,7 @@ function mockServiceMethod(service, client, method, replace) {
           ((client.api && client.api.operations[method]) || client[method] || {}).input;
         if (inputRules) {
           var params = userArgs[(userArgs.length || 1) - 1];
-          new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, Object.assign({}, client.config.params, params));
+          new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, Object.assign({}, config.params, params));
         }
       } catch (e) {
         callback(e, null);
@@ -257,6 +257,33 @@ function restoreMethod(service, method) {
       AWS.Promise = p;
       return setPromisesDependency(p);
     };
+  }
+
+  /* Object.assign injection */
+  if (typeof Object.assign != 'function') {
+      Object.assign = function (target, varArgs) { // .length of function is 2
+          'use strict';
+          if (target == null) { // TypeError if undefined or null
+              throw new TypeError('Cannot convert undefined or null to object');
+          }
+
+          var to = Object(target);
+
+          for (var index = 1; index < arguments.length; index++) {
+              var nextSource = arguments[index];
+
+              if (nextSource != null) { // Skip over if undefined or null
+                  for (var nextKey in nextSource) {
+                      // Avoid bugs when hasOwnProperty is shadowed
+                      if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                          to[nextKey] = nextSource[nextKey];
+                      }
+                  }
+              }
+          }
+          return to;
+      };
+
   }
 })()
 
