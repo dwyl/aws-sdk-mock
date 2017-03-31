@@ -25,6 +25,10 @@ AWS.setSDK = function(path) {
   _AWS = require(path);
 };
 
+AWS.setSDKInstance = function(sdk) {
+  _AWS = sdk;
+};
+
 /**
  * Stubs the service and registers the method that needs to be mocked.
  */
@@ -53,7 +57,7 @@ AWS.mock = function(service, method, replace) {
     }
   }
   return services[service].methodMocks[method];
-}
+};
 
 /**
  * Stub the constructor for the service on AWS.
@@ -195,7 +199,7 @@ AWS.restore = function(service, method) {
       restoreService(service);
     }
   };
-}
+};
 
 /**
  * Restores all mocked service and their corresponding methods.
@@ -249,12 +253,12 @@ function restoreMethod(service, method) {
   /* istanbul ignore next */
   /* only to support for older versions of aws-sdk */
   if (typeof(setPromisesDependency) === 'function') {
-    AWS.Promise = global.Promise
+    AWS.Promise = global.Promise;
     _AWS.config.setPromisesDependency = function(p) {
       AWS.Promise = p;
       return setPromisesDependency(p);
     };
   }
-})()
+})();
 
 module.exports = AWS;
