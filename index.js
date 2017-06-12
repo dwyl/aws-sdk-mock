@@ -144,8 +144,14 @@ function mockServiceMethod(service, client, method, replace) {
       createReadStream: function() {
         var stream = new Readable();
         stream._read = function(size) {
-          if(typeof(replace) === 'string' || Buffer.isBuffer(replace)) {
-            this.push(replace);
+          // The mock implementation method is always called before createReadStream() can be called
+          if (storedResult) {
+            if (typeof(storedResult.resolve) === 'string' || Buffer.isBuffer(storedResult.resolve)) {
+              this.push(storedResult.resolve);
+            }
+            else if (storedResult.reject) {
+              this.emit('error', storedResult.reject);
+            }
           }
           this.push(null);
         };

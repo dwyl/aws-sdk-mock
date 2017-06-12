@@ -145,8 +145,10 @@ test('AWS.mock function should mock AWS service and method on the service', func
         callback('This is a test error to see if promise rejections go unhandled');
       });
       var S3 = new AWS.S3();
-      S3.getObject({}, function(err, data) {});
-      st.end();
+      S3.getObject({}, function(err, data) {
+        awsMock.restore('S3', 'getObject');
+        st.end();
+      });
     });
     t.test('promises work with async completion', function(st){
       awsMock.restore('Lambda', 'getFunction');
@@ -230,12 +232,44 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     }));
   });
-  t.test('request object createReadStream ignores functions', function(st) {
-    awsMock.mock('S3', 'getObject', function(){});
+  t.test('request object createReadStream can generate responses using a function', function (st) {
+    awsMock.mock('S3', 'getObject', function (params, callback) {
+      callback(null, 'test message');
+    });
     var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {});
+    var req = s3.getObject({});
     var stream = req.createReadStream();
-    stream.pipe(concatStream(function(actual) {
+    stream.pipe(concatStream(function (actual) {
+      st.equals(actual.toString(), 'test message');
+      awsMock.restore('S3', 'getObject');
+      st.end();
+    }));
+  });
+  t.test('request object createReadStream can simulate errors using a function', function (st) {
+    var error = new Error('boom');
+    awsMock.mock('S3', 'getObject', function (params, callback) {
+      callback(error);
+    });
+    var emitted;
+    var s3 = new AWS.S3();
+    var req = s3.getObject({});
+    var stream = req.createReadStream();
+    stream.once('error', function (error) {
+      emitted = error;
+    });
+    stream.pipe(concatStream(function (actual) {
+      st.equals(actual.toString(), '');
+      st.equals(emitted, error);
+      awsMock.restore('S3', 'getObject');
+      st.end();
+    }));
+  });
+  t.test('request object createReadStream defaults to an empty stream', function (st) {
+    awsMock.mock('S3', 'getObject', function () {});
+    var s3 = new AWS.S3();
+    var req = s3.getObject({});
+    var stream = req.createReadStream();
+    stream.pipe(concatStream(function (actual) {
       st.equals(actual.toString(), '');
       awsMock.restore('S3', 'getObject');
       st.end();
