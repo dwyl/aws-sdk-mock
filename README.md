@@ -23,7 +23,7 @@ https://github.com/dwyl/learn-aws-lambda
 * [Documentation](#documentation)
 * [Background Reading](#background-reading)
 
-## Why?
+## Why?
 
 Testing your code is *essential* everywhere you need *reliability*.
 
