@@ -136,6 +136,26 @@ test('AWS.mock function should mock AWS service and method on the service', func
         st.end();
       });
     });
+    t.test('replacement returns thennable', function(st){
+      awsMock.restore('Lambda', 'getFunction');
+      awsMock.restore('Lambda', 'createFunction');
+      var error = new Error('on purpose');
+      awsMock.mock('Lambda', 'getFunction', function(params) {
+        return Promise.resolve('message')
+      });
+      awsMock.mock('Lambda', 'createFunction', function(params, callback) {
+        return Promise.reject(error)
+      });
+      var lambda = new AWS.Lambda();
+      lambda.getFunction({}).promise().then(function(data) {
+        st.equals(data, 'message');
+      }).then(function(){
+        return lambda.createFunction({}).promise();
+      }).catch(function(data){
+        st.equals(data, error);
+        st.end();
+      });
+    });
     t.test('no unhandled promise rejections when promises are not used', function(st) {
       process.on('unhandledRejection', function(reason, promise) {
         st.fail('unhandledRejection, reason follows');
