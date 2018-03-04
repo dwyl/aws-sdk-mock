@@ -173,7 +173,6 @@ Due to transpiling, code written in TypeScript or ES6 may not correctly mock bec
 
 Example:
 ```js
-var path = require('path');
 var AWS = require('aws-sdk-mock');
 var AWS_SDK = require('aws-sdk')
 
