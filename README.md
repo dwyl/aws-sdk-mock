@@ -53,12 +53,16 @@ AWS.mock('DynamoDB', 'putItem', function (params, callback){
 
 AWS.mock('SNS', 'publish', 'test-message');
 
+// S3 getObject mock - return a Bffer object with file data
+awsMock.mock("S3", "getObject", new Buffer(require("fs").readFileSync("testFile.csv")));
+
 /**
     TESTS
 **/
 
 AWS.restore('SNS', 'publish');
 AWS.restore('DynamoDB');
+AWS.restore('S3');
 // or AWS.restore(); this will restore all the methods and services
 ```
 
