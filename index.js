@@ -68,7 +68,7 @@ function mockService(service) {
   var method = nestedServices.pop();
   var object = traverse(_AWS).get(nestedServices);
 
-  var serviceStub = sinon.stub(object, method, function(args) {
+  var serviceStub = sinon.stub(object, method).callsFake(function(args) {
     services[service].invoked = true;
 
     /**
@@ -96,7 +96,7 @@ function mockService(service) {
  *  - callback: of the form 'function(err, data) {}'.
  */
 function mockServiceMethod(service, client, method, replace) {
-  services[service].methodMocks[method].stub = sinon.stub(client, method, function() {
+  services[service].methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     var args = Array.prototype.slice.call(arguments);
 
     var userArgs, userCallback;
