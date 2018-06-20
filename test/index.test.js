@@ -252,6 +252,13 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     }));
   });
+  t.test('call on method of request object', function(st) {
+    awsMock.mock('S3', 'getObject', {Body: 'body'});
+    var s3 = new AWS.S3();
+    var req = s3.getObject('getObject', {});
+    st.equals(typeof req.on, 'function');
+    st.end();
+  });
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
