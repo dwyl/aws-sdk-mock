@@ -3,6 +3,9 @@
   "version": "3.2.0",
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "index.js",
+  "files": [
+    "index.js"
+  ],
   "scripts": {
     "nocov": "tape test/*.js",
     "test": "istanbul cover ./node_modules/tape/bin/tape ./test/*.js",
