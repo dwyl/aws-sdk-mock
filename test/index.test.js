@@ -378,7 +378,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
 
     awsMock.mock('DynamoDB', 'getItem', 'test');
-    var dynamoDb = new AWS.DynamoDB();
+    dynamoDb = new AWS.DynamoDB();
     st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
     st.equals(AWS.DynamoDB.isSinonProxy, true);
     st.equals(docClient.get.isSinonProxy, true);
