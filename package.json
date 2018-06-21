@@ -1,6 +1,6 @@
 {
   "name": "aws-sdk-mock",
-  "version": "2.0.0",
+  "version": "3.2.0",
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "index.js",
   "scripts": {
@@ -33,8 +33,8 @@
   "homepage": "https://github.com/dwyl/aws-sdk-mock#readme",
   "dependencies": {
     "aws-sdk": "^2.3.0",
-    "traverse": "^0.6.6",
-    "sinon": "^4.5.0"
+    "sinon": "^5.1.1",
+    "traverse": "^0.6.6"
   },
   "devDependencies": {
     "concat-stream": "^1.5.1",
