@@ -263,7 +263,6 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
     });
-    var sns = new AWS.SNS();
     st.equals(AWS.SNS.isSinonProxy, true);
 
     awsMock.restore('SNS');
@@ -434,7 +433,6 @@ test('AWS.mock function should mock AWS service and method on the service', func
   t.test('Restore should not fail when the stub did not exist.', function (st) {
     // This test will fail when restoring throws unneeded errors.
     try {
-      var stub = awsMock.mock('CloudSearchDomain', 'search');
       awsMock.restore('SES', 'sendEmail');
       awsMock.restore('CloudSearchDomain', 'doesnotexist');
       st.end();
