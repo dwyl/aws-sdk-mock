@@ -110,7 +110,9 @@ function mockServiceMethod(service, client, method, replace) {
     var promise, resolve, reject, storedResult;
     var tryResolveFromStored = function() {
       if (storedResult && promise) {
-        if (storedResult.reject) {
+        if (typeof storedResult.then === 'function') {
+          storedResult.then(resolve, reject)
+        } else if (storedResult.reject) {
           reject(storedResult.reject);
         } else {
           resolve(storedResult.resolve);
@@ -176,7 +178,11 @@ function mockServiceMethod(service, client, method, replace) {
 
     // If the value of 'replace' is a function we call it with the arguments.
     if(typeof(replace) === 'function') {
-      replace.apply(replace, userArgs.concat([callback]));
+      var result = replace.apply(replace, userArgs.concat([callback]));
+      if (storedResult === undefined && result != null &&
+          typeof result.then === 'function') {
+        storedResult = result
+      }
     }
     // Else we call the callback with the value of 'replace'.
     else {
