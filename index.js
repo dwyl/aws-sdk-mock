@@ -152,6 +152,8 @@ function mockServiceMethod(service, client, method, replace) {
         return stream;
       },
       on: function(eventName, callback) {
+      },
+      send: function(callback) {
       }
     };
 
