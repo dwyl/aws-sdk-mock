@@ -1,12 +1,15 @@
 {
   "name": "aws-sdk-mock",
-  "version": "1.6.1",
+  "version": "3.2.0",
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "index.js",
+  "files": [
+    "index.js"
+  ],
   "scripts": {
     "nocov": "tape test/*.js",
-    "test": "istanbul cover ./node_modules/tape/bin/tape ./test/*.js",
-    "coverage": "istanbul cover ./node_modules/tape/bin/tape ./test/*.js && istanbul check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
+    "test": "nyc --reporter=lcov tape ./test/*.js",
+    "coverage": "nyc tape ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
   },
   "repository": {
     "type": "git",
@@ -32,14 +35,14 @@
   },
   "homepage": "https://github.com/dwyl/aws-sdk-mock#readme",
   "dependencies": {
-    "aws-sdk": "^2.3.0",
-    "sinon": "^1.17.3",
+    "aws-sdk": "^2.260.1",
+    "sinon": "^6.0.0",
     "traverse": "^0.6.6"
   },
   "devDependencies": {
-    "concat-stream": "^1.5.1",
+    "concat-stream": "^1.6.2",
     "is-node-stream": "^1.0.0",
-    "istanbul": "^0.4.2",
-    "tape": "^4.4.0"
+    "nyc": "^12.0.2",
+    "tape": "^4.9.1"
   }
 }

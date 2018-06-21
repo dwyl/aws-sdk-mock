@@ -26,8 +26,8 @@ AWS.setSDK = function(path) {
 };
 
 AWS.setSDKInstance = function(sdk) {
-  _AWS = sdk
-}
+  _AWS = sdk;
+};
 
 /**
  * Stubs the service and registers the method that needs to be mocked.
@@ -57,7 +57,7 @@ AWS.mock = function(service, method, replace) {
     }
   }
   return services[service].methodMocks[method];
-}
+};
 
 /**
  * Stub the constructor for the service on AWS.
@@ -68,7 +68,7 @@ function mockService(service) {
   var method = nestedServices.pop();
   var object = traverse(_AWS).get(nestedServices);
 
-  var serviceStub = sinon.stub(object, method, function(args) {
+  var serviceStub = sinon.stub(object, method).callsFake(function(args) {
     services[service].invoked = true;
 
     /**
@@ -96,7 +96,7 @@ function mockService(service) {
  *  - callback: of the form 'function(err, data) {}'.
  */
 function mockServiceMethod(service, client, method, replace) {
-  services[service].methodMocks[method].stub = sinon.stub(client, method, function() {
+  services[service].methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     var args = Array.prototype.slice.call(arguments);
 
     var userArgs, userCallback;
@@ -107,28 +107,30 @@ function mockServiceMethod(service, client, method, replace) {
       userArgs = args;
     }
     var havePromises = typeof(AWS.Promise) === 'function';
-    var promise, resolve, reject;
-    var makeResolved = function(value) {return new AWS.Promise(function (res) { res(value); }); };
-    var makeRejected = function(value) {return new AWS.Promise(function (res, rej) { rej(value); }); };
-    var callback = function(err, data) {
-      if (havePromises) {
-        if (err) {
-          if (reject) {
-            reject(err);
-          } else {
-            promise = makeRejected(err);
-          }
+    var promise, resolve, reject, storedResult;
+    var tryResolveFromStored = function() {
+      if (storedResult && promise) {
+        if (typeof storedResult.then === 'function') {
+          storedResult.then(resolve, reject)
+        } else if (storedResult.reject) {
+          reject(storedResult.reject);
         } else {
-          if (resolve) {
-            resolve(data);
-          } else {
-            promise = makeResolved(data);
-          }
+          resolve(storedResult.resolve);
+        }
+      }
+    };
+    var callback = function(err, data) {
+      if (!storedResult) {
+        if (err) {
+          storedResult = {reject: err};
+        } else {
+          storedResult = {resolve: data};
         }
       }
       if (userCallback) {
         userCallback(err, data);
       }
+      tryResolveFromStored();
     };
     var request = {
       promise: havePromises ? function() {
@@ -138,6 +140,7 @@ function mockServiceMethod(service, client, method, replace) {
             reject = reject_;
           });
         }
+        tryResolveFromStored();
         return promise;
       } : undefined,
       createReadStream: function() {
@@ -149,6 +152,10 @@ function mockServiceMethod(service, client, method, replace) {
           this.push(null);
         };
         return stream;
+      },
+      on: function(eventName, callback) {
+      },
+      send: function(callback) {
       }
     };
 
@@ -171,7 +178,11 @@ function mockServiceMethod(service, client, method, replace) {
 
     // If the value of 'replace' is a function we call it with the arguments.
     if(typeof(replace) === 'function') {
-      replace.apply(replace, userArgs.concat([callback]));
+      var result = replace.apply(replace, userArgs.concat([callback]));
+      if (storedResult === undefined && result != null &&
+          typeof result.then === 'function') {
+        storedResult = result
+      }
     }
     // Else we call the callback with the value of 'replace'.
     else {
@@ -198,7 +209,7 @@ AWS.restore = function(service, method) {
       restoreService(service);
     }
   };
-}
+};
 
 /**
  * Restores all mocked service and their corresponding methods.
@@ -252,7 +263,7 @@ function restoreMethod(service, method) {
   /* istanbul ignore next */
   /* only to support for older versions of aws-sdk */
   if (typeof(setPromisesDependency) === 'function') {
-    AWS.Promise = global.Promise
+    AWS.Promise = global.Promise;
     _AWS.config.setPromisesDependency = function(p) {
       AWS.Promise = p;
       return setPromisesDependency(p);
@@ -285,6 +296,6 @@ function restoreMethod(service, method) {
       };
 
   }
-})()
+})();
 
 module.exports = AWS;

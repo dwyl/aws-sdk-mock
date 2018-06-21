@@ -23,7 +23,7 @@ https://github.com/dwyl/learn-aws-lambda
 * [Documentation](#documentation)
 * [Background Reading](#background-reading)
 
-## Why?
+## Why?
 
 Testing your code is *essential* everywhere you need *reliability*.
 
@@ -53,12 +53,17 @@ AWS.mock('DynamoDB', 'putItem', function (params, callback){
 
 AWS.mock('SNS', 'publish', 'test-message');
 
+// S3 getObject mock - return a Bffer object with file data
+awsMock.mock("S3", "getObject", Buffer.from(require("fs").readFileSync("testFile.csv")));
+
+
 /**
     TESTS
 **/
 
 AWS.restore('SNS', 'publish');
 AWS.restore('DynamoDB');
+AWS.restore('S3');
 // or AWS.restore(); this will restore all the methods and services
 ```
 
@@ -173,7 +178,6 @@ Due to transpiling, code written in TypeScript or ES6 may not correctly mock bec
 
 Example:
 ```js
-var path = require('path');
 var AWS = require('aws-sdk-mock');
 var AWS_SDK = require('aws-sdk')
 

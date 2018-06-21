@@ -1,7 +1,9 @@
 language: node_js
 node_js:
-  - 0.10.36
-  - "4.2.3"
+  - "4"
+  - "6"
+  - "8"
+  - "10"
 before_install:
   - pip install --user codecov
 after_success:
