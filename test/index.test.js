@@ -270,7 +270,6 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
     });
-    var sns = new AWS.SNS();
     st.equals(AWS.SNS.isSinonProxy, true);
 
     awsMock.restore('SNS');
@@ -386,7 +385,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
 
     awsMock.mock('DynamoDB', 'getItem', 'test');
-    var dynamoDb = new AWS.DynamoDB();
+    dynamoDb = new AWS.DynamoDB();
     st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
     st.equals(AWS.DynamoDB.isSinonProxy, true);
     st.equals(docClient.get.isSinonProxy, true);
@@ -441,7 +440,6 @@ test('AWS.mock function should mock AWS service and method on the service', func
   t.test('Restore should not fail when the stub did not exist.', function (st) {
     // This test will fail when restoring throws unneeded errors.
     try {
-      var stub = awsMock.mock('CloudSearchDomain', 'search');
       awsMock.restore('SES', 'sendEmail');
       awsMock.restore('CloudSearchDomain', 'doesnotexist');
       st.end();
