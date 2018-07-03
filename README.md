@@ -53,7 +53,7 @@ AWS.mock('DynamoDB', 'putItem', function (params, callback){
 
 AWS.mock('SNS', 'publish', 'test-message');
 
-// S3 getObject mock - return a Bffer object with file data
+// S3 getObject mock - return a Buffer object with file data
 awsMock.mock("S3", "getObject", Buffer.from(require("fs").readFileSync("testFile.csv")));
 
 
