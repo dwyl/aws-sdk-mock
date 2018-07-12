@@ -53,7 +53,7 @@ AWS.mock('DynamoDB', 'putItem', function (params, callback){
 
 AWS.mock('SNS', 'publish', 'test-message');
 
-// S3 getObject mock - return a Bffer object with file data
+// S3 getObject mock - return a Buffer object with file data
 awsMock.mock("S3", "getObject", Buffer.from(require("fs").readFileSync("testFile.csv")));
 
 
@@ -116,7 +116,7 @@ exports.handler = function(event, context) {
 
 It is possible to mock nested services like `DynamoDB.DocumentClient`. Simply use this dot-notation name as the `service` parameter to the `mock()` and `restore()` methods:
 
-```
+```js
 AWS.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
   callback(null, {Item: {Key: 'Value'}});
 });
@@ -124,7 +124,7 @@ AWS.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
 
 **NB: Use caution when mocking both a nested service and its parent service.** The nested service should be mocked before and restored after its parent:
 
-```
+```js
 // OK
 AWS.mock('DynamoDB.DocumentClient', 'get', 'message');
 AWS.mock('DynamoDB', 'describeTable', 'message');
