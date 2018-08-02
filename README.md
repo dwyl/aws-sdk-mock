@@ -112,6 +112,30 @@ exports.handler = function(event, context) {
 }
 ```
 
+Also note that if you initialise an AWS service inside a callback from an async function inside the handler function, that won't work either.
+
+Example 1 (won't work):
+```js
+exports.handler = function(event, context) {
+  someAsyncFunction(() => {
+    var sns      = AWS.SNS();
+    var dynamoDb = AWS.DynamoDB();
+    // do something with the services e.g. sns.publish
+  });
+}
+```
+
+Example 2 (will work):
+```js
+exports.handler = function(event, context) {
+  var sns      = AWS.SNS();
+  var dynamoDb = AWS.DynamoDB();
+  someAsyncFunction(() => {
+    // do something with the services e.g. sns.publish
+  });
+}
+```
+
 ### Nested services
 
 It is possible to mock nested services like `DynamoDB.DocumentClient`. Simply use this dot-notation name as the `service` parameter to the `mock()` and `restore()` methods:
@@ -178,10 +202,14 @@ Due to transpiling, code written in TypeScript or ES6 may not correctly mock bec
 
 Example:
 ```js
-var AWS = require('aws-sdk-mock');
-var AWS_SDK = require('aws-sdk')
+// test code
+const AWSMock = require('aws-sdk-mock');
+import AWS = require('aws-sdk');
+AWSMock.setSDKInstance(AWS);
+AWSMock.mock('SQS', /* ... */);
 
-AWS.setSDKInstance(AWS_SDK);
+// implementation code
+const sqs = new AWS.SQS();
 ```
 
 
