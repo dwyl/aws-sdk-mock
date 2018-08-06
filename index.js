@@ -144,14 +144,18 @@ function mockServiceMethod(service, client, method, replace) {
         return promise;
       } : undefined,
       createReadStream: function() {
-        var stream = new Readable();
-        stream._read = function(size) {
-          if(typeof(replace) === 'string' || Buffer.isBuffer(replace)) {
-            this.push(replace);
-          }
-          this.push(null);
-        };
-        return stream;
+        if (replace instanceof Readable) {
+          return replace;
+        } else {
+          var stream = new Readable();
+          stream._read = function(size) {
+            if(typeof(replace) === 'string' || Buffer.isBuffer(replace)) {
+              this.push(replace);
+            }
+            this.push(null);
+          };
+          return stream;
+        }
       },
       on: function(eventName, callback) {
       },
