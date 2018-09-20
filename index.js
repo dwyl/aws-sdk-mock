@@ -48,14 +48,17 @@ AWS.mock = function(service, method, replace) {
   }
 
   // Register the method to be mocked out.
-  if(!services[service].methodMocks[method]) {
-    services[service].methodMocks[method] = { replace: replace };
-
-    // If the constructor was already invoked, we need to mock the method here.
-    if(services[service].invoked) {
-      mockServiceMethod(service, services[service].client, method, replace);
-    }
+  if (services[service].methodMocks[method]) {
+    restoreMethod(service, method);
   }
+
+  services[service].methodMocks[method] = { replace: replace };
+
+  // If the constructor was already invoked, we need to mock the method here.
+  if(services[service].invoked) {
+    mockServiceMethod(service, services[service].client, method, replace);
+  }
+
   return services[service].methodMocks[method];
 };
 

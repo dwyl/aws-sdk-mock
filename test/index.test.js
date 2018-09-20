@@ -72,7 +72,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     });
   });
-  t.test('method is not re-mocked if a mock already exists', function(st){
+  t.test('method is re-mocked if a mock already exists', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
     });
@@ -81,11 +81,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, "test");
     });
     sns.publish({}, function(err, data){
-      st.equals(data, 'message');
+      st.equals(data, 'test');
       st.end();
     });
   });
-  t.test('service is not re-mocked if a mock already exists', function(st){
+  t.test('service is re-mocked if a mock already exists', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
     });
@@ -344,10 +344,10 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('DynamoDB.DocumentClient', 'put', 'message');
     var docClient = new AWS.DynamoDB.DocumentClient();
     awsMock.mock('DynamoDB.DocumentClient', 'put', function(params, callback) {
-      callback(null, 'test');
+      callback(null, 'puttest');
     });
     awsMock.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
-      callback(null, 'test');
+      callback(null, 'gettest');
     });
 
     st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
@@ -355,9 +355,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(docClient.get.isSinonProxy, true);
 
     docClient.put({}, function(err, data){
-      st.equals(data, 'message');
+      st.equals(data, 'puttest');
       docClient.get({}, function(err, data){
-        st.equals(data, 'test');
+        st.equals(data, 'gettest');
 
         awsMock.restore('DynamoDB.DocumentClient', 'get');
         st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
