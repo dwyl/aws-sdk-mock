@@ -98,14 +98,14 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     });
   });
-  t.test('service is re-mocked if update flag passed', function(st){
+  t.test('service is re-mocked when remock called', function(st){
     awsMock.mock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 1');
     });
     var sns = new AWS.SNS();
-    awsMock.mock('SNS', 'subscribe', function(params, callback){
+    awsMock.remock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 2');
-    }, true);
+    });
     sns.subscribe({}, function(err, data){
       st.equals(data, 'message 2');
       st.end();
