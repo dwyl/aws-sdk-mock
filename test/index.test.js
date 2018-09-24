@@ -72,7 +72,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     });
   });
-  t.test('method is re-mocked if a mock already exists', function(st){
+  t.test('method is not re-mocked if a mock already exists', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
     });
@@ -85,7 +85,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     });
   });
-  t.test('service is re-mocked if a mock already exists', function(st){
+  t.test('service is not re-mocked if a mock already exists', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, "message");
     });
@@ -95,6 +95,19 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     sns.subscribe({}, function(err, data){
       st.equals(data, 'test');
+      st.end();
+    });
+  });
+  t.test('service is re-mocked if update flag passed', function(st){
+    awsMock.mock('SNS', 'subscribe', function(params, callback){
+      callback(null, 'message 1');
+    });
+    var sns = new AWS.SNS();
+    awsMock.mock('SNS', 'subscribe', function(params, callback){
+      callback(null, 'message 2');
+    }, true);
+    sns.subscribe({}, function(err, data){
+      st.equals(data, 'message 2');
       st.end();
     });
   });
@@ -344,7 +357,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('DynamoDB.DocumentClient', 'put', 'message');
     var docClient = new AWS.DynamoDB.DocumentClient();
     awsMock.mock('DynamoDB.DocumentClient', 'put', function(params, callback) {
-      callback(null, 'puttest');
+      callback(null, 'test');
     });
     awsMock.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
       callback(null, 'test');

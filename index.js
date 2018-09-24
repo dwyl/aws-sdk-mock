@@ -62,8 +62,11 @@ AWS.mock = function(service, method, replace, update) {
       restoreMethod(service, method);
       services[service].methodMocks[method] = { replace: replace };
     }
+    if(services[service].invoked) {
+      mockServiceMethod(service, services[service].client, method, replace);
+    }
   }
-  
+
   return services[service].methodMocks[method];
 };
 

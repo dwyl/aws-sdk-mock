@@ -232,7 +232,7 @@ AWS.Promise = Q.Promise;
 
 ## Documentation
 
-### `AWS.mock(service, method, replace)`
+### `AWS.mock(service, method, replace, update)`
 
 Replaces a method on an AWS service with a replacement function or string.
 
@@ -242,6 +242,7 @@ Replaces a method on an AWS service with a replacement function or string.
 | `service`      | string    | Required     | AWS service to mock e.g. SNS, DynamoDB, S3     |
 | `method`      | string    | Required     | method on AWS service to mock e.g. 'publish' (for SNS), 'putItem' for 'DynamoDB'     |
 | `replace`      | string or function    | Required     | A string or function to replace the method   |
+| `update`      | boolean    | Optional     | Should the `replace` method be updated if it already exists? `true` updates the `replace` value  |
 
 
 ### `AWS.restore(service, method)`
