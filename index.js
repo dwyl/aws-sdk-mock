@@ -32,7 +32,7 @@ AWS.setSDKInstance = function(sdk) {
 /**
  * Stubs the service and registers the method that needs to be mocked.
  */
-AWS.mock = function(service, method, replace) {
+AWS.mock = function(service, method, replace, update) {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
     services[service]             = {};
@@ -48,17 +48,22 @@ AWS.mock = function(service, method, replace) {
   }
 
   // Register the method to be mocked out.
-  if (services[service].methodMocks[method]) {
-    restoreMethod(service, method);
+  if(!services[service].methodMocks[method]) {
+    services[service].methodMocks[method] = { replace: replace };
+
+    // If the constructor was already invoked, we need to mock the method here.
+    if(services[service].invoked) {
+      mockServiceMethod(service, services[service].client, method, replace);
+    }
   }
 
-  services[service].methodMocks[method] = { replace: replace };
-
-  // If the constructor was already invoked, we need to mock the method here.
-  if(services[service].invoked) {
-    mockServiceMethod(service, services[service].client, method, replace);
+  if (update) {
+    if (services[service].methodMocks[method]) {
+      restoreMethod(service, method);
+      services[service].methodMocks[method] = { replace: replace };
+    }
   }
-
+  
   return services[service].methodMocks[method];
 };
 

@@ -81,7 +81,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, "test");
     });
     sns.publish({}, function(err, data){
-      st.equals(data, 'test');
+      st.equals(data, 'message');
       st.end();
     });
   });
@@ -347,7 +347,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, 'puttest');
     });
     awsMock.mock('DynamoDB.DocumentClient', 'get', function(params, callback) {
-      callback(null, 'gettest');
+      callback(null, 'test');
     });
 
     st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
@@ -355,9 +355,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(docClient.get.isSinonProxy, true);
 
     docClient.put({}, function(err, data){
-      st.equals(data, 'puttest');
+      st.equals(data, 'message');
       docClient.get({}, function(err, data){
-        st.equals(data, 'gettest');
+        st.equals(data, 'test');
 
         awsMock.restore('DynamoDB.DocumentClient', 'get');
         st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
