@@ -257,6 +257,18 @@ If `AWS.restore` is called without arguments (`AWS.restore()`) then all the serv
 i.e. equivalent to a 'restore all' function.
 
 
+### `AWS.remock(service, method, replace)`
+
+Updates the `replace` method on an existing mocked service.
+
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `service`      | string    | Required     | AWS service to mock e.g. SNS, DynamoDB, S3     |
+| `method`      | string    | Required     | method on AWS service to mock e.g. 'publish' (for SNS), 'putItem' for 'DynamoDB'     |
+| `replace`      | string or function    | Required     | A string or function to replace the method   |
+
+
 ### `AWS.setSDK(path)`
 
 Explicitly set the require path for the `aws-sdk`
