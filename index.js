@@ -178,6 +178,7 @@ function mockServiceMethod(service, client, method, replace) {
         }
       },
       on: function(eventName, callback) {
+        return this;
       },
       send: function(callback) {
       }
