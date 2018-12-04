@@ -1,6 +1,6 @@
 {
   "name": "aws-sdk-mock",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "index.js",
   "types": "index.d.ts",
@@ -30,21 +30,21 @@
     "mock",
     "Node.js"
   ],
-  "author": "Nikhila Ravi & Jimmy Ruts",
+  "author": "Nikhila Ravi, Jimmy Ruts & Friends!",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/dwyl/aws-sdk-mock/issues"
   },
   "homepage": "https://github.com/dwyl/aws-sdk-mock#readme",
   "dependencies": {
-    "aws-sdk": "^2.260.1",
-    "sinon": "^6.0.0",
+    "aws-sdk": "^2.369.0",
+    "sinon": "^7.1.1",
     "traverse": "^0.6.6"
   },
   "devDependencies": {
     "concat-stream": "^1.6.2",
     "is-node-stream": "^1.0.0",
-    "nyc": "^12.0.2",
+    "nyc": "^13.1.0",
     "tap": "^12.0.1"
   }
 }
