@@ -30,7 +30,7 @@
     "mock",
     "Node.js"
   ],
-  "author": "Nikhila Ravi & Jimmy Ruts",
+  "author": "Nikhila Ravi, Jimmy Ruts & Friends!",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/dwyl/aws-sdk-mock/issues"
@@ -38,7 +38,7 @@
   "homepage": "https://github.com/dwyl/aws-sdk-mock#readme",
   "dependencies": {
     "aws-sdk": "^2.260.1",
-    "sinon": "^6.0.0",
+    "sinon": "^6.3.5",
     "traverse": "^0.6.6"
   },
   "devDependencies": {
