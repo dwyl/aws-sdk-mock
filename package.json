@@ -38,7 +38,7 @@
   "homepage": "https://github.com/dwyl/aws-sdk-mock#readme",
   "dependencies": {
     "aws-sdk": "^2.260.1",
-    "sinon": "^6.3.5",
+    "sinon": "^7.1.1",
     "traverse": "^0.6.6"
   },
   "devDependencies": {
