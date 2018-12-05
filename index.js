@@ -48,11 +48,11 @@ AWS.mock = function(service, method, replace) {
   }
 
   // Register the method to be mocked out.
-  if(!services[service].methodMocks[method]) {
+  if (!services[service].methodMocks[method]) {
     services[service].methodMocks[method] = { replace: replace };
 
     // If the constructor was already invoked, we need to mock the method here.
-    if(services[service].invoked) {
+    if (services[service].invoked) {
       mockServiceMethod(service, services[service].client, method, replace);
     }
   }
@@ -169,7 +169,7 @@ function mockServiceMethod(service, client, method, replace) {
         } else {
           var stream = new Readable();
           stream._read = function(size) {
-            if(typeof(replace) === 'string' || Buffer.isBuffer(replace)) {
+            if (typeof(replace) === 'string' || Buffer.isBuffer(replace)) {
               this.push(replace);
             }
             this.push(null);
@@ -201,7 +201,7 @@ function mockServiceMethod(service, client, method, replace) {
     }
 
     // If the value of 'replace' is a function we call it with the arguments.
-    if(typeof(replace) === 'function') {
+    if (typeof(replace) === 'function') {
       var result = replace.apply(replace, userArgs.concat([callback]));
       if (storedResult === undefined && result != null &&
           typeof result.then === 'function') {
@@ -224,7 +224,7 @@ function mockServiceMethod(service, client, method, replace) {
  * When a service and method are passed, only that method will be reset.
  */
 AWS.restore = function(service, method) {
-  if(!service) {
+  if (!service) {
     restoreAllServices();
   } else {
     if (method) {
@@ -250,7 +250,7 @@ function restoreAllServices() {
 function restoreService(service) {
   if (services[service]) {
     restoreAllMethods(service);
-    if( services[service].stub)
+    if (services[service].stub)
       services[service].stub.restore();
     delete services[service];
   } else {
@@ -282,7 +282,7 @@ function restoreMethod(service, method) {
 
 }
 
-(function(){
+(function() {
   var setPromisesDependency = _AWS.config.setPromisesDependency;
   /* istanbul ignore next */
   /* only to support for older versions of aws-sdk */
