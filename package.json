@@ -7,6 +7,7 @@
     "index.js"
   ],
   "scripts": {
+    "lint": "eslint index.js",
     "nocov": "tap test/*.js",
     "test": "nyc --reporter=lcov tap ./test/*.js",
     "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "concat-stream": "^1.6.2",
+    "eslint": "^5.9.0",
     "is-node-stream": "^1.0.0",
     "nyc": "^12.0.2",
     "tap": "^12.0.1"
