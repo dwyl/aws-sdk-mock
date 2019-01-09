@@ -12,10 +12,10 @@
 
 var sinon = require('sinon');
 var traverse = require('traverse');
-var _AWS  = require('aws-sdk');
+var _AWS = require('aws-sdk');
 var Readable = require('stream').Readable;
 
-var AWS      = {};
+var AWS = {};
 var services = {};
 
 /**
@@ -35,7 +35,7 @@ AWS.setSDKInstance = function(sdk) {
 AWS.mock = function(service, method, replace) {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
-    services[service]             = {};
+    services[service] = {};
 
     /**
      * Save the real constructor so we can invoke it later on.
@@ -96,7 +96,7 @@ function mockService(service) {
      * we stored before. E.g. var client = new AWS.SNS()
      * This is necessary in order to mock methods on the service.
      */
-    var client               = new services[service].Constructor(args);
+    var client = new services[service].Constructor(args);
     services[service].client = client;
 
     // Once this has been triggered we can mock out all the registered methods.
