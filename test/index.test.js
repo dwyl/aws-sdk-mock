@@ -254,7 +254,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     }));
   });
   t.test('request object createReadStream works with buffers', function(st) {
-    awsMock.mock('S3', 'getObject', new Buffer('body'));
+    awsMock.mock('S3', 'getObject', Buffer.alloc(4, 'body'));
     var s3 = new AWS.S3();
     var req = s3.getObject('getObject', {});
     var stream = req.createReadStream();
