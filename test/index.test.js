@@ -1,7 +1,7 @@
-var tap      = require('tap');
-var test     = tap.test;
+var tap = require('tap');
+var test = tap.test;
 var awsMock = require('../index.js');
-var AWS      = require('aws-sdk');
+var AWS = require('aws-sdk');
 var isNodeStream = require('is-node-stream');
 var concatStream = require('concat-stream');
 var Readable = require('stream').Readable;
@@ -24,7 +24,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('mock function replaces method with replace function', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
-      callback(null, "message");
+      callback(null, 'message');
     });
     var sns = new AWS.SNS();
     sns.publish({}, function(err, data){
@@ -74,11 +74,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method is not re-mocked if a mock already exists', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
-      callback(null, "message");
+      callback(null, 'message');
     });
     var sns = new AWS.SNS();
     awsMock.mock('SNS', 'publish', function(params, callback){
-      callback(null, "test");
+      callback(null, 'test');
     });
     sns.publish({}, function(err, data){
       st.equals(data, 'message');
@@ -87,11 +87,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('service is not re-mocked if a mock already exists', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
-      callback(null, "message");
+      callback(null, 'message');
     });
     var sns = new AWS.SNS();
     awsMock.mock('SNS', 'subscribe', function(params, callback){
-      callback(null, "test");
+      callback(null, 'test');
     });
     sns.subscribe({}, function(err, data){
       st.equals(data, 'test');
@@ -299,7 +299,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
-      callback(null, "message");
+      callback(null, 'message');
     });
     st.equals(AWS.SNS.isSinonProxy, true);
 
@@ -310,7 +310,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('only the method on the service is restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
-      callback(null, "message");
+      callback(null, 'message');
     });
     var sns = new AWS.SNS();
     st.equals(AWS.SNS.isSinonProxy, true);
@@ -324,15 +324,15 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('all the services are restored when no arguments given to awsMock.restore', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
-      callback(null, "message");
+      callback(null, 'message');
     });
     awsMock.mock('DynamoDB', 'putItem', function(params, callback){
-      callback(null, "test");
+      callback(null, 'test');
     });
     awsMock.mock('DynamoDB.DocumentClient', 'put', function(params, callback){
-      callback(null, "test");
+      callback(null, 'test');
     });
-    var sns      = new AWS.SNS();
+    var sns = new AWS.SNS();
     var docClient = new AWS.DynamoDB.DocumentClient();
     var dynamoDb = new AWS.DynamoDB();
 
