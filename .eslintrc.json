@@ -19,6 +19,6 @@
       "no-use-before-define": 0,
       "keyword-spacing": [2, {"after": true, "before": true}],
       "no-trailing-spaces": 2,
-      "space-unary-ops": 0
+      "space-unary-ops": [1, { "words": true, "nonwords": false }]
     }
 }

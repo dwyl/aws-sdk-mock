@@ -127,7 +127,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       });
     });
   });
-  if (typeof(Promise) === 'function') {
+  if (typeof Promise === 'function') {
     t.test('promises are supported', function(st){
       var error = new Error('on purpose');
       awsMock.mock('Lambda', 'getFunction', function(params, callback) {
