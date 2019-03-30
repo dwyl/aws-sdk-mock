@@ -120,13 +120,13 @@ function mockServiceMethod(service, client, method, replace) {
     var args = Array.prototype.slice.call(arguments);
 
     var userArgs, userCallback;
-    if (typeof(args[(args.length || 1) - 1]) === 'function') {
+    if (typeof args[(args.length || 1) - 1] === 'function') {
       userArgs = args.slice(0, -1);
       userCallback = args[(args.length || 1) - 1];
     } else {
       userArgs = args;
     }
-    var havePromises = typeof(AWS.Promise) === 'function';
+    var havePromises = typeof AWS.Promise === 'function';
     var promise, resolve, reject, storedResult;
     var tryResolveFromStored = function() {
       if (storedResult && promise) {
@@ -169,7 +169,7 @@ function mockServiceMethod(service, client, method, replace) {
         } else {
           var stream = new Readable();
           stream._read = function(size) {
-            if (typeof(replace) === 'string' || Buffer.isBuffer(replace)) {
+            if (typeof replace === 'string' || Buffer.isBuffer(replace)) {
               this.push(replace);
             }
             this.push(null);
@@ -201,7 +201,7 @@ function mockServiceMethod(service, client, method, replace) {
     }
 
     // If the value of 'replace' is a function we call it with the arguments.
-    if (typeof(replace) === 'function') {
+    if (typeof replace === 'function') {
       var result = replace.apply(replace, userArgs.concat([callback]));
       if (storedResult === undefined && result != null &&
           typeof result.then === 'function') {
@@ -286,7 +286,7 @@ function restoreMethod(service, method) {
   var setPromisesDependency = _AWS.config.setPromisesDependency;
   /* istanbul ignore next */
   /* only to support for older versions of aws-sdk */
-  if (typeof(setPromisesDependency) === 'function') {
+  if (typeof setPromisesDependency === 'function') {
     AWS.Promise = global.Promise;
     _AWS.config.setPromisesDependency = function(p) {
       AWS.Promise = p;
