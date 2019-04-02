@@ -9,7 +9,7 @@
     "index.d.ts"
   ],
   "scripts": {
-    "lint": "eslint index.js test/index.test.js",
+    "lint": "eslint index.js test/index.test.js && dtslint",
     "nocov": "tap test/*.js",
     "test": "nyc --reporter=lcov tap ./test/*.js",
     "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
@@ -43,7 +43,9 @@
     "traverse": "^0.6.6"
   },
   "devDependencies": {
+    "@types/node": "^10.0.0",
     "concat-stream": "^2.0.0",
+    "dtslint": "^0.5.9",
     "eslint": "^5.15.3",
     "is-node-stream": "^1.0.0",
     "nyc": "^13.3.0",
