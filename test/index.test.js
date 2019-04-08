@@ -491,6 +491,14 @@ test('AWS.setSDK function should mock a specific AWS module', function(t) {
     });
   });
 
+  t.test('Modules with multi-parameter constructors can be set for mocking', function(st) {
+	awsMock.setSDK('aws-sdk');
+	awsMock.mock('CloudFront.Signer', 'getSignedUrl');
+	var signer = new AWS.CloudFront.Signer('key-pair-id', 'private-key');
+	st.ok(signer);
+	st.end();
+  });
+
   t.test('Setting the aws-sdk to the wrong module can cause an exception when mocking', function(st) {
     awsMock.setSDK('sinon');
     st.throws(function() {

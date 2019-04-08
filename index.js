@@ -88,7 +88,7 @@ function mockService(service) {
   var method = nestedServices.pop();
   var object = traverse(_AWS).get(nestedServices);
 
-  var serviceStub = sinon.stub(object, method).callsFake(function(args) {
+  var serviceStub = sinon.stub(object, method).callsFake(function(...args) {
     services[service].invoked = true;
 
     /**
@@ -96,7 +96,7 @@ function mockService(service) {
      * we stored before. E.g. var client = new AWS.SNS()
      * This is necessary in order to mock methods on the service.
      */
-    var client = new services[service].Constructor(args);
+    var client = new services[service].Constructor(...args);
     services[service].client = client;
 
     // Once this has been triggered we can mock out all the registered methods.
