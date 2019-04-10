@@ -207,7 +207,7 @@ Example:
 ```js
 // test code
 const AWSMock = require('aws-sdk-mock');
-import AWS = require('aws-sdk');
+import AWS from 'aws-sdk';
 AWSMock.setSDKInstance(AWS);
 AWSMock.mock('SQS', /* ... */);
 
