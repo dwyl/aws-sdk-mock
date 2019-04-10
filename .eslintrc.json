@@ -1,24 +1,24 @@
 {
   "env": {
     "browser": true,
-      "node": true
+    "node": true
   },
-    "globals": {
-      "Buffer": true,
-      "escape": true
-    },
-    "rules": {
-      "quotes": [2, "single"],
-      "strict": 0,
-      "curly": 0,
-      "no-empty": 0,
-      "no-multi-spaces": 2,
-      "no-underscore-dangle": 0,
-      "new-cap": 0,
-      "dot-notation": 0,
-      "no-use-before-define": 0,
-      "keyword-spacing": [2, {"after": true, "before": true}],
-      "no-trailing-spaces": 2,
-      "space-unary-ops": [1, { "words": true, "nonwords": false }]
-    }
+  "globals": {
+    "Buffer": true,
+    "escape": true
+  },
+  "rules": {
+    "quotes": [2, "single"],
+    "strict": 0,
+    "curly": 0,
+    "no-empty": 0,
+    "no-multi-spaces": 2,
+    "no-underscore-dangle": 0,
+    "new-cap": 0,
+    "dot-notation": 0,
+    "no-use-before-define": 0,
+    "keyword-spacing": [2, {"after": true, "before": true}],
+    "no-trailing-spaces": 2,
+    "space-unary-ops": [1, { "words": true, "nonwords": false }]
+  }
 }
