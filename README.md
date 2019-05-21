@@ -46,6 +46,7 @@ npm install aws-sdk-mock --save-dev
 
 ### Use in your Tests
 
+#### Using plain JavaScript
 ```js
 
 var AWS = require('aws-sdk-mock');
@@ -70,6 +71,57 @@ AWS.restore('S3');
 // or AWS.restore(); this will restore all the methods and services
 ```
 
+#### Using TypeScript
+
+```typescript
+import * as AWSMock from "aws-sdk-mock";
+import * as AWS from "aws-sdk"; 
+import { GetItemInput } from "aws-sdk/clients/dynamodb";
+
+beforeAll(async (done) => {
+  //get requires env vars
+  done();
+ });
+
+describe("the module", () => {
+
+/**
+    TESTS below here
+**/
+
+  it("should mock getItem from DynamoDB", async () => {
+    // Overwriting DynamoDB.getItem()
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock('DynamoDB', 'getItem', (params: GetItemInput, callback: Function) => {
+      console.log('DynamoDB', 'getItem', 'mock called');
+      callback(null, {pk: "foo", sk: "bar"});
+    })
+
+    let input:GetItemInput = { TableName: '', Key: {} };
+    const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+    expect(await dynamodb.getItem(input).promise()).toStrictEqual( { pk: 'foo', sk: 'bar' });
+
+    AWSMock.restore('DynamoDB');
+  });
+
+  it("should mock reading from DocumentClient", async () => {
+    // Overwriting DynamoDB.DocumentClient.get()
+    AWSMock.setSDKInstance(AWS);
+    AWSMock.mock('DynamoDB.DocumentClient', 'get', (params: GetItemInput, callback: Function) => {
+      console.log('DynamoDB.DocumentClient', 'get', 'mock called');
+      callback(null, {pk: "foo", sk: "bar"});
+    })
+
+    let input:GetItemInput = { TableName: '', Key: {} };
+    const client = new AWS.DynamoDB.DocumentClient({apiVersion: '2012-08-10'});
+    expect(await client.get(input).promise()).toStrictEqual( { pk: 'foo', sk: 'bar' });
+
+    AWSMock.restore('DynamoDB.DocumentClient');
+  });
+});
+```
+
+#### Sinon
 You can also pass Sinon spies to the mock:
 
 ```js
