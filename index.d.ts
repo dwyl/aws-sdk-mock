@@ -1,21 +1,28 @@
-declare module 'aws-sdk-mock' {
-  function mock(service: string, method: string, replace: any): void;
+import AWSClientAll from "aws-sdk/clients/all";
+import AWS from "aws-sdk";
 
-  function mock(
-    service: string,
-    method: string,
-    replace: (params: any, callback: (err: any, data: any) => void) => void
-  ): void;
+export function mock<
+  T extends keyof typeof AWSClientAll,
+  K extends InstanceType<typeof AWSClientAll[T]> = InstanceType<
+    typeof AWSClientAll[T]
+  >,
+  F extends keyof K = keyof K
+>(service: T, method: F, replace: string | ((...args: any[]) => void)): void;
 
-  function remock(service: string, method: string, replace: any): void;
-  function remock(
-    service: string,
-    method: string,
-    replace: (params: any, callback: (err: any, data: any) => void) => void
-  ): void;
+export function remock<
+  T extends keyof typeof AWSClientAll,
+  K extends InstanceType<typeof AWSClientAll[T]> = InstanceType<
+    typeof AWSClientAll[T]
+  >,
+  F extends keyof K = keyof K
+>(service: T, method: F, replace: string | ((...args: any[]) => void)): void;
 
-  function restore(service?: string, method?: string): void;
+export function restore<
+  T extends keyof typeof AWSClientAll,
+  K extends keyof InstanceType<typeof AWSClientAll[T]> = keyof InstanceType<
+    typeof AWSClientAll[T]
+  >
+>(service?: T, method?: K): void;
 
-  function setSDK(path: string): void;
-  function setSDKInstance(instance: object): void;
-}
+export function setSDK(path: string): void;
+export function setSDKInstance(instance: typeof AWS): void;
