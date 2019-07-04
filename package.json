@@ -12,7 +12,9 @@
     "lint": "eslint index.js test/index.test.js",
     "nocov": "tap test/*.js",
     "test": "nyc --reporter=lcov tap ./test/*.js",
-    "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
+    "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -40,7 +42,8 @@
   "dependencies": {
     "aws-sdk": "^2.483.0",
     "sinon": "^7.3.2",
-    "traverse": "^0.6.6"
+    "traverse": "^0.6.6",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "concat-stream": "^2.0.0",
@@ -48,5 +51,6 @@
     "is-node-stream": "^1.0.0",
     "nyc": "^14.1.1",
     "tap": "^14.3.1"
-  }
+  },
+  "snyk": true
 }
