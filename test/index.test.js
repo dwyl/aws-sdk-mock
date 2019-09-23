@@ -5,6 +5,7 @@ var AWS = require('aws-sdk');
 var isNodeStream = require('is-node-stream');
 var concatStream = require('concat-stream');
 var Readable = require('stream').Readable;
+var sinon = require('sinon');
 
 AWS.config.paramValidation = false;
 
@@ -126,6 +127,16 @@ test('AWS.mock function should mock AWS service and method on the service', func
         st.end();
       });
     });
+  });
+  t.test('eachPage can be mocked on the AWS.Request object', function(st){
+    awsMock.mock('S3', 'listObjectsV2', {});
+    sinon.stub(AWS.Request.prototype, 'eachPage').callsFake(cb=>cb(null,null, function(){}));
+    var s3 = new AWS.S3();
+    s3.listObjectsV2().eachPage(function (err,data,done) {
+      done();
+      st.end();
+    })
+    sinon.restore();
   });
   if (typeof Promise === 'function') {
     t.test('promises are supported', function(st){
