@@ -270,7 +270,7 @@ const sqs = new AWS.SQS();
 
 ### Configuring promises
 
-If your environment lacks a global Promise contstructor (e.g. nodejs 0.10), you can explicitly set the promises on `aws-sdk-mock`. Set the value of `AWS.Promise` to the constructor for your chosen promise library.
+If your environment lacks a global Promise constructor (e.g. nodejs 0.10), you can explicitly set the promises on `aws-sdk-mock`. Set the value of `AWS.Promise` to the constructor for your chosen promise library.
 
 Example (if Q is your promise library of choice):
 ```js
