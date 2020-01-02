@@ -196,6 +196,7 @@ function mockServiceMethod(service, client, method, replace) {
         }
       } catch (e) {
         callback(e, null);
+        Object.setPrototypeOf(request, _AWS.Request.prototype);
         return request;
       }
     }
@@ -212,6 +213,7 @@ function mockServiceMethod(service, client, method, replace) {
     else {
       callback(null, replace);
     }
+    Object.setPrototypeOf(request, _AWS.Request.prototype);
     return request;
   });
 }
