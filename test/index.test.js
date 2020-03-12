@@ -1,10 +1,12 @@
-var tap = require('tap');
-var test = tap.test;
-var awsMock = require('../index.js');
-var AWS = require('aws-sdk');
-var isNodeStream = require('is-node-stream');
-var concatStream = require('concat-stream');
-var Readable = require('stream').Readable;
+'use strict';
+
+const tap = require('tap');
+const test = tap.test;
+const awsMock = require('../index.js');
+const AWS = require('aws-sdk');
+const isNodeStream = require('is-node-stream');
+const concatStream = require('concat-stream');
+const Readable = require('stream').Readable;
 
 AWS.config.paramValidation = false;
 
@@ -16,7 +18,7 @@ tap.afterEach(function (done) {
 test('AWS.mock function should mock AWS service and method on the service', function(t){
   t.test('mock function replaces method with a function that returns replace string', function(st){
     awsMock.mock('SNS', 'publish', 'message');
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
       st.equals(data, 'message');
       st.end();
@@ -26,7 +28,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
       st.equals(data, 'message');
       st.end();
@@ -34,7 +36,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method which accepts any number of arguments can be mocked', function(st) {
     awsMock.mock('S3', 'getSignedUrl', 'message');
-    var s3 = new AWS.S3();
+    const s3 = new AWS.S3();
     s3.getSignedUrl('getObject', {}, function(err, data) {
       st.equals(data, 'message');
       awsMock.mock('S3', 'upload', function(params, options, callback) {
@@ -48,7 +50,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method fails on invalid input if paramValidation is set', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
-    var s3 = new AWS.S3({paramValidation: true});
+    const s3 = new AWS.S3({paramValidation: true});
     s3.getObject({Bucket: 'b', notKey: 'k'}, function(err, data) {
       st.ok(err);
       st.notOk(data);
@@ -57,7 +59,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method with no input rules can be mocked even if paramValidation is set', function(st) {
     awsMock.mock('S3', 'getSignedUrl', 'message');
-    var s3 = new AWS.S3({paramValidation: true});
+    const s3 = new AWS.S3({paramValidation: true});
     s3.getSignedUrl('getObject', {}, function(err, data) {
       st.equals(data, 'message');
       st.end();
@@ -65,7 +67,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method succeeds on valid input when paramValidation is set', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
-    var s3 = new AWS.S3({paramValidation: true});
+    const s3 = new AWS.S3({paramValidation: true});
     s3.getObject({Bucket: 'b', Key: 'k'}, function(err, data) {
       st.notOk(err);
       st.equals(data.Body, 'body');
@@ -76,7 +78,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'test');
     });
@@ -89,7 +91,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     awsMock.mock('SNS', 'subscribe', function(params, callback){
       callback(null, 'test');
     });
@@ -102,7 +104,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 1');
     });
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     awsMock.remock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 2');
     });
@@ -118,7 +120,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('Lambda', 'createFunction', function(params, callback) {
       callback(null, 'message');
     });
-    var lambda = new AWS.Lambda();
+    const lambda = new AWS.Lambda();
     lambda.getFunction({}, function(err, data) {
       st.equals(data, 'message');
       lambda.createFunction({}, function(err, data) {
@@ -129,14 +131,14 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   if (typeof Promise === 'function') {
     t.test('promises are supported', function(st){
-      var error = new Error('on purpose');
+      const error = new Error('on purpose');
       awsMock.mock('Lambda', 'getFunction', function(params, callback) {
         callback(null, 'message');
       });
       awsMock.mock('Lambda', 'createFunction', function(params, callback) {
         callback(error, 'message');
       });
-      var lambda = new AWS.Lambda();
+      const lambda = new AWS.Lambda();
       lambda.getFunction({}).promise().then(function(data) {
         st.equals(data, 'message');
       }).then(function(){
@@ -147,14 +149,14 @@ test('AWS.mock function should mock AWS service and method on the service', func
       });
     });
     t.test('replacement returns thennable', function(st){
-      var error = new Error('on purpose');
+      const error = new Error('on purpose');
       awsMock.mock('Lambda', 'getFunction', function(params) {
         return Promise.resolve('message')
       });
       awsMock.mock('Lambda', 'createFunction', function(params, callback) {
         return Promise.reject(error)
       });
-      var lambda = new AWS.Lambda();
+      const lambda = new AWS.Lambda();
       lambda.getFunction({}).promise().then(function(data) {
         st.equals(data, 'message');
       }).then(function(){
@@ -172,19 +174,19 @@ test('AWS.mock function should mock AWS service and method on the service', func
       awsMock.mock('S3', 'getObject', function(params, callback) {
         callback('This is a test error to see if promise rejections go unhandled');
       });
-      var S3 = new AWS.S3();
+      const S3 = new AWS.S3();
       S3.getObject({}, function(err, data) {});
       st.end();
     });
     t.test('promises work with async completion', function(st){
-      var error = new Error('on purpose');
+      const error = new Error('on purpose');
       awsMock.mock('Lambda', 'getFunction', function(params, callback) {
         setTimeout(callback.bind(this, null, 'message'), 10);
       });
       awsMock.mock('Lambda', 'createFunction', function(params, callback) {
         setTimeout(callback.bind(this, error, 'message'), 10);
       });
-      var lambda = new AWS.Lambda();
+      const lambda = new AWS.Lambda();
       lambda.getFunction({}).promise().then(function(data) {
         st.equals(data, 'message');
       }).then(function(){
@@ -198,9 +200,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
       awsMock.mock('Lambda', 'getFunction', function(params, callback) {
         callback(null, 'message');
       });
-      var lambda = new AWS.Lambda();
+      const lambda = new AWS.Lambda();
       function P(handler) {
-        var self = this;
+        const self = this;
         function yay (value) {
           self.value = value;
         }
@@ -208,7 +210,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       }
       P.prototype.then = function(yay) { if (this.value) yay(this.value) };
       AWS.config.setPromisesDependency(P);
-      var promise = lambda.getFunction({}).promise();
+      const promise = lambda.getFunction({}).promise();
       st.equals(promise.constructor.name, 'P');
       promise.then(function(data) {
         st.equals(data, 'message');
@@ -218,8 +220,8 @@ test('AWS.mock function should mock AWS service and method on the service', func
   }
   t.test('request object supports createReadStream', function(st) {
     awsMock.mock('S3', 'getObject', 'body');
-    var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', function(err, data) {});
+    const s3 = new AWS.S3();
+    let req = s3.getObject('getObject', function(err, data) {});
     st.ok(isNodeStream(req.createReadStream()));
     // with or without callback
     req = s3.getObject('getObject');
@@ -227,17 +229,17 @@ test('AWS.mock function should mock AWS service and method on the service', func
     // stream is currently always empty but that's subject to change.
     // let's just consume it and ignore the contents
     req = s3.getObject('getObject');
-    var stream = req.createReadStream();
+    const stream = req.createReadStream();
     stream.pipe(concatStream(function() {
       st.end();
     }));
   });
   t.test('request object createReadStream works with streams', function(st) {
-    var bodyStream = new Readable();
+    const bodyStream = new Readable();
     bodyStream.push('body');
     bodyStream.push(null);
     awsMock.mock('S3', 'getObject', bodyStream);
-    var stream = new AWS.S3().getObject('getObject').createReadStream();
+    const stream = new AWS.S3().getObject('getObject').createReadStream();
     stream.pipe(concatStream(function(actual) {
       st.equals(actual.toString(), 'body');
       st.end();
@@ -245,9 +247,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('request object createReadStream works with strings', function(st) {
     awsMock.mock('S3', 'getObject', 'body');
-    var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {});
-    var stream = req.createReadStream();
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
+    const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
       st.equals(actual.toString(), 'body');
       st.end();
@@ -255,9 +257,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('request object createReadStream works with buffers', function(st) {
     awsMock.mock('S3', 'getObject', Buffer.alloc(4, 'body'));
-    var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {});
-    var stream = req.createReadStream();
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
+    const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
       st.equals(actual.toString(), 'body');
       st.end();
@@ -265,9 +267,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('request object createReadStream ignores functions', function(st) {
     awsMock.mock('S3', 'getObject', function(){});
-    var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {});
-    var stream = req.createReadStream();
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
+    const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
       st.equals(actual.toString(), '');
       st.end();
@@ -275,9 +277,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('request object createReadStream ignores non-buffer objects', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
-    var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {});
-    var stream = req.createReadStream();
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
+    const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
       st.equals(actual.toString(), '');
       st.end();
@@ -285,15 +287,15 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('call on method of request object', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
-    var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {});
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
     st.equals(typeof req.on, 'function');
     st.end();
   });
   t.test('call send method of request object', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
-    var s3 = new AWS.S3();
-    var req = s3.getObject('getObject', {});
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
     st.equals(typeof req.send, 'function');
     st.end();
   });
@@ -312,7 +314,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     st.equals(AWS.SNS.isSinonProxy, true);
     st.equals(sns.publish.isSinonProxy, true);
 
@@ -332,9 +334,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('DynamoDB.DocumentClient', 'put', function(params, callback){
       callback(null, 'test');
     });
-    var sns = new AWS.SNS();
-    var docClient = new AWS.DynamoDB.DocumentClient();
-    var dynamoDb = new AWS.DynamoDB();
+    const sns = new AWS.SNS();
+    const docClient = new AWS.DynamoDB.DocumentClient();
+    const dynamoDb = new AWS.DynamoDB();
 
     st.equals(AWS.SNS.isSinonProxy, true);
     st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
@@ -355,7 +357,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('a nested service can be mocked properly', function(st){
     awsMock.mock('DynamoDB.DocumentClient', 'put', 'message');
-    var docClient = new AWS.DynamoDB.DocumentClient();
+    const docClient = new AWS.DynamoDB.DocumentClient();
     awsMock.mock('DynamoDB.DocumentClient', 'put', function(params, callback) {
       callback(null, 'test');
     });
@@ -387,7 +389,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('DynamoDB.DocumentClient', 'query', function(params, callback) {
       callback(null, 'test');
     });
-    var docClient = new AWS.DynamoDB.DocumentClient({paramValidation: true});
+    const docClient = new AWS.DynamoDB.DocumentClient({paramValidation: true});
 
     st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
     st.equals(docClient.query.isSinonProxy, true);
@@ -400,8 +402,8 @@ test('AWS.mock function should mock AWS service and method on the service', func
   t.test('a mocked service and a mocked nested service can coexist as long as the nested service is mocked first', function(st) {
     awsMock.mock('DynamoDB.DocumentClient', 'get', 'message');
     awsMock.mock('DynamoDB', 'getItem', 'test');
-    var docClient = new AWS.DynamoDB.DocumentClient();
-    var dynamoDb = new AWS.DynamoDB();
+    const docClient = new AWS.DynamoDB.DocumentClient();
+    let dynamoDb = new AWS.DynamoDB();
 
     st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
     st.equals(AWS.DynamoDB.isSinonProxy, true);
@@ -443,7 +445,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       return callback(null, 'message');
     });
 
-    var csd = new AWS.CloudSearchDomain({
+    const csd = new AWS.CloudSearchDomain({
       endpoint: 'some endpoint',
       region: 'eu-west'
     });
@@ -463,7 +465,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.skip('Mocked service should return the sinon stub', function(st) {
     // TODO: the stub is only returned if an instance was already constructed
-    var stub = awsMock.mock('CloudSearchDomain', 'search');
+    const stub = awsMock.mock('CloudSearchDomain', 'search');
     st.equals(stub.stub.isSinonProxy, true);
     st.end();
   });
@@ -484,7 +486,7 @@ test('AWS.setSDK function should mock a specific AWS module', function(t) {
   t.test('Specific Modules can be set for mocking', function(st) {
     awsMock.setSDK('aws-sdk');
     awsMock.mock('SNS', 'publish', 'message');
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
       st.equals(data, 'message');
       st.end();
@@ -494,7 +496,7 @@ test('AWS.setSDK function should mock a specific AWS module', function(t) {
   t.test('Modules with multi-parameter constructors can be set for mocking', function(st) {
     awsMock.setSDK('aws-sdk');
     awsMock.mock('CloudFront.Signer', 'getSignedUrl');
-    var signer = new AWS.CloudFront.Signer('key-pair-id', 'private-key');
+    const signer = new AWS.CloudFront.Signer('key-pair-id', 'private-key');
     st.type(signer, 'Signer');
     st.end();
   });
@@ -512,10 +514,10 @@ test('AWS.setSDK function should mock a specific AWS module', function(t) {
 
 test('AWS.setSDKInstance function should mock a specific AWS module', function(t) {
   t.test('Specific Modules can be set for mocking', function(st) {
-    var aws2 = require('aws-sdk');
+    const aws2 = require('aws-sdk');
     awsMock.setSDKInstance(aws2);
     awsMock.mock('SNS', 'publish', 'message2');
-    var sns = new AWS.SNS();
+    const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
       st.equals(data, 'message2');
       st.end();
@@ -523,7 +525,7 @@ test('AWS.setSDKInstance function should mock a specific AWS module', function(t
   });
 
   t.test('Setting the aws-sdk to the wrong instance can cause an exception when mocking', function(st) {
-    var bad = {};
+    const bad = {};
     awsMock.setSDKInstance(bad);
     st.throws(function() {
       awsMock.mock('SNS', 'publish', 'message');
