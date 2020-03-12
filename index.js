@@ -10,13 +10,13 @@
 * - mock of the method on the service
 **/
 
-var sinon = require('sinon');
-var traverse = require('traverse');
-var _AWS = require('aws-sdk');
-var Readable = require('stream').Readable;
+const sinon = require('sinon');
+const traverse = require('traverse');
+let _AWS = require('aws-sdk');
+const Readable = require('stream').Readable;
 
-var AWS = {};
-var services = {};
+const AWS = {};
+const services = {};
 
 /**
  * Sets the aws-sdk to be mocked.
@@ -84,23 +84,23 @@ AWS.remock = function(service, method, replace) {
  * E.g. calls of new AWS.SNS() are replaced.
  */
 function mockService(service) {
-  var nestedServices = service.split('.');
-  var method = nestedServices.pop();
-  var object = traverse(_AWS).get(nestedServices);
+  const nestedServices = service.split('.');
+  const method = nestedServices.pop();
+  const object = traverse(_AWS).get(nestedServices);
 
-  var serviceStub = sinon.stub(object, method).callsFake(function(...args) {
+  const serviceStub = sinon.stub(object, method).callsFake(function(...args) {
     services[service].invoked = true;
 
     /**
      * Create an instance of the service by calling the real constructor
-     * we stored before. E.g. var client = new AWS.SNS()
+     * we stored before. E.g. const client = new AWS.SNS()
      * This is necessary in order to mock methods on the service.
      */
-    var client = new services[service].Constructor(...args);
+    const client = new services[service].Constructor(...args);
     services[service].client = client;
 
     // Once this has been triggered we can mock out all the registered methods.
-    for (var key in services[service].methodMocks) {
+    for (const key in services[service].methodMocks) {
       mockServiceMethod(service, client, key, services[service].methodMocks[key].replace);
     };
     return client;
@@ -117,18 +117,18 @@ function mockService(service) {
  */
 function mockServiceMethod(service, client, method, replace) {
   services[service].methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
-    var args = Array.prototype.slice.call(arguments);
+    const args = Array.prototype.slice.call(arguments);
 
-    var userArgs, userCallback;
+    let userArgs, userCallback;
     if (typeof args[(args.length || 1) - 1] === 'function') {
       userArgs = args.slice(0, -1);
       userCallback = args[(args.length || 1) - 1];
     } else {
       userArgs = args;
     }
-    var havePromises = typeof AWS.Promise === 'function';
-    var promise, resolve, reject, storedResult;
-    var tryResolveFromStored = function() {
+    const havePromises = typeof AWS.Promise === 'function';
+    let promise, resolve, reject, storedResult;
+    const tryResolveFromStored = function() {
       if (storedResult && promise) {
         if (typeof storedResult.then === 'function') {
           storedResult.then(resolve, reject)
@@ -139,7 +139,7 @@ function mockServiceMethod(service, client, method, replace) {
         }
       }
     };
-    var callback = function(err, data) {
+    const callback = function(err, data) {
       if (!storedResult) {
         if (err) {
           storedResult = {reject: err};
@@ -152,7 +152,7 @@ function mockServiceMethod(service, client, method, replace) {
       }
       tryResolveFromStored();
     };
-    var request = {
+    const request = {
       promise: havePromises ? function() {
         if (!promise) {
           promise = new AWS.Promise(function (resolve_, reject_) {
@@ -167,7 +167,7 @@ function mockServiceMethod(service, client, method, replace) {
         if (replace instanceof Readable) {
           return replace;
         } else {
-          var stream = new Readable();
+          const stream = new Readable();
           stream._read = function(size) {
             if (typeof replace === 'string' || Buffer.isBuffer(replace)) {
               this.push(replace);
@@ -184,14 +184,14 @@ function mockServiceMethod(service, client, method, replace) {
     };
 
     // different locations for the paramValidation property
-    var config = (client.config || client.options || _AWS.config);
+    const config = (client.config || client.options || _AWS.config);
     if (config.paramValidation) {
       try {
         // different strategies to find method, depending on wether the service is nested/unnested
-        var inputRules =
+        const inputRules =
           ((client.api && client.api.operations[method]) || client[method] || {}).input;
         if (inputRules) {
-          var params = userArgs[(userArgs.length || 1) - 1];
+          const params = userArgs[(userArgs.length || 1) - 1];
           new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, params);
         }
       } catch (e) {
@@ -202,7 +202,7 @@ function mockServiceMethod(service, client, method, replace) {
 
     // If the value of 'replace' is a function we call it with the arguments.
     if (typeof replace === 'function') {
-      var result = replace.apply(replace, userArgs.concat([callback]));
+      const result = replace.apply(replace, userArgs.concat([callback]));
       if (storedResult === undefined && result != null &&
           typeof result.then === 'function') {
         storedResult = result
@@ -239,7 +239,7 @@ AWS.restore = function(service, method) {
  * Restores all mocked service and their corresponding methods.
  */
 function restoreAllServices() {
-  for (var service in services) {
+  for (const service in services) {
     restoreService(service);
   }
 }
@@ -262,7 +262,7 @@ function restoreService(service) {
  * Restores all mocked methods on a service.
  */
 function restoreAllMethods(service) {
-  for (var method in services[service].methodMocks) {
+  for (const method in services[service].methodMocks) {
     restoreMethod(service, method);
   }
 }
@@ -283,7 +283,7 @@ function restoreMethod(service, method) {
 }
 
 (function() {
-  var setPromisesDependency = _AWS.config.setPromisesDependency;
+  const setPromisesDependency = _AWS.config.setPromisesDependency;
   /* istanbul ignore next */
   /* only to support for older versions of aws-sdk */
   if (typeof setPromisesDependency === 'function') {
