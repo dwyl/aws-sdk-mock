@@ -49,7 +49,7 @@ npm install aws-sdk-mock --save-dev
 #### Using plain JavaScript
 ```js
 
-var AWS = require('aws-sdk-mock');
+const AWS = require('aws-sdk-mock');
 
 AWS.mock('DynamoDB', 'putItem', function (params, callback){
   callback(null, "successfully put item in database");
@@ -75,7 +75,7 @@ AWS.restore('S3');
 
 ```typescript
 import * as AWSMock from "aws-sdk-mock";
-import * as AWS from "aws-sdk"; 
+import * as AWS from "aws-sdk";
 import { GetItemInput } from "aws-sdk/clients/dynamodb";
 
 beforeAll(async (done) => {
@@ -97,7 +97,7 @@ describe("the module", () => {
       callback(null, {pk: "foo", sk: "bar"});
     })
 
-    let input:GetItemInput = { TableName: '', Key: {} };
+    const input:GetItemInput = { TableName: '', Key: {} };
     const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
     expect(await dynamodb.getItem(input).promise()).toStrictEqual( { pk: 'foo', sk: 'bar' });
 
@@ -112,7 +112,7 @@ describe("the module", () => {
       callback(null, {pk: "foo", sk: "bar"});
     })
 
-    let input:GetItemInput = { TableName: '', Key: {} };
+    const input:GetItemInput = { TableName: '', Key: {} };
     const client = new AWS.DynamoDB.DocumentClient({apiVersion: '2012-08-10'});
     expect(await client.get(input).promise()).toStrictEqual( { pk: 'foo', sk: 'bar' });
 
@@ -125,7 +125,7 @@ describe("the module", () => {
 You can also pass Sinon spies to the mock:
 
 ```js
-var updateTableSpy = sinon.spy();
+const updateTableSpy = sinon.spy();
 AWS.mock('DynamoDB', 'updateTable', updateTableSpy);
 
 // Object under test
@@ -133,7 +133,7 @@ myDynamoManager.scaleDownTable();
 
 // Assert on your Sinon spy as normal
 assert.isTrue(updateTableSpy.calledOnce, 'should update dynamo table via AWS SDK');
-var expectedParams = {
+const expectedParams = {
   TableName: 'testTableName',
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
@@ -147,9 +147,9 @@ assert.isTrue(updateTableSpy.calledWith(expectedParams), 'should pass correct pa
 
 Example 1:
 ```js
-var AWS      = require('aws-sdk');
-var sns      = AWS.SNS();
-var dynamoDb = AWS.DynamoDB();
+const AWS      = require('aws-sdk');
+const sns      = AWS.SNS();
+const dynamoDb = AWS.DynamoDB();
 
 exports.handler = function(event, context) {
   // do something with the services e.g. sns.publish
@@ -158,11 +158,11 @@ exports.handler = function(event, context) {
 
 Example 2:
 ```js
-var AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 
 exports.handler = function(event, context) {
-  var sns      = AWS.SNS();
-  var dynamoDb = AWS.DynamoDB();
+  const sns      = AWS.SNS();
+  const dynamoDb = AWS.DynamoDB();
   // do something with the services e.g. sns.publish
 }
 ```
@@ -173,8 +173,8 @@ Example 1 (won't work):
 ```js
 exports.handler = function(event, context) {
   someAsyncFunction(() => {
-    var sns      = AWS.SNS();
-    var dynamoDb = AWS.DynamoDB();
+    const sns      = AWS.SNS();
+    const dynamoDb = AWS.DynamoDB();
     // do something with the services e.g. sns.publish
   });
 }
@@ -183,8 +183,8 @@ exports.handler = function(event, context) {
 Example 2 (will work):
 ```js
 exports.handler = function(event, context) {
-  var sns      = AWS.SNS();
-  var dynamoDb = AWS.DynamoDB();
+  const sns      = AWS.SNS();
+  const dynamoDb = AWS.DynamoDB();
   someAsyncFunction(() => {
     // do something with the services e.g. sns.publish
   });
@@ -223,7 +223,7 @@ AWS.restore('DynamoDB');
 Some constructors of the aws-sdk will require you to pass through a configuration object.
 
 ```js
-var csd = new AWS.CloudSearchDomain({
+const csd = new AWS.CloudSearchDomain({
   endpoint: 'your.end.point',
   region: 'eu-west'
 });
@@ -241,8 +241,8 @@ Project structures that don't include the `aws-sdk` at the top level `node_modul
 
 Example:
 ```js
-var path = require('path');
-var AWS = require('aws-sdk-mock');
+const path = require('path');
+const AWS = require('aws-sdk-mock');
 
 AWS.setSDK(path.resolve('../../functions/foo/node_modules/aws-sdk'));
 
@@ -274,7 +274,7 @@ If your environment lacks a global Promise constructor (e.g. nodejs 0.10), you c
 
 Example (if Q is your promise library of choice):
 ```js
-var AWS = require('aws-sdk-mock'),
+const AWS = require('aws-sdk-mock'),
     Q = require('q');
 
 AWS.Promise = Q.Promise;
