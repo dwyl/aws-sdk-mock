@@ -113,6 +113,28 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     });
   });
+  t.test('all instances of service are re-mocked when remock called', function(st){
+    awsMock.mock('SNS', 'subscribe', function(params, callback){
+      callback(null, 'message 1');
+    });
+    const sns1 = new AWS.SNS();
+    const sns2 = new AWS.SNS();
+    
+    awsMock.remock('SNS', 'subscribe', function(params, callback){
+      callback(null, 'message 2');
+    });
+    
+    sns1.subscribe({}, function(err, data){
+      st.equals(data, 'message 2');
+      
+      sns2.subscribe({}, function(err, data){
+        st.equals(data, 'message 2');
+        st.end();
+      });
+      
+    });
+  });
+  
   t.test('multiple methods can be mocked on the same service', function(st){
     awsMock.mock('Lambda', 'getFunction', function(params, callback) {
       callback(null, 'message');

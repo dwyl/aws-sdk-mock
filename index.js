@@ -53,7 +53,9 @@ AWS.mock = function(service, method, replace) {
 
     // If the constructor was already invoked, we need to mock the method here.
     if (services[service].invoked) {
-      mockServiceMethod(service, services[service].client, method, replace);
+      services[service].clients.forEach(client => {
+        mockServiceMethod(service, client, method, replace);
+      })
     }
   }
 
@@ -73,7 +75,9 @@ AWS.remock = function(service, method, replace) {
   }
 
   if (services[service].invoked) {
-    mockServiceMethod(service, services[service].client, method, replace);
+    services[service].clients.forEach(client => {
+      mockServiceMethod(service, client, method, replace);
+    })
   }
 
   return services[service].methodMocks[method];
@@ -97,7 +101,8 @@ function mockService(service) {
      * This is necessary in order to mock methods on the service.
      */
     const client = new services[service].Constructor(...args);
-    services[service].client = client;
+    services[service].clients = services[service].clients || [];
+    services[service].clients.push(client);
 
     // Once this has been triggered we can mock out all the registered methods.
     for (const key in services[service].methodMocks) {
@@ -116,6 +121,11 @@ function mockService(service) {
  *  - callback: of the form 'function(err, data) {}'.
  */
 function mockServiceMethod(service, client, method, replace) {
+  
+  if (client[method] && typeof client[method].restore === 'function') {
+    client[method].restore();
+  }
+  
   services[service].methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     const args = Array.prototype.slice.call(arguments);
 
