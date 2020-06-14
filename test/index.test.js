@@ -131,7 +131,6 @@ test('AWS.mock function should mock AWS service and method on the service', func
         st.equals(data, 'message 2');
         st.end();
       });
-
     });
   });
   t.test('multiple methods can be mocked on the same service', function(st){
