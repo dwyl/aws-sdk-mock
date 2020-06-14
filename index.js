@@ -121,11 +121,9 @@ function mockService(service) {
  *  - callback: of the form 'function(err, data) {}'.
  */
 function mockServiceMethod(service, client, method, replace) {
-  
   if (client[method] && typeof client[method].restore === 'function') {
     client[method].restore();
   }
-  
   services[service].methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     const args = Array.prototype.slice.call(arguments);
 

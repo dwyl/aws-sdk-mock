@@ -348,16 +348,16 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    
+
     const sns1 = new AWS.SNS();
     const sns2 = new AWS.SNS();
-      
+
     st.equals(AWS.SNS.isSinonProxy, true);
     st.equals(sns1.publish.isSinonProxy, true);
     st.equals(sns2.publish.isSinonProxy, true);
-    
+
     awsMock.restore('SNS', 'publish');
-    
+
     st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), true);
     st.equals(sns1.publish.hasOwnProperty('isSinonProxy'), false);
     st.equals(sns2.publish.hasOwnProperty('isSinonProxy'), false);
