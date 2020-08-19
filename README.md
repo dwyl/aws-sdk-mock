@@ -74,8 +74,8 @@ AWS.restore('S3');
 #### Using TypeScript
 
 ```typescript
-import * as AWSMock from "aws-sdk-mock";
-import * as AWS from "aws-sdk";
+import AWSMock from "aws-sdk-mock";
+import AWS from "aws-sdk";
 import { GetItemInput } from "aws-sdk/clients/dynamodb";
 
 beforeAll(async (done) => {
