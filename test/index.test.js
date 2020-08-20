@@ -469,9 +469,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(stub.stub.isSinonProxy, true);
     st.end();
   });
+
   t.test('Restore should not fail when the stub did not exist.', function (st) {
     // This test will fail when restoring throws unneeded errors.
     try {
+      awsMock.restore('Lambda');
       awsMock.restore('SES', 'sendEmail');
       awsMock.restore('CloudSearchDomain', 'doesnotexist');
       st.end();
