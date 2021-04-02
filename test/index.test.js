@@ -10,9 +10,8 @@ const Readable = require('stream').Readable;
 
 AWS.config.paramValidation = false;
 
-tap.afterEach(function (done) {
+tap.afterEach(function () {
   awsMock.restore();
-  done();
 });
 
 test('AWS.mock function should mock AWS service and method on the service', function(t){
