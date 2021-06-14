@@ -245,6 +245,19 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     }));
   });
+  t.test('request object createReadStream works with returned streams', function(st) {
+    awsMock.mock('S3', 'getObject', () => {
+      const bodyStream = new Readable();
+      bodyStream.push('body');
+      bodyStream.push(null);
+      return bodyStream;
+    });
+    const stream = new AWS.S3().getObject('getObject').createReadStream();
+    stream.pipe(concatStream(function(actual) {
+      st.equals(actual.toString(), 'body');
+      st.end();
+    }));
+  });
   t.test('request object createReadStream works with strings', function(st) {
     awsMock.mock('S3', 'getObject', 'body');
     const s3 = new AWS.S3();
