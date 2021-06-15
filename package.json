@@ -44,9 +44,9 @@
   },
   "devDependencies": {
     "concat-stream": "^2.0.0",
-    "eslint": "^7.4.0",
+    "eslint": "^7.28.0",
     "is-node-stream": "^1.0.0",
     "nyc": "^15.1.0",
-    "tap": "^14.10.7"
+    "tap": "^15.0.9"
   }
 }
