@@ -493,6 +493,14 @@ test('AWS.mock function should mock AWS service and method on the service', func
       console.log(e);
     }
   });
+
+  t.test('Mocked service should allow chained calls after listening to events', function (st) {
+    awsMock.mock('S3', 'getObject');
+    const s3 = new AWS.S3();
+    const req = s3.getObject({Bucket: 'b', notKey: 'k'});
+    st.equals(req.on('httpHeaders', ()=>{}), req);
+    st.end();
+  });
   t.end();
 });
 
