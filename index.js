@@ -184,6 +184,7 @@ function mockServiceMethod(service, client, method, replace) {
         return this;
       },
       send: function(callback) {
+        callback(storedResult.reject, storedResult.resolve);
       }
     };
 
