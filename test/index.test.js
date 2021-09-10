@@ -501,6 +501,19 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(req.on('httpHeaders', ()=>{}), req);
     st.end();
   });
+
+  t.test('Mocked service should return replaced function when request send is called', function(st) {
+    awsMock.mock('S3', 'getObject', {Body: 'body'});
+    let returnedValue = '';
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
+    req.send(async (err, data) => {
+      returnedValue = data.Body;
+    });
+    st.equals(returnedValue, 'body');
+    st.end();
+  });
+
   t.end();
 });
 
