@@ -508,8 +508,8 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const s3 = new AWS.S3();
     const req = s3.getObject('getObject', {});
     req.send(async (err, data) => {
-    returnedValue = data.Body;
-  });
+      returnedValue = data.Body;
+    });
     st.equals(returnedValue, 'body');
     st.end();
   });
