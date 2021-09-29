@@ -169,6 +169,9 @@ function mockServiceMethod(service, client, method, replace) {
         return promise;
       } : undefined,
       createReadStream: function() {
+        if (storedResult instanceof Readable) {
+          return storedResult;
+        }
         if (replace instanceof Readable) {
           return replace;
         } else {
@@ -183,8 +186,10 @@ function mockServiceMethod(service, client, method, replace) {
         }
       },
       on: function(eventName, callback) {
+        return this;
       },
       send: function(callback) {
+        callback(storedResult.reject, storedResult.resolve);
       }
     };
 
@@ -209,7 +214,7 @@ function mockServiceMethod(service, client, method, replace) {
     if (typeof replace === 'function') {
       const result = replace.apply(replace, userArgs.concat([callback]));
       if (storedResult === undefined && result != null &&
-          typeof result.then === 'function') {
+          (typeof result.then === 'function' || result instanceof Readable)) {
         storedResult = result
       }
     }

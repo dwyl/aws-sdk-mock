@@ -10,9 +10,8 @@ const Readable = require('stream').Readable;
 
 AWS.config.paramValidation = false;
 
-tap.afterEach(function (done) {
+tap.afterEach(() => {
   awsMock.restore();
-  done();
 });
 
 test('AWS.mock function should mock AWS service and method on the service', function(t){
@@ -259,6 +258,19 @@ test('AWS.mock function should mock AWS service and method on the service', func
     bodyStream.push('body');
     bodyStream.push(null);
     awsMock.mock('S3', 'getObject', bodyStream);
+    const stream = new AWS.S3().getObject('getObject').createReadStream();
+    stream.pipe(concatStream(function(actual) {
+      st.equals(actual.toString(), 'body');
+      st.end();
+    }));
+  });
+  t.test('request object createReadStream works with returned streams', function(st) {
+    awsMock.mock('S3', 'getObject', () => {
+      const bodyStream = new Readable();
+      bodyStream.push('body');
+      bodyStream.push(null);
+      return bodyStream;
+    });
     const stream = new AWS.S3().getObject('getObject').createReadStream();
     stream.pipe(concatStream(function(actual) {
       st.equals(actual.toString(), 'body');
@@ -527,9 +539,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(stub.stub.isSinonProxy, true);
     st.end();
   });
+
   t.test('Restore should not fail when the stub did not exist.', function (st) {
     // This test will fail when restoring throws unneeded errors.
     try {
+      awsMock.restore('Lambda');
       awsMock.restore('SES', 'sendEmail');
       awsMock.restore('CloudSearchDomain', 'doesnotexist');
       st.end();
@@ -537,6 +551,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       console.log(e);
     }
   });
+
   t.test('Restore should not fail when service was not mocked', function (st) {
     // This test will fail when restoring throws unneeded errors.
     try {
@@ -547,6 +562,27 @@ test('AWS.mock function should mock AWS service and method on the service', func
       console.log(e);
     }
   });
+
+  t.test('Mocked service should allow chained calls after listening to events', function (st) {
+    awsMock.mock('S3', 'getObject');
+    const s3 = new AWS.S3();
+    const req = s3.getObject({Bucket: 'b', notKey: 'k'});
+    st.equals(req.on('httpHeaders', ()=>{}), req);
+    st.end();
+  });
+
+  t.test('Mocked service should return replaced function when request send is called', function(st) {
+    awsMock.mock('S3', 'getObject', {Body: 'body'});
+    let returnedValue = '';
+    const s3 = new AWS.S3();
+    const req = s3.getObject('getObject', {});
+    req.send(async (err, data) => {
+      returnedValue = data.Body;
+    });
+    st.equals(returnedValue, 'body');
+    st.end();
+  });
+
   t.end();
 });
 
