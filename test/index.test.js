@@ -112,6 +112,26 @@ test('AWS.mock function should mock AWS service and method on the service', func
       st.end();
     });
   });
+  t.test('all instances of service are re-mocked when remock called', function(st){
+    awsMock.mock('SNS', 'subscribe', function(params, callback){
+      callback(null, 'message 1');
+    });
+    const sns1 = new AWS.SNS();
+    const sns2 = new AWS.SNS();
+
+    awsMock.remock('SNS', 'subscribe', function(params, callback){
+      callback(null, 'message 2');
+    });
+
+    sns1.subscribe({}, function(err, data){
+      st.equals(data, 'message 2');
+
+      sns2.subscribe({}, function(err, data){
+        st.equals(data, 'message 2');
+        st.end();
+      });
+    });
+  });
   t.test('multiple methods can be mocked on the same service', function(st){
     awsMock.mock('Lambda', 'getFunction', function(params, callback) {
       callback(null, 'message');
@@ -336,6 +356,44 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equals(sns.publish.hasOwnProperty('isSinonProxy'), false);
     st.end();
   });
+  t.test('method on all service instances are restored', function(st){
+    awsMock.mock('SNS', 'publish', function(params, callback){
+      callback(null, 'message');
+    });
+
+    const sns1 = new AWS.SNS();
+    const sns2 = new AWS.SNS();
+
+    st.equals(AWS.SNS.isSinonProxy, true);
+    st.equals(sns1.publish.isSinonProxy, true);
+    st.equals(sns2.publish.isSinonProxy, true);
+
+    awsMock.restore('SNS', 'publish');
+
+    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), true);
+    st.equals(sns1.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equals(sns2.publish.hasOwnProperty('isSinonProxy'), false);
+    st.end();
+  });
+  t.test('all methods on all service instances are restored', function(st){
+    awsMock.mock('SNS', 'publish', function(params, callback){
+      callback(null, 'message');
+    });
+
+    const sns1 = new AWS.SNS();
+    const sns2 = new AWS.SNS();
+
+    st.equals(AWS.SNS.isSinonProxy, true);
+    st.equals(sns1.publish.isSinonProxy, true);
+    st.equals(sns2.publish.isSinonProxy, true);
+
+    awsMock.restore('SNS');
+
+    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
+    st.equals(sns1.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equals(sns2.publish.hasOwnProperty('isSinonProxy'), false);
+    st.end();
+  });
   t.test('all the services are restored when no arguments given to awsMock.restore', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
@@ -488,6 +546,17 @@ test('AWS.mock function should mock AWS service and method on the service', func
       awsMock.restore('Lambda');
       awsMock.restore('SES', 'sendEmail');
       awsMock.restore('CloudSearchDomain', 'doesnotexist');
+      st.end();
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  t.test('Restore should not fail when service was not mocked', function (st) {
+    // This test will fail when restoring throws unneeded errors.
+    try {
+      awsMock.restore('CloudFormation');
+      awsMock.restore('UnknownService');
       st.end();
     } catch (e) {
       console.log(e);

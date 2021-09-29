@@ -53,7 +53,9 @@ AWS.mock = function(service, method, replace) {
 
     // If the constructor was already invoked, we need to mock the method here.
     if (services[service].invoked) {
-      mockServiceMethod(service, services[service].client, method, replace);
+      services[service].clients.forEach(client => {
+        mockServiceMethod(service, client, method, replace);
+      })
     }
   }
 
@@ -73,7 +75,9 @@ AWS.remock = function(service, method, replace) {
   }
 
   if (services[service].invoked) {
-    mockServiceMethod(service, services[service].client, method, replace);
+    services[service].clients.forEach(client => {
+      mockServiceMethod(service, client, method, replace);
+    })
   }
 
   return services[service].methodMocks[method];
@@ -97,7 +101,8 @@ function mockService(service) {
      * This is necessary in order to mock methods on the service.
      */
     const client = new services[service].Constructor(...args);
-    services[service].client = client;
+    services[service].clients = services[service].clients || [];
+    services[service].clients.push(client);
 
     // Once this has been triggered we can mock out all the registered methods.
     for (const key in services[service].methodMocks) {
@@ -278,7 +283,12 @@ function restoreAllMethods(service) {
 function restoreMethod(service, method) {
   if (services[service] && services[service].methodMocks[method]) {
     if (services[service].methodMocks[method].stub) {
-      services[service].methodMocks[method].stub.restore();
+      // restore this method on all clients
+      services[service].clients.forEach(client => {
+        if (client[method] && typeof client[method].restore === 'function') {
+          client[method].restore();
+        }
+      })
     }
     delete services[service].methodMocks[method];
   } else {
