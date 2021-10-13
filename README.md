@@ -34,7 +34,7 @@ Using stubs means you can prevent a specific method from being called directly. 
 
 ## What?
 
-Uses Sinon.js under the hood to mock the AWS SDK services and their associated methods.
+Uses [Sinon.js](https://sinonjs.org/) under the hood to mock the AWS SDK services and their associated methods.
 
 ## *How*? (*Usage*)
 
