@@ -114,6 +114,28 @@ function mockService(service) {
 };
 
 /**
+ * Wraps a sinon stub or jest mock function as a fully functional replacement function
+ */
+function wrapTestStubReplaceFn(replace) {
+  if (typeof replace !== 'function' || !(replace._isMockFunction || replace.isSinonProxy)) {
+    return replace;
+  }
+
+  return (params, cb) => {
+    try {
+      const result = replace(params);
+      if (typeof result.then === 'function') {
+        result.then(val => cb(undefined, val), err => cb(err));
+      } else {
+        cb(undefined, result);
+      }
+    } catch (err) {
+      cb(err);
+    }
+  };
+}
+
+/**
  *  Stubs the method on a service.
  *
  * All AWS service methods take two argument:
@@ -121,6 +143,7 @@ function mockService(service) {
  *  - callback: of the form 'function(err, data) {}'.
  */
 function mockServiceMethod(service, client, method, replace) {
+  replace = wrapTestStubReplaceFn(replace);
   services[service].methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     const args = Array.prototype.slice.call(arguments);
 

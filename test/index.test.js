@@ -7,6 +7,8 @@ const AWS = require('aws-sdk');
 const isNodeStream = require('is-node-stream');
 const concatStream = require('concat-stream');
 const Readable = require('stream').Readable;
+const jest = require('jest-mock');
+const sinon = require('sinon');
 
 AWS.config.paramValidation = false;
 
@@ -581,6 +583,76 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     st.equals(returnedValue, 'body');
     st.end();
+  });
+
+  t.test('mock function replaces method with a sinon stub and returns successfully using callback', function(st) {
+    const sinonStub = sinon.stub();
+    sinonStub.returns('message');
+    awsMock.mock('DynamoDB', 'getItem', sinonStub);
+    const db = new AWS.DynamoDB();
+    db.getItem({}, function(err, data){
+      st.equal(data, 'message');
+      st.equal(sinonStub.called, true);
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a sinon stub and returns successfully using promise', function(st) {
+    const sinonStub = sinon.stub();
+    sinonStub.returns('message');
+    awsMock.mock('DynamoDB', 'getItem', sinonStub);
+    const db = new AWS.DynamoDB();
+    db.getItem({}).promise().then(function(data){
+      st.equal(data, 'message');
+      st.equal(sinonStub.called, true);
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a jest mock and returns successfully', function(st) {
+    const jestMock = jest.fn().mockReturnValue('message');
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem({}, function(err, data){
+      st.equal(data, 'message');
+      st.equal(jestMock.mock.calls.length, 1);
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a jest mock and resolves successfully', function(st) {
+    const jestMock = jest.fn().mockResolvedValue('message');
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem({}, function(err, data){
+      st.equal(data, 'message');
+      st.equal(jestMock.mock.calls.length, 1);
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a jest mock and fails successfully', function(st) {
+    const jestMock = jest.fn().mockImplementation(() => {
+      throw new Error('something went wrong')
+    });
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem({}, function(err){
+      st.equal(err.message, 'something went wrong');
+      st.equal(jestMock.mock.calls.length, 1);
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a jest mock and rejects successfully', function(st) {
+    const jestMock = jest.fn().mockRejectedValue(new Error('something went wrong'));
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem({}, function(err){
+      st.equal(err.message, 'something went wrong');
+      st.equal(jestMock.mock.calls.length, 1);
+      st.end();
+    });
   });
 
   t.end();
