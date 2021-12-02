@@ -122,9 +122,8 @@ function wrapTestStubReplaceFn(replace) {
   }
 
   return (params, cb) => {
-    let result;
     try {
-      result = replace(params);
+      const result = replace(params);
       if (typeof result.then === 'function') {
         result.then(val => cb(undefined, val), err => cb(err));
       } else {
