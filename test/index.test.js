@@ -633,7 +633,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
 
   t.test('mock function replaces method with a jest mock and fails successfully', function(st) {
     const jestMock = jest.fn().mockImplementation(() => {
-        throw new Error('something went wrong')
+      throw new Error('something went wrong')
     });
     awsMock.mock('DynamoDB', 'getItem', jestMock);
     const db = new AWS.DynamoDB();
