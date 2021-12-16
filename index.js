@@ -122,8 +122,17 @@ function wrapTestStubReplaceFn(replace) {
   }
 
   return (params, cb) => {
+    // If only one argument is provided, it is the callback
+    if (!cb) {
+      cb = params;
+      params = {};
+    }
+    const cbSpy = sinon.spy(cb);
     try {
-      const result = replace(params);
+      const result = replace(params, cbSpy);
+      if (cbSpy.called) {
+          return;
+      }
       if (typeof result.then === 'function') {
         result.then(val => cb(undefined, val), err => cb(err));
       } else {
