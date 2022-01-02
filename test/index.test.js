@@ -620,6 +620,17 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
   });
 
+  t.test('mock function replaces method with a jest mock returning successfully and allows mocked method to be called with only callback', function(st) {
+    const jestMock = jest.fn().mockReturnValue('message');
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem(function(err, data){
+      st.equal(data, 'message');
+      st.equal(jestMock.mock.calls.length, 1);
+      st.end();
+    });
+  });
+
   t.test('mock function replaces method with a jest mock and resolves successfully', function(st) {
     const jestMock = jest.fn().mockResolvedValue('message');
     awsMock.mock('DynamoDB', 'getItem', jestMock);
@@ -632,7 +643,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
 
   t.test('mock function replaces method with a jest mock and fails successfully', function(st) {
-    const jestMock = jest.fn().mockImplementation(() => {
+    const jestMock = jest.fn(() => {
       throw new Error('something went wrong')
     });
     awsMock.mock('DynamoDB', 'getItem', jestMock);
@@ -651,6 +662,39 @@ test('AWS.mock function should mock AWS service and method on the service', func
     db.getItem({}, function(err){
       st.equal(err.message, 'something went wrong');
       st.equal(jestMock.mock.calls.length, 1);
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a jest mock with implementation', function(st) {
+    const jestMock = jest.fn((params, cb) => cb(null, 'item'));
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem({}, function(err, data){
+      st.equal(jestMock.mock.calls.length, 1);
+      st.equal(data, 'item');
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a jest mock with implementation and allows mocked method to be called with only callback', function(st) {
+    const jestMock = jest.fn((params, cb) => cb(null, 'item'));
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem(function(err, data){
+      st.equal(jestMock.mock.calls.length, 1);
+      st.equal(data, 'item');
+      st.end();
+    });
+  });
+
+  t.test('mock function replaces method with a jest mock with implementation expecting only a callback', function(st) {
+    const jestMock = jest.fn((cb) => cb(null, 'item'));
+    awsMock.mock('DynamoDB', 'getItem', jestMock);
+    const db = new AWS.DynamoDB();
+    db.getItem(function(err, data){
+      st.equal(jestMock.mock.calls.length, 1);
+      st.equal(data, 'item');
       st.end();
     });
   });
