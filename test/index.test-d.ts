@@ -51,6 +51,10 @@ expectError(mock('S3', 'describeObjects', (params, callback) => {
 }));
 
 expectType<void>(mock('DynamoDB', 'getItem', 'anything could happen'));
+expectType<void>(mock('DynamoDB.DocumentClient', 'get', 'anything could happen'));
+
+expectError(mock('DynamoDB.DocumentServer', 'get', 'nothing can happen'));
+expectError(mock('DynamoDB.DocumentClient', 'unknown', 'nothing can happen'));
 
 expectError(mock('StaticDB', 'getItem', "it couldn't"));
 
