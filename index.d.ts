@@ -38,8 +38,10 @@ export function remock<C extends ClientName, M extends MethodName<C>>(
   replace: ReplaceFn<C, M>,
 ): void;
 export function remock<C extends ClientName>(service: C, method: MethodName<C>, replace: any): void;
+export function remock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
 
 export function restore<C extends ClientName>(service?: C, method?: MethodName<C>): void;
+export function restore<C extends ClientName, NC extends NestedClientName<C>>(service?: NestedClientFullName<C, NC>, method?: NestedMethodName<C, NC>): void;
 
 export function setSDK(path: string): void;
 export function setSDKInstance(instance: typeof import('aws-sdk')): void;
