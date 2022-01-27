@@ -11,6 +11,9 @@ const awsError: AWSError = {
     time: new Date(),
 };
 
+/**
+ * mock
+ */
 expectType<void>(mock('S3', 'listObjectsV2', (params, callback) => {
     expectType<ListObjectsV2Request>(params);
 
@@ -83,16 +86,30 @@ expectType<void>(remock('EC2', 'stopInstances', (params, callback) => {
     expectError(callback(awsError, output));
 }));
 
+/**
+ * Remock
+ */
 expectType<void>(remock('Snowball', 'makeRequest', undefined));
-expectError(remock('Snowball', 'throwRequest', undefined));
+expectType<void>(remock('DynamoDB.DocumentClient', 'get', undefined));
 
+expectError(remock('Snowball', 'throwRequest', undefined));
+expectError(remock('DynamoDB.DocumentClient', 'throwRequest', undefined));
+expectError(remock('DynamoDB.DocumentServer', 'get', undefined));
+
+/**
+ * Restore
+ */
 expectType<void>(restore('Pricing', 'getProducts'));
+expectType<void>(restore('DynamoDB.DocumentClient', 'get'));
 
 expectError(restore('Pricing', 'borrowMoney'));
+expectError(restore('DynamoDB.DocumentClient', 'unknown'));
 
 expectType<void>(restore('KMS'));
+expectType<void>(restore('DynamoDB.DocumentClient'));
 
 expectError(restore('Skynet'));
+expectError(restore('DynamoDB.DocumentServer'));
 
 expectError(restore(42));
 
@@ -100,8 +117,14 @@ expectType<void>(restore());
 
 expectError(restore(null));
 
+/**
+ * setSDK
+ */
 expectType<void>(setSDK('aws-sdk'));
 
+/**
+ * setSDKInstance
+ */
 expectType<void>(setSDKInstance(AWS));
 
 expectError(setSDKInstance(import('aws-sdk')));
