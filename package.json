@@ -38,21 +38,21 @@
   },
   "homepage": "https://github.com/dwyl/aws-sdk-mock#readme",
   "dependencies": {
-    "aws-sdk": "^2.928.0",
-    "sinon": "^11.1.1",
+    "aws-sdk": "^2.1122.0",
+    "sinon": "^13.0.2",
     "traverse": "^0.6.6"
-  },
-  "devDependencies": {
-    "concat-stream": "^2.0.0",
-    "eslint": "^7.28.0",
-    "is-node-stream": "^1.0.0",
-    "jest": "^27.3.1",
-    "nyc": "^15.1.0",
-    "tap": "^15.1.2",
-    "tsd": "^0.19.0",
-    "typescript": "^4.5.2"
   },
   "tsd": {
     "directory": "test"
+  },
+  "devDependencies": {
+    "concat-stream": "^2.0.0",
+    "eslint": "^8.14.0",
+    "is-node-stream": "^1.0.0",
+    "jest": "^28.0.1",
+    "nyc": "^15.1.0",
+    "tap": "^16.1.0",
+    "tsd": "^0.20.0",
+    "typescript": "^4.6.3"
   }
 }
