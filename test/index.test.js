@@ -21,7 +21,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', 'message');
     const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       st.end();
     });
   });
@@ -31,7 +31,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       st.end();
     });
   });
@@ -39,12 +39,12 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('S3', 'getSignedUrl', 'message');
     const s3 = new AWS.S3();
     s3.getSignedUrl('getObject', {}, function(err, data) {
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       awsMock.mock('S3', 'upload', function(params, options, callback) {
         callback(null, options);
       });
       s3.upload({}, {test: 'message'}, function(err, data) {
-        st.equals(data.test, 'message');
+        st.equal(data.test, 'message');
         st.end();
       });
     });
@@ -62,7 +62,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('S3', 'getSignedUrl', 'message');
     const s3 = new AWS.S3({paramValidation: true});
     s3.getSignedUrl('getObject', {}, function(err, data) {
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       st.end();
     });
   });
@@ -71,7 +71,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const s3 = new AWS.S3({paramValidation: true});
     s3.getObject({Bucket: 'b', Key: 'k'}, function(err, data) {
       st.notOk(err);
-      st.equals(data.Body, 'body');
+      st.equal(data.Body, 'body');
       st.end();
     });
   });
@@ -84,7 +84,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, 'test');
     });
     sns.publish({}, function(err, data){
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       st.end();
     });
   });
@@ -97,7 +97,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, 'test');
     });
     sns.subscribe({}, function(err, data){
-      st.equals(data, 'test');
+      st.equal(data, 'test');
       st.end();
     });
   });
@@ -110,7 +110,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, 'message 2');
     });
     sns.subscribe({}, function(err, data){
-      st.equals(data, 'message 2');
+      st.equal(data, 'message 2');
       st.end();
     });
   });
@@ -126,10 +126,10 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
 
     sns1.subscribe({}, function(err, data){
-      st.equals(data, 'message 2');
+      st.equal(data, 'message 2');
 
       sns2.subscribe({}, function(err, data){
-        st.equals(data, 'message 2');
+        st.equal(data, 'message 2');
         st.end();
       });
     });
@@ -143,9 +143,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     const lambda = new AWS.Lambda();
     lambda.getFunction({}, function(err, data) {
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       lambda.createFunction({}, function(err, data) {
-        st.equals(data, 'message');
+        st.equal(data, 'message');
         st.end();
       });
     });
@@ -161,11 +161,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
       });
       const lambda = new AWS.Lambda();
       lambda.getFunction({}).promise().then(function(data) {
-        st.equals(data, 'message');
+        st.equal(data, 'message');
       }).then(function(){
         return lambda.createFunction({}).promise();
       }).catch(function(data){
-        st.equals(data, error);
+        st.equal(data, error);
         st.end();
       });
     });
@@ -179,11 +179,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
       });
       const lambda = new AWS.Lambda();
       lambda.getFunction({}).promise().then(function(data) {
-        st.equals(data, 'message');
+        st.equal(data, 'message');
       }).then(function(){
         return lambda.createFunction({}).promise();
       }).catch(function(data){
-        st.equals(data, error);
+        st.equal(data, error);
         st.end();
       });
     });
@@ -209,11 +209,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
       });
       const lambda = new AWS.Lambda();
       lambda.getFunction({}).promise().then(function(data) {
-        st.equals(data, 'message');
+        st.equal(data, 'message');
       }).then(function(){
         return lambda.createFunction({}).promise();
       }).catch(function(data){
-        st.equals(data, error);
+        st.equal(data, error);
         st.end();
       });
     });
@@ -232,9 +232,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
       P.prototype.then = function(yay) { if (this.value) yay(this.value) };
       AWS.config.setPromisesDependency(P);
       const promise = lambda.getFunction({}).promise();
-      st.equals(promise.constructor.name, 'P');
+      st.equal(promise.constructor.name, 'P');
       promise.then(function(data) {
-        st.equals(data, 'message');
+        st.equal(data, 'message');
         st.end();
       });
     });
@@ -262,7 +262,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('S3', 'getObject', bodyStream);
     const stream = new AWS.S3().getObject('getObject').createReadStream();
     stream.pipe(concatStream(function(actual) {
-      st.equals(actual.toString(), 'body');
+      st.equal(actual.toString(), 'body');
       st.end();
     }));
   });
@@ -275,7 +275,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     const stream = new AWS.S3().getObject('getObject').createReadStream();
     stream.pipe(concatStream(function(actual) {
-      st.equals(actual.toString(), 'body');
+      st.equal(actual.toString(), 'body');
       st.end();
     }));
   });
@@ -285,7 +285,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const req = s3.getObject('getObject', {});
     const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
-      st.equals(actual.toString(), 'body');
+      st.equal(actual.toString(), 'body');
       st.end();
     }));
   });
@@ -295,7 +295,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const req = s3.getObject('getObject', {});
     const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
-      st.equals(actual.toString(), 'body');
+      st.equal(actual.toString(), 'body');
       st.end();
     }));
   });
@@ -305,7 +305,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const req = s3.getObject('getObject', {});
     const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
-      st.equals(actual.toString(), '');
+      st.equal(actual.toString(), '');
       st.end();
     }));
   });
@@ -315,7 +315,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const req = s3.getObject('getObject', {});
     const stream = req.createReadStream();
     stream.pipe(concatStream(function(actual) {
-      st.equals(actual.toString(), '');
+      st.equal(actual.toString(), '');
       st.end();
     }));
   });
@@ -323,25 +323,25 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('S3', 'getObject', {Body: 'body'});
     const s3 = new AWS.S3();
     const req = s3.getObject('getObject', {});
-    st.equals(typeof req.on, 'function');
+    st.equal(typeof req.on, 'function');
     st.end();
   });
   t.test('call send method of request object', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
     const s3 = new AWS.S3();
     const req = s3.getObject('getObject', {});
-    st.equals(typeof req.send, 'function');
+    st.equal(typeof req.send, 'function');
     st.end();
   });
   t.test('all the methods on a service are restored', function(st){
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    st.equals(AWS.SNS.isSinonProxy, true);
+    st.equal(AWS.SNS.isSinonProxy, true);
 
     awsMock.restore('SNS');
 
-    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
     st.end();
   });
   t.test('only the method on the service is restored', function(st){
@@ -349,13 +349,13 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, 'message');
     });
     const sns = new AWS.SNS();
-    st.equals(AWS.SNS.isSinonProxy, true);
-    st.equals(sns.publish.isSinonProxy, true);
+    st.equal(AWS.SNS.isSinonProxy, true);
+    st.equal(sns.publish.isSinonProxy, true);
 
     awsMock.restore('SNS', 'publish');
 
-    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), true);
-    st.equals(sns.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.SNS.hasOwnProperty('isSinonProxy'), true);
+    st.equal(sns.publish.hasOwnProperty('isSinonProxy'), false);
     st.end();
   });
   t.test('method on all service instances are restored', function(st){
@@ -366,15 +366,15 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const sns1 = new AWS.SNS();
     const sns2 = new AWS.SNS();
 
-    st.equals(AWS.SNS.isSinonProxy, true);
-    st.equals(sns1.publish.isSinonProxy, true);
-    st.equals(sns2.publish.isSinonProxy, true);
+    st.equal(AWS.SNS.isSinonProxy, true);
+    st.equal(sns1.publish.isSinonProxy, true);
+    st.equal(sns2.publish.isSinonProxy, true);
 
     awsMock.restore('SNS', 'publish');
 
-    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), true);
-    st.equals(sns1.publish.hasOwnProperty('isSinonProxy'), false);
-    st.equals(sns2.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.SNS.hasOwnProperty('isSinonProxy'), true);
+    st.equal(sns1.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equal(sns2.publish.hasOwnProperty('isSinonProxy'), false);
     st.end();
   });
   t.test('all methods on all service instances are restored', function(st){
@@ -385,15 +385,15 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const sns1 = new AWS.SNS();
     const sns2 = new AWS.SNS();
 
-    st.equals(AWS.SNS.isSinonProxy, true);
-    st.equals(sns1.publish.isSinonProxy, true);
-    st.equals(sns2.publish.isSinonProxy, true);
+    st.equal(AWS.SNS.isSinonProxy, true);
+    st.equal(sns1.publish.isSinonProxy, true);
+    st.equal(sns2.publish.isSinonProxy, true);
 
     awsMock.restore('SNS');
 
-    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
-    st.equals(sns1.publish.hasOwnProperty('isSinonProxy'), false);
-    st.equals(sns2.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
+    st.equal(sns1.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equal(sns2.publish.hasOwnProperty('isSinonProxy'), false);
     st.end();
   });
   t.test('all the services are restored when no arguments given to awsMock.restore', function(st){
@@ -410,21 +410,21 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const docClient = new AWS.DynamoDB.DocumentClient();
     const dynamoDb = new AWS.DynamoDB();
 
-    st.equals(AWS.SNS.isSinonProxy, true);
-    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
-    st.equals(AWS.DynamoDB.isSinonProxy, true);
-    st.equals(sns.publish.isSinonProxy, true);
-    st.equals(docClient.put.isSinonProxy, true);
-    st.equals(dynamoDb.putItem.isSinonProxy, true);
+    st.equal(AWS.SNS.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.isSinonProxy, true);
+    st.equal(sns.publish.isSinonProxy, true);
+    st.equal(docClient.put.isSinonProxy, true);
+    st.equal(dynamoDb.putItem.isSinonProxy, true);
 
     awsMock.restore();
 
-    st.equals(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
-    st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
-    st.equals(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
-    st.equals(sns.publish.hasOwnProperty('isSinonProxy'), false);
-    st.equals(docClient.put.hasOwnProperty('isSinonProxy'), false);
-    st.equals(dynamoDb.putItem.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.SNS.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
+    st.equal(sns.publish.hasOwnProperty('isSinonProxy'), false);
+    st.equal(docClient.put.hasOwnProperty('isSinonProxy'), false);
+    st.equal(dynamoDb.putItem.hasOwnProperty('isSinonProxy'), false);
     st.end();
   });
   t.test('a nested service can be mocked properly', function(st){
@@ -437,22 +437,22 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, 'test');
     });
 
-    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
-    st.equals(docClient.put.isSinonProxy, true);
-    st.equals(docClient.get.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equal(docClient.put.isSinonProxy, true);
+    st.equal(docClient.get.isSinonProxy, true);
 
     docClient.put({}, function(err, data){
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       docClient.get({}, function(err, data){
-        st.equals(data, 'test');
+        st.equal(data, 'test');
 
         awsMock.restore('DynamoDB.DocumentClient', 'get');
-        st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
-        st.equals(docClient.get.hasOwnProperty('isSinonProxy'), false);
+        st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+        st.equal(docClient.get.hasOwnProperty('isSinonProxy'), false);
 
         awsMock.restore('DynamoDB.DocumentClient');
-        st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
-        st.equals(docClient.put.hasOwnProperty('isSinonProxy'), false);
+        st.equal(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
+        st.equal(docClient.put.hasOwnProperty('isSinonProxy'), false);
         st.end();
       });
     });
@@ -463,11 +463,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
     const docClient = new AWS.DynamoDB.DocumentClient({paramValidation: true});
 
-    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
-    st.equals(docClient.query.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equal(docClient.query.isSinonProxy, true);
     docClient.query({}, function(err, data){
-      console.warn(err);
-      st.equals(data, 'test');
+      st.is(err, null);
+      st.equal(data, 'test');
       st.end();
     });
   });
@@ -477,37 +477,37 @@ test('AWS.mock function should mock AWS service and method on the service', func
     const docClient = new AWS.DynamoDB.DocumentClient();
     let dynamoDb = new AWS.DynamoDB();
 
-    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
-    st.equals(AWS.DynamoDB.isSinonProxy, true);
-    st.equals(docClient.get.isSinonProxy, true);
-    st.equals(dynamoDb.getItem.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.isSinonProxy, true);
+    st.equal(docClient.get.isSinonProxy, true);
+    st.equal(dynamoDb.getItem.isSinonProxy, true);
 
     awsMock.restore('DynamoDB');
-    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
-    st.equals(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
-    st.equals(docClient.get.isSinonProxy, true);
-    st.equals(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
+    st.equal(docClient.get.isSinonProxy, true);
+    st.equal(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
 
     awsMock.mock('DynamoDB', 'getItem', 'test');
     dynamoDb = new AWS.DynamoDB();
-    st.equals(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
-    st.equals(AWS.DynamoDB.isSinonProxy, true);
-    st.equals(docClient.get.isSinonProxy, true);
-    st.equals(dynamoDb.getItem.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.isSinonProxy, true);
+    st.equal(docClient.get.isSinonProxy, true);
+    st.equal(dynamoDb.getItem.isSinonProxy, true);
 
     awsMock.restore('DynamoDB.DocumentClient');
 
     // the first assertion is true because DynamoDB is still mocked
-    st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), true);
-    st.equals(AWS.DynamoDB.isSinonProxy, true);
-    st.equals(docClient.get.hasOwnProperty('isSinonProxy'), false);
-    st.equals(dynamoDb.getItem.isSinonProxy, true);
+    st.equal(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), true);
+    st.equal(AWS.DynamoDB.isSinonProxy, true);
+    st.equal(docClient.get.hasOwnProperty('isSinonProxy'), false);
+    st.equal(dynamoDb.getItem.isSinonProxy, true);
 
     awsMock.restore('DynamoDB');
-    st.equals(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
-    st.equals(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
-    st.equals(docClient.get.hasOwnProperty('isSinonProxy'), false);
-    st.equals(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy'), false);
+    st.equal(AWS.DynamoDB.hasOwnProperty('isSinonProxy'), false);
+    st.equal(docClient.get.hasOwnProperty('isSinonProxy'), false);
+    st.equal(dynamoDb.getItem.hasOwnProperty('isSinonProxy'), false);
     st.end();
 
   });
@@ -527,18 +527,18 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
 
     csd.search({}, function(err, data) {
-      st.equals(data, 'message');
+      st.equal(data, 'message');
     });
 
     csd.suggest({}, function(err, data) {
-      st.equals(data, 'message');
+      st.equal(data, 'message');
     });
     st.end();
   });
   t.skip('Mocked service should return the sinon stub', function(st) {
     // TODO: the stub is only returned if an instance was already constructed
     const stub = awsMock.mock('CloudSearchDomain', 'search');
-    st.equals(stub.stub.isSinonProxy, true);
+    st.equal(stub.stub.isSinonProxy, true);
     st.end();
   });
 
@@ -569,7 +569,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('S3', 'getObject');
     const s3 = new AWS.S3();
     const req = s3.getObject({Bucket: 'b', notKey: 'k'});
-    st.equals(req.on('httpHeaders', ()=>{}), req);
+    st.equal(req.on('httpHeaders', ()=>{}), req);
     st.end();
   });
 
@@ -581,7 +581,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     req.send(async (err, data) => {
       returnedValue = data.Body;
     });
-    st.equals(returnedValue, 'body');
+    st.equal(returnedValue, 'body');
     st.end();
   });
 
@@ -708,7 +708,7 @@ test('AWS.setSDK function should mock a specific AWS module', function(t) {
     awsMock.mock('SNS', 'publish', 'message');
     const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
-      st.equals(data, 'message');
+      st.equal(data, 'message');
       st.end();
     });
   });
@@ -739,7 +739,7 @@ test('AWS.setSDKInstance function should mock a specific AWS module', function(t
     awsMock.mock('SNS', 'publish', 'message2');
     const sns = new AWS.SNS();
     sns.publish({}, function(err, data){
-      st.equals(data, 'message2');
+      st.equal(data, 'message2');
       st.end();
     });
   });
