@@ -145,7 +145,7 @@ const expectedParams = {
 assert.isTrue(updateTableSpy.calledWith(expectedParams), 'should pass correct parameters');
 ```
 
-**NB: The AWS Service needs to be initialised inside the function being tested in order for the SDK method to be mocked** e.g for an AWS Lambda function example 1 will cause an error `region not defined in config`  whereas in example 2 the sdk will be successfully mocked.
+**NB: The AWS Service needs to be initialised inside the function being tested in order for the SDK method to be mocked** e.g for an AWS Lambda function example 1 will cause an error `ConfigError: Missing region in config`  whereas in example 2 the sdk will be successfully mocked.
 
 Example 1:
 
