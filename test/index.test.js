@@ -466,7 +466,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
     st.equal(docClient.query.isSinonProxy, true);
     docClient.query({}, function(err, data){
-      st.is(err, null);
+      st.equal(err, null);
       st.equal(data, 'test');
       st.end();
     });
