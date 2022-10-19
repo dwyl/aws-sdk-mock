@@ -46,6 +46,10 @@
     "directory": "test"
   },
   "devDependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/jest": "^29.2.0",
+    "@types/sinon": "^10.0.13",
+    "@types/traverse": "^0.6.32",
     "concat-stream": "^2.0.0",
     "eslint": "^8.25.0",
     "is-node-stream": "^1.0.0",
