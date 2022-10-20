@@ -17,8 +17,12 @@ import sinon from 'sinon'
 import traverse from 'traverse'
 import {default as _AWS_SDK} from 'aws-sdk';
 import {Readable} from 'stream'
-import { ClientName, mock, remock, restore, setSDK, setSDKInstance } from '.';
 
+import AWS_Clients from 'aws-sdk/clients/all'
+import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Method, Client } from '.';
+import { String } from 'aws-sdk/clients/appstream';
+
+// TYPES -----------------------------------
 // AWS type that is to serve as a mock
 type AWS_MOCK = {
   mock?: typeof mock, 
@@ -28,11 +32,31 @@ type AWS_MOCK = {
   setSDKInstance?: typeof setSDKInstance,
 }
 
+type Replace = {
+  replace: ReplaceFn<ClientName, MethodName<ClientName>>
+}
+
+type MethodMock = {
+  [key : string]: Replace
+}
+
+interface Service {
+  Constructor: Partial<typeof AWS_Clients>,
+  methodMocks: MethodMock,
+  invoked: boolean,
+  clients?: Client<ClientName>[]
+}
+
+type SERVICES<T extends string> = {
+  [key in T]: Service
+} 
+
+// PACKAGE ---------------------------------
 // Real AWS instance from 'aws-sdk'
 let _AWS: typeof _AWS_SDK = _AWS_SDK
 
 const AWS: AWS_MOCK = {};
-const services: ClientName = {};
+const services: Partial<SERVICES<ClientName>> = {};
 
 /**
  * Sets the aws-sdk to be mocked.
@@ -45,37 +69,47 @@ AWS.setSDKInstance = function(sdk: typeof _AWS_SDK) {
   _AWS = sdk;
 };
 
+//CTRL + Z para mostrar fluxo. Juro que nao sei como é que hei de corrigir isso. 
+// O ReplaceFn<C, M> equivale a CLientName e MethodName, que partilham os types. O erro nao faz sentido.
+
 /**
  * Stubs the service and registers the method that needs to be mocked.
  */
-AWS.mock = function(service, method, replace) {
+AWS.mock = function<C extends ClientName, M extends MethodName<C> & string>(service: C, method: M, replace: ReplaceFn<C, M>) {
+
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
-    services[service] = {};
 
-    /**
-     * Save the real constructor so we can invoke it later on.
-     * Uses traverse for easy access to nested services (dot-separated)
-     */
-    services[service].Constructor = traverse(_AWS).get(service.split('.'));
-    services[service].methodMocks = {};
-    services[service].invoked = false;
+    const service_to_add: Service = {
+      // Save the real constructor so we can invoke it later on.
+      // Uses traverse for easy access to nested services (dot-separated)
+      Constructor: traverse(_AWS).get(service.split('.')),   
+      methodMocks: {},
+      invoked: false
+    }
+
+    services[service] = service_to_add;
     mockService(service);
   }
 
+  const service_obj = services[service]
+
   // Register the method to be mocked out.
-  if (!services[service].methodMocks[method]) {
-    services[service].methodMocks[method] = { replace: replace };
+  if (!service_obj?.methodMocks[method]) {
+      
+    // Adding passed mock method
+    if(service_obj !== undefined)
+      service_obj.methodMocks[method] = { replace: replace };
 
     // If the constructor was already invoked, we need to mock the method here.
-    if (services[service].invoked) {
-      services[service].clients.forEach(client => {
+    if (service_obj?.invoked) {
+      service_obj?.clients?.forEach(client => {
         mockServiceMethod(service, client, method, replace);
       })
     }
   }
 
-  return services[service].methodMocks[method];
+  return service_obj?.methodMocks[method];
 };
 
 /**
