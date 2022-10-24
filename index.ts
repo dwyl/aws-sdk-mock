@@ -19,8 +19,7 @@ import {default as _AWS_SDK} from 'aws-sdk';
 import {Readable} from 'stream'
 
 import AWS_Clients from 'aws-sdk/clients/all'
-import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Method, Client } from '.';
-import { String } from 'aws-sdk/clients/appstream';
+import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Client } from '.';
 
 // TYPES -----------------------------------
 // AWS type that is to serve as a mock
@@ -32,12 +31,12 @@ type AWS_MOCK = {
   setSDKInstance?: typeof setSDKInstance,
 }
 
-type Replace = {
-  replace: ReplaceFn<ClientName, MethodName<ClientName>>
+type Replace<C extends ClientName, M extends MethodName<C>> = {
+  replace: ReplaceFn<C, M>
 }
 
 type MethodMock = {
-  [key : string]: Replace
+  [key : string]: Replace<ClientName,  MethodName<ClientName>>
 }
 
 interface Service {
@@ -69,13 +68,10 @@ AWS.setSDKInstance = function(sdk: typeof _AWS_SDK) {
   _AWS = sdk;
 };
 
-//CTRL + Z para mostrar fluxo. Juro que nao sei como é que hei de corrigir isso. 
-// O ReplaceFn<C, M> equivale a CLientName e MethodName, que partilham os types. O erro nao faz sentido.
-
 /**
  * Stubs the service and registers the method that needs to be mocked.
  */
-AWS.mock = function<C extends ClientName, M extends MethodName<C> & string>(service: C, method: M, replace: ReplaceFn<C, M>) {
+AWS.mock = function<C extends ClientName, M extends MethodName<C> & string>(service: C, method: M, replace: ReplaceFn<ClientName, MethodName<ClientName>>) {
 
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
