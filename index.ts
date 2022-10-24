@@ -111,22 +111,28 @@ AWS.mock = function<C extends ClientName, M extends MethodName<C> & string>(serv
 /**
  * Stubs the service and registers the method that needs to be re-mocked.
  */
-AWS.remock = function(service, method, replace) {
+ AWS.remock = function<C extends ClientName, M extends MethodName<C> & string>( service: C, method: M, replace: ReplaceFn<ClientName, MethodName<ClientName>>) {
 
-  if (services[service].methodMocks[method]) {
+  // If the method is inside the service, we restore the method
+  if (services[service]?.methodMocks[method]) {
     restoreMethod(service, method);
-    services[service].methodMocks[method] = {
-      replace: replace
-    };
+
+    const service_obj = services[service]
+    if(service_obj !== undefined) {
+      service_obj.methodMocks[method] = {
+        replace: replace
+      };
+    }
   }
 
-  if (services[service].invoked) {
-    services[service].clients.forEach(client => {
+  // We check if the service was invoked or not. If it was, we mock the service method with the `replace` function
+  if (services[service]?.invoked) {
+    services[service]?.clients?.forEach(client => {
       mockServiceMethod(service, client, method, replace);
     })
   }
 
-  return services[service].methodMocks[method];
+  return services[service]?.methodMocks[method];
 }
 
 /**
