@@ -13,13 +13,15 @@
 * - mock of the method on the service
 **/
 
-import sinon from 'sinon'
+import sinon, { SinonStubStatic } from 'sinon'
 import traverse from 'traverse'
 import {default as _AWS_SDK} from 'aws-sdk';
 import {Readable} from 'stream'
 
 import AWS_Clients from 'aws-sdk/clients/all'
 import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Client } from '.';
+import { ServiceName } from 'aws-sdk/clients/inspector';
+import { String } from 'aws-sdk/clients/cloudsearch';
 
 // TYPES -----------------------------------
 // AWS type that is to serve as a mock
@@ -40,10 +42,11 @@ type MethodMock = {
 }
 
 interface Service {
-  Constructor: Partial<typeof AWS_Clients>,
+  Constructor: new(...args: any[]) => any,
   methodMocks: MethodMock,
   invoked: boolean,
-  clients?: Client<ClientName>[]
+  clients?: Client<ClientName>[],
+  stub?: SinonStubStatic
 }
 
 type SERVICES<T extends string> = {
@@ -139,30 +142,42 @@ AWS.mock = function<C extends ClientName, M extends MethodName<C> & string>(serv
  * Stub the constructor for the service on AWS.
  * E.g. calls of new AWS.SNS() are replaced.
  */
-function mockService(service) {
-  const nestedServices = service.split('.');
+function mockService(service: ClientName) {
+  const nestedServices: string[] = service.split('.');
+
   const method = nestedServices.pop();
   const object = traverse(_AWS).get(nestedServices);
 
-  const serviceStub = sinon.stub(object, method).callsFake(function(...args) {
-    services[service].invoked = true;
+  // Method type guard
+  if(!method)
+    return 
 
-    /**
-     * Create an instance of the service by calling the real constructor
-     * we stored before. E.g. const client = new AWS.SNS()
-     * This is necessary in order to mock methods on the service.
-     */
-    const client = new services[service].Constructor(...args);
-    services[service].clients = services[service].clients || [];
-    services[service].clients.push(client);
+  const service_obj = services[service]
 
-    // Once this has been triggered we can mock out all the registered methods.
-    for (const key in services[service].methodMocks) {
-      mockServiceMethod(service, client, key, services[service].methodMocks[key].replace);
-    };
-    return client;
-  });
-  services[service].stub = serviceStub;
+  if(service_obj) {
+    const serviceStub = sinon.stub(object, method).callsFake(function(...args) {
+
+      service_obj.invoked = true;
+  
+      /**
+       * Create an instance of the service by calling the real constructor
+       * we stored before. E.g. const client = new AWS.SNS()
+       * This is necessary in order to mock methods on the service.
+       */
+      const client = new service_obj.Constructor(...args);
+      service_obj.clients = service_obj.clients || [];
+      service_obj.clients.push(client);
+  
+      // Once this has been triggered we can mock out all the registered methods.
+      for (const key in service_obj.methodMocks) {
+        mockServiceMethod(service, client, key, service_obj.methodMocks[key].replace);
+      };
+      return client;
+    });
+    service_obj.stub = serviceStub;
+  }
+  
+
 };
 
 /**
