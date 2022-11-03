@@ -18,10 +18,7 @@ import traverse from 'traverse'
 import {default as _AWS_SDK} from 'aws-sdk';
 import {Readable} from 'stream'
 
-import AWS_Clients from 'aws-sdk/clients/all'
 import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Client } from '.';
-import { ServiceName } from 'aws-sdk/clients/inspector';
-import { String } from 'aws-sdk/clients/cloudsearch';
 
 // TYPES -----------------------------------
 // AWS type that is to serve as a mock
@@ -34,7 +31,8 @@ type AWS_MOCK = {
 }
 
 type Replace<C extends ClientName, M extends MethodName<C>> = {
-  replace: ReplaceFn<C, M>
+  replace: ReplaceFn<C, M>,
+  stub?: SinonStubStatic
 }
 
 type MethodMock = {
@@ -221,9 +219,16 @@ function wrapTestStubReplaceFn(replace) {
  *  - params: an object.
  *  - callback: of the form 'function(err, data) {}'.
  */
-function mockServiceMethod(service, client, method, replace) {
+function mockServiceMethod(service: ClientName, client: Client<ClientName>, method: MethodName<ClientName> | string, replace) {
   replace = wrapTestStubReplaceFn(replace);
-  services[service].methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
+
+  const service_obj = services[service]
+
+  // Service method type guard
+  if(!service_obj)
+    return
+
+  service_obj.methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     const args = Array.prototype.slice.call(arguments);
 
     let userArgs, userCallback;
