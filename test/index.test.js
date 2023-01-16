@@ -699,6 +699,14 @@ test('AWS.mock function should mock AWS service and method on the service', func
     });
   });
 
+  t.test('Mocked service should allow abort call', function (st) {
+    awsMock.mock('S3', 'upload');
+    const s3 = new AWS.S3();
+    const req = s3.upload({}, {message: 'test'});
+    req.abort();
+    st.end();
+  });
+
   t.end();
 });
 
