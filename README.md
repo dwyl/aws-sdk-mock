@@ -4,12 +4,15 @@ AWSome mocks for Javascript aws-sdk services.
 
 [![Build Status](https://img.shields.io/travis/dwyl/aws-sdk-mock/master.svg?style=flat-square)](https://travis-ci.org/dwyl/aws-sdk-mock)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/aws-sdk-mock/master.svg?style=flat-square)](http://codecov.io/github/dwyl/aws-sdk-mock?branch=master)
-[![Dependency Status](https://david-dm.org/dwyl/aws-sdk-mock.svg?style=flat-square)](https://david-dm.org/dwyl/aws-sdk-mock)
-[![devDependency Status](https://david-dm.org/dwyl/aws-sdk-mock/dev-status.svg?style=flat-square)](https://david-dm.org/dwyl/aws-sdk-mock#info=devDependencies)
+
 [![Known Vulnerabilities](https://snyk.io/test/github/dwyl/aws-sdk-mock/badge.svg?targetFile=package.json&style=flat-square)](https://snyk.io/test/github/dwyl/aws-sdk-mock?targetFile=package.json)
 
 <!-- broken see: https://github.com/dwyl/aws-sdk-mock/issues/161#issuecomment-444181270
 [![NPM](https://nodei.co/npm-dl/aws-sdk-mock.png?months=3)](https://nodei.co/npm/aws-sdk-mock/)
+
+Broken: https://github.com/dwyl/technology-stack/issues/88
+[![Dependency Status](https://david-dm.org/dwyl/aws-sdk-mock.svg?style=flat-square)](https://david-dm.org/dwyl/aws-sdk-mock)
+[![devDependency Status](https://david-dm.org/dwyl/aws-sdk-mock/dev-status.svg?style=flat-square)](https://david-dm.org/dwyl/aws-sdk-mock#info=devDependencies)
 -->
 
 This module was created to help test AWS Lambda functions but can be used in any situation where the AWS SDK needs to be mocked.

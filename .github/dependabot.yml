@@ -1,0 +1,8 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "17:00"
+    timezone: Europe/London
