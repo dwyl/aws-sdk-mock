@@ -1,6 +1,10 @@
-name: Node CI
+name: Node.js CI
 
-on: [push, pull_request]
+on:
+    push:
+      branches: [ main ]
+    pull_request:
+      branches: [ main ]
 
 jobs:
   test:
@@ -17,3 +21,5 @@ jobs:
     - run: npm i
     - run: npm run lint
     - run: npm test
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1 
