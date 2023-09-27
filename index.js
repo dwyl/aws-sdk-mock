@@ -145,13 +145,20 @@ function wrapTestStubReplaceFn(replace) {
 
   return (params, cb) => {
     // If only one argument is provided, it is the callback
-    if (!cb) {
-      cb = params;
-      params = {};
+    let callback;
+    if(cb === undefined || !cb) {
+      callback = params;
+    } 
+    
+    // If not, the callback is the passed cb
+    else {
+      callback = cb
     }
+    
     // Spy on the users callback so we can later on determine if it has been called in their replace
-    const cbSpy = sinon.spy(cb);
+    const cbSpy = sinon.spy(callback);
     try {
+      // The replace function can also be a `functionStub`.
       // Call the users replace, check how many parameters it expects to determine if we should pass in callback only, or also parameters
       const result = replace.length === 1 ? replace(cbSpy) : replace(params, cbSpy);
       // If the users replace already called the callback, there's no more need for us do it.
@@ -159,12 +166,12 @@ function wrapTestStubReplaceFn(replace) {
           return;
       }
       if (typeof result.then === 'function') {
-        result.then(val => cb(undefined, val), err => cb(err));
+        result.then(val => callback(undefined, val), err => callback(err));
       } else {
-        cb(undefined, result);
+        callback(undefined, result);
       }
     } catch (err) {
-      cb(err);
+      callback(err);
     }
   };
 }

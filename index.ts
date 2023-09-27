@@ -13,7 +13,7 @@
 * - mock of the method on the service
 **/
 
-import sinon, { SinonStubStatic } from 'sinon'
+import sinon, { SinonSpy, SinonStub, SinonStubStatic, SinonStubbedInstance, SinonStubbedMember } from 'sinon'
 import traverse from 'traverse'
 import {default as _AWS_SDK} from 'aws-sdk';
 import {Readable} from 'stream'
@@ -186,10 +186,14 @@ function mockService(service: ClientName) {
 
 /**
  * Wraps a sinon stub or jest mock function as a fully functional replacement function
+ * 
+ * If you want to help us better define the `replace` function (without having to use any), please open a PR
+ * (especially if you're a TS wizard 🧙‍♂️).
+ * 
+ * We're not entirely sure if SinonStubbedInstance<any> is correct,
+ * but we're adding this instead of `replace: any` to maintain specificity.
  */
-
-//TODO funciona no sandbox. Tem de ser um problema no vs ou qualquer cena
-function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName,  MethodName<ClientName>> | AWS_Stub ) {
+function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName,  MethodName<ClientName>> | AWS_Stub | SinonStubbedInstance<any> ) {
 
   if(typeof replace !== "function") {
     if(!(replace._isMockFunction || replace.isSinonProxy)) {
@@ -198,17 +202,24 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName,  MethodName<Client
   } 
 
   else {
-    return (params: AWSRequest<ClientName, MethodName<ClientName>> | {}, cb: AWSCallback<ClientName, MethodName<ClientName>> | {}) => {
+    return (params: AWSRequest<ClientName, MethodName<ClientName>>, cb: AWSCallback<ClientName, MethodName<ClientName>> | undefined) => {
 
-      // If only one argument is provided, it is the callback
-      if (!cb) {
-        cb = params;
-        params = {};
+      // If only one argument is provided, it is the callback.
+      // So we make the callback equal the params.
+      let callback: typeof params | AWSCallback<ClientName, MethodName<ClientName>> 
+      if(cb === undefined || !cb) {
+        callback = params;
+      } 
+      
+      // If not, the callback is the passed cb
+      else {
+        callback = cb
       }
       
       // Spy on the users callback so we can later on determine if it has been called in their replace
-      const cbSpy = sinon.spy(cb);
+      const cbSpy = sinon.spy(callback) as SinonSpy;
       try {
+        // The replace function can also be a `functionStub`.
         // Call the users replace, check how many parameters it expects to determine if we should pass in callback only, or also parameters
         const result = replace.length === 1 ? replace(cbSpy) : replace(params, cbSpy);
         // If the users replace already called the callback, there's no more need for us do it.
@@ -216,12 +227,12 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName,  MethodName<Client
             return;
         }
         if (typeof result.then === 'function') {
-          result.then(val => cb(undefined, val), err => cb(err));
+          result.then((val: any) => callback(undefined, val), (err: any) => callback(err));
         } else {
-          cb(undefined, result);
+          callback(undefined, result);
         }
       } catch (err) {
-        cb(err);
+        callback(err);
       }
     };
   }

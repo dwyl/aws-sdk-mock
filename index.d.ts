@@ -13,7 +13,7 @@ export type AWSRequest<C extends ClientName, M extends MethodName<C>> = Method<C
 export type AWSCallback<C extends ClientName, M extends MethodName<C>> = Method<C, M> extends AWSMethod<any, infer D> ? {
   (err: undefined, data: D): void;
   (err: AWSError, data?: undefined): void;
-} : never;
+} : any;
 
 export interface AWSMethod<P, D> {
   (params: P, callback?: Callback<D>): Request<D, AWSError>;
