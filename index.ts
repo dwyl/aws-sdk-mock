@@ -18,21 +18,27 @@ import traverse from 'traverse'
 import {default as _AWS_SDK} from 'aws-sdk';
 import {Readable} from 'stream'
 
-import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Client } from '.';
+import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Client, AWSCallback, AWSRequest } from '.';
 
 // TYPES -----------------------------------
 // AWS type that is to serve as a mock
+type AWS_Stub = {
+  _isMockFunction: boolean,
+  isSinonProxy: boolean
+}
+
 type AWS_MOCK = {
   mock?: typeof mock, 
   remock?: typeof remock,
   restore?: typeof restore,
   setSDK?: typeof setSDK,
   setSDKInstance?: typeof setSDKInstance,
+  Promise?: Function
 }
 
 type Replace<C extends ClientName, M extends MethodName<C>> = {
   replace: ReplaceFn<C, M>,
-  stub?: SinonStubStatic
+  stub?: SinonStubStatic,
 }
 
 type MethodMock = {
@@ -181,35 +187,44 @@ function mockService(service: ClientName) {
 /**
  * Wraps a sinon stub or jest mock function as a fully functional replacement function
  */
-function wrapTestStubReplaceFn(replace) {
-  if (typeof replace !== 'function' || !(replace._isMockFunction || replace.isSinonProxy)) {
-    return replace;
-  }
 
-  return (params, cb) => {
-    // If only one argument is provided, it is the callback
-    if (!cb) {
-      cb = params;
-      params = {};
+//TODO funciona no sandbox. Tem de ser um problema no vs ou qualquer cena
+function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName,  MethodName<ClientName>> | AWS_Stub ) {
+
+  if(typeof replace !== "function") {
+    if(!(replace._isMockFunction || replace.isSinonProxy)) {
+      return replace
     }
-    // Spy on the users callback so we can later on determine if it has been called in their replace
-    const cbSpy = sinon.spy(cb);
-    try {
-      // Call the users replace, check how many parameters it expects to determine if we should pass in callback only, or also parameters
-      const result = replace.length === 1 ? replace(cbSpy) : replace(params, cbSpy);
-      // If the users replace already called the callback, there's no more need for us do it.
-      if (cbSpy.called) {
-          return;
+  } 
+
+  else {
+    return (params: AWSRequest<ClientName, MethodName<ClientName>> | {}, cb: AWSCallback<ClientName, MethodName<ClientName>> | {}) => {
+
+      // If only one argument is provided, it is the callback
+      if (!cb) {
+        cb = params;
+        params = {};
       }
-      if (typeof result.then === 'function') {
-        result.then(val => cb(undefined, val), err => cb(err));
-      } else {
-        cb(undefined, result);
+      
+      // Spy on the users callback so we can later on determine if it has been called in their replace
+      const cbSpy = sinon.spy(cb);
+      try {
+        // Call the users replace, check how many parameters it expects to determine if we should pass in callback only, or also parameters
+        const result = replace.length === 1 ? replace(cbSpy) : replace(params, cbSpy);
+        // If the users replace already called the callback, there's no more need for us do it.
+        if (cbSpy.called) {
+            return;
+        }
+        if (typeof result.then === 'function') {
+          result.then(val => cb(undefined, val), err => cb(err));
+        } else {
+          cb(undefined, result);
+        }
+      } catch (err) {
+        cb(err);
       }
-    } catch (err) {
-      cb(err);
-    }
-  };
+    };
+  }
 }
 
 /**
@@ -231,7 +246,9 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>, meth
   service_obj.methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     const args = Array.prototype.slice.call(arguments);
 
-    let userArgs, userCallback;
+    let userArgs: string[]
+    let userCallback: Function;
+
     if (typeof args[(args.length || 1) - 1] === 'function') {
       userArgs = args.slice(0, -1);
       userCallback = args[(args.length || 1) - 1];
@@ -240,6 +257,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>, meth
     }
     const havePromises = typeof AWS.Promise === 'function';
     let promise, resolve, reject, storedResult;
+
     const tryResolveFromStored = function() {
       if (storedResult && promise) {
         if (typeof storedResult.then === 'function') {
@@ -251,6 +269,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>, meth
         }
       }
     };
+
     const callback = function(err, data) {
       if (!storedResult) {
         if (err) {
@@ -264,6 +283,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>, meth
       }
       tryResolveFromStored();
     };
+    
     const request = {
       promise: havePromises ? function() {
         if (!promise) {

@@ -35,31 +35,35 @@ AWS.setSDKInstance = function(sdk) {
 AWS.mock = function(service, method, replace) {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
-    services[service] = {};
 
-    /**
-     * Save the real constructor so we can invoke it later on.
-     * Uses traverse for easy access to nested services (dot-separated)
-     */
-    services[service].Constructor = traverse(_AWS).get(service.split('.'));
-    services[service].methodMocks = {};
-    services[service].invoked = false;
+    const service_to_add = {
+      // Save the real constructor so we can invoke it later on.
+      // Uses traverse for easy access to nested services (dot-separated)
+      Constructor: traverse(_AWS).get(service.split('.')),   
+      methodMocks: {},
+      invoked: false
+    }
+
+    services[service] = service_to_add;
     mockService(service);
   }
 
+  const service_obj = services[service]
   // Register the method to be mocked out.
-  if (!services[service].methodMocks[method]) {
-    services[service].methodMocks[method] = { replace: replace };
+  if (!service_obj?.methodMocks[method]) {
+      
+    if(service_obj !== undefined)
+      service_obj.methodMocks[method] = { replace: replace };
 
     // If the constructor was already invoked, we need to mock the method here.
-    if (services[service].invoked) {
-      services[service].clients.forEach(client => {
+    if (service_obj?.invoked) {
+      service_obj?.clients.forEach(client => {
         mockServiceMethod(service, client, method, replace);
       })
     }
   }
 
-  return services[service].methodMocks[method];
+  return service_obj?.methodMocks[method];
 };
 
 /**
@@ -67,20 +71,26 @@ AWS.mock = function(service, method, replace) {
  */
 AWS.remock = function(service, method, replace) {
 
-  if (services[service].methodMocks[method]) {
+  // If the method is inside the service, we restore the method
+  if (services[service]?.methodMocks[method]) {
     restoreMethod(service, method);
-    services[service].methodMocks[method] = {
-      replace: replace
-    };
+
+    const service_obj = services[service]
+    if(service_obj !== undefined) {
+      service_obj.methodMocks[method] = {
+        replace: replace
+      };
+    }
   }
 
-  if (services[service].invoked) {
-    services[service].clients.forEach(client => {
+  // We check if the service was invoked or not. If it was, we mock the service method with the `replace` function
+  if (services[service]?.invoked) {
+    services[service]?.clients?.forEach(client => {
       mockServiceMethod(service, client, method, replace);
     })
   }
 
-  return services[service].methodMocks[method];
+  return services[service]?.methodMocks[method];
 }
 
 /**
@@ -89,28 +99,40 @@ AWS.remock = function(service, method, replace) {
  */
 function mockService(service) {
   const nestedServices = service.split('.');
+
   const method = nestedServices.pop();
   const object = traverse(_AWS).get(nestedServices);
 
-  const serviceStub = sinon.stub(object, method).callsFake(function(...args) {
-    services[service].invoked = true;
+  // Method type guard
+  if(!method)
+    return 
 
-    /**
-     * Create an instance of the service by calling the real constructor
-     * we stored before. E.g. const client = new AWS.SNS()
-     * This is necessary in order to mock methods on the service.
-     */
-    const client = new services[service].Constructor(...args);
-    services[service].clients = services[service].clients || [];
-    services[service].clients.push(client);
+  const service_obj = services[service]
 
-    // Once this has been triggered we can mock out all the registered methods.
-    for (const key in services[service].methodMocks) {
-      mockServiceMethod(service, client, key, services[service].methodMocks[key].replace);
-    };
-    return client;
-  });
-  services[service].stub = serviceStub;
+  if(service_obj) {
+    const serviceStub = sinon.stub(object, method).callsFake(function(...args) {
+
+      service_obj.invoked = true;
+  
+      /**
+       * Create an instance of the service by calling the real constructor
+       * we stored before. E.g. const client = new AWS.SNS()
+       * This is necessary in order to mock methods on the service.
+       */
+      const client = new service_obj.Constructor(...args);
+      service_obj.clients = service_obj.clients || [];
+      service_obj.clients.push(client);
+  
+      // Once this has been triggered we can mock out all the registered methods.
+      for (const key in service_obj.methodMocks) {
+        mockServiceMethod(service, client, key, service_obj.methodMocks[key].replace);
+      };
+      return client;
+    });
+    service_obj.stub = serviceStub;
+  }
+  
+
 };
 
 /**
