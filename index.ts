@@ -371,7 +371,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>, meth
  * When only the service is passed, that specific service will be reset.
  * When a service and method are passed, only that method will be reset.
  */
-AWS.restore = function(service, method) {
+AWS.restore = function<C extends ClientName>(service?: C, method?: MethodName<C> ) {
   if (!service) {
     restoreAllServices();
   } else {
