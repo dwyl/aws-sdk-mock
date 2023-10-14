@@ -417,8 +417,8 @@ function restoreService(service: ClientName) {
 /**
  * Restores all mocked methods on a service.
  */
-function restoreAllMethods(service) {
-  for (const method in services[service].methodMocks) {
+function restoreAllMethods(service: ClientName) {
+  for (const method in services[service]?.methodMocks) {
     restoreMethod(service, method);
   }
 }

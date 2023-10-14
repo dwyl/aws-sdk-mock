@@ -343,7 +343,7 @@ function restoreService(service) {
  * Restores all mocked methods on a service.
  */
 function restoreAllMethods(service) {
-  for (const method in services[service].methodMocks) {
+  for (const method in services[service]?.methodMocks) {
     restoreMethod(service, method);
   }
 }
