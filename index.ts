@@ -387,7 +387,8 @@ AWS.restore = function<C extends ClientName>(service?: C, method?: MethodName<C>
  * Restores all mocked service and their corresponding methods.
  */
 function restoreAllServices() {
-  for (const service in services) {
+  for (let serviceKey in services) {
+    const service = serviceKey as ClientName
     restoreService(service);
   }
 }
@@ -395,7 +396,7 @@ function restoreAllServices() {
 /**
  * Restores a single mocked service and its corresponding methods.
  */
-function restoreService(service) {
+function restoreService(service: ClientName) {
   if (services[service]) {
     restoreAllMethods(service);
     if (services[service].stub)

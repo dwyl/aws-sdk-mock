@@ -313,7 +313,8 @@ AWS.restore = function(service, method) {
  * Restores all mocked service and their corresponding methods.
  */
 function restoreAllServices() {
-  for (const service in services) {
+  for (let serviceKey in services) {
+    const service = serviceKey;
     restoreService(service);
   }
 }
