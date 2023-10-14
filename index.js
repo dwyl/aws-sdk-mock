@@ -325,14 +325,20 @@ function restoreAllServices() {
 function restoreService(service) {
   if (services[service]) {
     restoreAllMethods(service);
-    if (services[service].stub)
-      services[service].stub.restore();
+
+    const serviceObj = services[service]
+    if(serviceObj) {
+      const stubFun = services[service]?.stub
+      if(stubFun) {
+        stubFun.restore();
+      }
+    }
+    
     delete services[service];
   } else {
     console.log('Service ' + service + ' was never instantiated yet you try to restore it.');
   }
 }
-
 /**
  * Restores all mocked methods on a service.
  */

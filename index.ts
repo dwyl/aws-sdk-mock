@@ -13,7 +13,7 @@
 * - mock of the method on the service
 **/
 
-import sinon, { SinonSpy, SinonStub, SinonStubStatic, SinonStubbedInstance, SinonStubbedMember } from 'sinon'
+import sinon, { SinonExpectation, SinonSpy, SinonStub, SinonStubStatic, SinonStubbedInstance, SinonStubbedMember } from 'sinon'
 import traverse from 'traverse'
 import {default as _AWS_SDK} from 'aws-sdk';
 import {Readable} from 'stream'
@@ -399,8 +399,15 @@ function restoreAllServices() {
 function restoreService(service: ClientName) {
   if (services[service]) {
     restoreAllMethods(service);
-    if (services[service].stub)
-      services[service].stub.restore();
+
+    const serviceObj = services[service]
+    if(serviceObj) {
+      const stubFun = services[service]?.stub as SinonExpectation
+      if(stubFun) {
+        stubFun.restore();
+      }
+    }
+    
     delete services[service];
   } else {
     console.log('Service ' + service + ' was never instantiated yet you try to restore it.');
