@@ -344,7 +344,8 @@ function restoreService(service) {
  */
 function restoreAllMethods(service) {
   for (const method in services[service]?.methodMocks) {
-    restoreMethod(service, method);
+    const methodName = method
+    restoreMethod(service, methodName );
   }
 }
 
@@ -352,20 +353,27 @@ function restoreAllMethods(service) {
  * Restores a single mocked method on a service.
  */
 function restoreMethod(service, method) {
-  if (services[service] && services[service].methodMocks[method]) {
-    if (services[service].methodMocks[method].stub) {
+  const methodName = method
+  if (services[service] && services[service]?.methodMocks[methodName]) {
+    if (services[service]?.methodMocks[methodName].stub) {
+
       // restore this method on all clients
-      services[service].clients.forEach(client => {
-        if (client[method] && typeof client[method].restore === 'function') {
-          client[method].restore();
-        }
-      })
+      const serviceClients = services[service]?.clients
+      if(serviceClients) {
+        // Iterate over each client and get the mocked method and restore it
+        serviceClients.forEach(client => {
+          const mockedClientMethod = client[methodName]
+          if (mockedClientMethod && typeof mockedClientMethod.restore === 'function') {
+            mockedClientMethod.restore();
+          }
+        })
+
+      }
     }
-    delete services[service].methodMocks[method];
+    delete services[service]?.methodMocks[methodName];
   } else {
     console.log('Method ' + service + ' was never instantiated yet you try to restore it.');
   }
-
 }
 
 (function() {
