@@ -96,18 +96,19 @@ AWS.mock = function<C extends ClientName, M extends MethodName<C> & string>(serv
   }
 
   const service_obj = services[service]
+  const methodName = method as MethodName<ClientName>
 
   // Register the method to be mocked out.
-  if (!service_obj?.methodMocks[method]) {
+  if (!service_obj?.methodMocks[methodName]) {
       
     // Adding passed mock method
     if(service_obj !== undefined)
-      service_obj.methodMocks[method] = { replace: replace };
+      service_obj.methodMocks[methodName] = { replace: replace };
 
     // If the constructor was already invoked, we need to mock the method here.
     if (service_obj?.invoked) {
       service_obj?.clients?.forEach(client => {
-        mockServiceMethod(service, client, method, replace);
+        mockServiceMethod(service, client, methodName, replace);
       })
     }
   }
@@ -132,10 +133,11 @@ AWS.mock = function<C extends ClientName, M extends MethodName<C> & string>(serv
     }
   }
 
+  const methodName = method as MethodName<ClientName>
   // We check if the service was invoked or not. If it was, we mock the service method with the `replace` function
   if (services[service]?.invoked) {
     services[service]?.clients?.forEach(client => {
-      mockServiceMethod(service, client, method, replace);
+      mockServiceMethod(service, client, methodName, replace);
     })
   }
 
@@ -174,7 +176,8 @@ function mockService(service: ClientName) {
   
       // Once this has been triggered we can mock out all the registered methods.
       for (const key in service_obj.methodMocks) {
-        mockServiceMethod(service, client, key, service_obj.methodMocks[key].replace);
+        const methodKey = key as MethodName<ClientName>
+        mockServiceMethod(service, client, methodKey, service_obj.methodMocks[key].replace);
       };
       return client;
     });
@@ -245,15 +248,15 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName,  MethodName<Client
  *  - params: an object.
  *  - callback: of the form 'function(err, data) {}'.
  */
-function mockServiceMethod(service: ClientName, client: Client<ClientName>, method: MethodName<ClientName> | string, replace) {
+function mockServiceMethod(service: ClientName, client: Client<ClientName>, method: MethodName<ClientName>, replace) {
   replace = wrapTestStubReplaceFn(replace);
 
   const service_obj = services[service]
-
+  
   // Service method type guard
   if(!service_obj)
     return
-
+  
   service_obj.methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     const args = Array.prototype.slice.call(arguments);
 
