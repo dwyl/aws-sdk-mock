@@ -33,8 +33,9 @@ type AWS_MOCK = {
   restore?: typeof restore,
   setSDK?: typeof setSDK,
   setSDKInstance?: typeof setSDKInstance,
-  Promise?: Function
+  Promise: PromiseConstructor
 }
+
 
 type Replace<C extends ClientName, M extends MethodName<C>> = {
   replace: ReplaceFn<C, M>,
@@ -53,6 +54,16 @@ interface Service {
   stub?: SinonStubStatic
 }
 
+type ExtendedClient = Client<ClientName> & {
+  options: {
+    attrValue: ClientName,
+    paramValidation: boolean
+  },
+  api: {
+    operations: any
+  }
+}
+
 type SERVICES<T extends string> = {
   [key in T]: Service
 } 
@@ -61,7 +72,9 @@ type SERVICES<T extends string> = {
 // Real AWS instance from 'aws-sdk'
 let _AWS: typeof _AWS_SDK = _AWS_SDK
 
-const AWS: AWS_MOCK = {};
+const AWS: AWS_MOCK = {
+  Promise: global.Promise
+};
 const services: Partial<SERVICES<ClientName>> = {};
 
 /**
@@ -248,7 +261,10 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName,  MethodName<Client
  *  - params: an object.
  *  - callback: of the form 'function(err, data) {}'.
  */
-function mockServiceMethod(service: ClientName, client: Client<ClientName>, method: MethodName<ClientName>, replace) {
+function mockServiceMethod(service: ClientName, client: Client<ClientName>, 
+  method: MethodName<ClientName>, 
+  replace: ReplaceFn<ClientName, MethodName<ClientName>>) {
+
   replace = wrapTestStubReplaceFn(replace);
 
   const service_obj = services[service]
