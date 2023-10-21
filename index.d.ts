@@ -22,7 +22,7 @@ export interface AWSMethod<P, D> {
 
 export type Callback<D> = (err: AWSError | undefined, data: D) => void;
 
-export type ReplaceFn<C extends ClientName, M extends MethodName<C>> = (params: AWSRequest<C, M>, callback: AWSCallback<C, M>) => void
+export type ReplaceFn<C extends ClientName, M extends MethodName<C>> = (params: AWSRequest<C, M>, callback: AWSCallback<C, M>) => Promise<any>
 
 export function mock<C extends ClientName, M extends MethodName<C>>(
   service: C,

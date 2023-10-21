@@ -276,7 +276,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
   service_obj.methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
     const args = Array.prototype.slice.call(arguments);
 
-    let userArgs: string[]
+    let userArgs: string|Function[]
     let userCallback: Function;
 
     if (typeof args[(args.length || 1) - 1] === 'function') {
@@ -286,7 +286,10 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
       userArgs = args;
     }
     const havePromises = typeof AWS.Promise === 'function';
-    let promise, resolve, reject, storedResult;
+    let promise : typeof AWS.Promise;
+    let resolve: unknown;
+    let reject: unknown;
+    let storedResult;
 
     const tryResolveFromStored = function() {
       if (storedResult && promise) {
@@ -317,6 +320,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
     const request = {
       promise: havePromises ? function() {
         if (!promise) {
+          // @ts-ignore
           promise = new AWS.Promise(function (resolve_, reject_) {
             resolve = resolve_;
             reject = reject_;
@@ -351,15 +355,17 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
     };
 
     // different locations for the paramValidation property
-    const config = (client.config || client.options || _AWS.config);
+    const _client = client as ExtendedClient
+    const config = (_client.config || _client.options || _AWS.config);
     if (config.paramValidation) {
       try {
-        // different strategies to find method, depending on wether the service is nested/unnested
+        // different strategies to find method, depending on whether the service is nested/unnested
         const inputRules =
-          ((client.api && client.api.operations[method]) || client[method] || {}).input;
+          ((_client.api && _client.api.operations[method as keyof typeof _client.api.operations]) || _client[method] || {}).input;
         if (inputRules) {
           const params = userArgs[(userArgs.length || 1) - 1];
-          new _AWS.ParamValidator((client.config || _AWS.config).paramValidation).validate(inputRules, params);
+          // @ts-ignore
+          new _AWS.ParamValidator((_client.config || _AWS.config).paramValidation).validate(inputRules, params);
         }
       } catch (e) {
         callback(e, null);
@@ -369,7 +375,8 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
 
     // If the value of 'replace' is a function we call it with the arguments.
     if (typeof replace === 'function') {
-      const result = replace.apply(replace, userArgs.concat([callback]));
+      const concatUserArgs = userArgs.concat([callback]) as [params: never, callback: any];
+      const result = replace.apply(replace, concatUserArgs);
       if (storedResult === undefined && result != null &&
           (typeof result.then === 'function' || result instanceof Readable)) {
         storedResult = result
