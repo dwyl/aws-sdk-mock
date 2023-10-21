@@ -285,11 +285,13 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
     } else {
       userArgs = args;
     }
+
     const havePromises = typeof AWS.Promise === 'function';
+
     let promise : typeof AWS.Promise;
-    let resolve: unknown;
-    let reject: unknown;
-    let storedResult;
+    let resolve: ((value: any) => any);
+    let reject: ((value: any) => any);
+    let storedResult: Awaited<Promise<any>>;
 
     const tryResolveFromStored = function() {
       if (storedResult && promise) {
@@ -303,7 +305,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
       }
     };
 
-    const callback = function(err, data) {
+    const callback = function(err: unknown, data: unknown) {
       if (!storedResult) {
         if (err) {
           storedResult = {reject: err};
@@ -346,10 +348,10 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
           return stream;
         }
       },
-      on: function(eventName, callback) {
+      on: function(eventName: string, callback: Function) {
         return this;
       },
-      send: function(callback) {
+      send: function(callback: Function) {
         callback(storedResult.reject, storedResult.resolve);
       }
     };
@@ -367,7 +369,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
           // @ts-ignore
           new _AWS.ParamValidator((_client.config || _AWS.config).paramValidation).validate(inputRules, params);
         }
-      } catch (e) {
+      } catch (e: unknown) {
         callback(e, null);
         return request;
       }

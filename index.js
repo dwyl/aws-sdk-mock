@@ -207,11 +207,13 @@ function mockServiceMethod(service, client,
     } else {
       userArgs = args;
     }
+
     const havePromises = typeof AWS.Promise === 'function';
-    let promise
+
+    let promise 
     let resolve
     let reject
-    let storedResult;
+    let storedResult
 
     const tryResolveFromStored = function() {
       if (storedResult && promise) {
@@ -297,7 +299,7 @@ function mockServiceMethod(service, client,
 
     // If the value of 'replace' is a function we call it with the arguments.
     if (typeof replace === 'function') {
-      const concatUserArgs = userArgs.concat([callback]);
+      const concatUserArgs = userArgs.concat([callback])
       const result = replace.apply(replace, concatUserArgs);
       if (storedResult === undefined && result != null &&
           (typeof result.then === 'function' || result instanceof Readable)) {
