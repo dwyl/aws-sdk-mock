@@ -275,7 +275,8 @@ function mockServiceMethod(service, client,
       },
       send: function(callback) {
         callback(storedResult.reject, storedResult.resolve);
-      }
+      },
+      abort: function(){}
     };
 
     // different locations for the paramValidation property
