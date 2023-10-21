@@ -33,7 +33,7 @@ type AWS_MOCK = {
   restore?: typeof restore,
   setSDK?: typeof setSDK,
   setSDKInstance?: typeof setSDKInstance,
-  Promise: PromiseConstructor
+  Promise: Awaited<Promise<any>>
 }
 
 
@@ -322,8 +322,7 @@ function mockServiceMethod(service: ClientName, client: Client<ClientName>,
     const request = {
       promise: havePromises ? function() {
         if (!promise) {
-          // @ts-ignore
-          promise = new AWS.Promise(function (resolve_, reject_) {
+          promise = new AWS.Promise(function (resolve_: any, reject_: any) {
             resolve = resolve_;
             reject = reject_;
           });
