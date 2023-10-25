@@ -1,4 +1,4 @@
-/// <reference path="index.d.ts"" />
+/// <reference path="types.ts"" />
 "use strict";
 
 /**
@@ -12,12 +12,28 @@
  * - mock of the method on the service
  **/
 
-import sinon, { SinonExpectation, SinonSpy, SinonStubStatic, SinonStubbedInstance } from "sinon";
-import traverse from "traverse";
-import { default as _AWS_SDK } from "aws-sdk";
-import { Readable } from "stream";
+import type { SinonExpectation, SinonSpy, SinonStubStatic, SinonStubbedInstance } from "sinon";
+import sinon = require("sinon");
 
-import { ReplaceFn, ClientName, MethodName, mock, remock, restore, setSDK, setSDKInstance, Client, AWSCallback, AWSRequest } from ".";
+import traverse = require("traverse");
+
+import AWS_SDK = require("aws-sdk");
+
+const { Readable } = require("stream");
+
+import {
+  type ReplaceFn,
+  type ClientName,
+  type MethodName,
+  type mock,
+  type remock,
+  type restore,
+  type setSDK,
+  type setSDKInstance,
+  type Client,
+  type AWSCallback,
+  type AWSRequest,
+} from "./types";
 
 // TYPES -----------------------------------
 // AWS type that is to serve as a mock
@@ -68,7 +84,7 @@ type SERVICES<T extends string> = {
 
 // PACKAGE ---------------------------------
 // Real AWS instance from 'aws-sdk'
-let _AWS: typeof _AWS_SDK = _AWS_SDK;
+let _AWS: typeof AWS_SDK = AWS_SDK;
 
 const AWS: AWS_MOCK = {
   Promise: global.Promise,
@@ -82,7 +98,7 @@ AWS.setSDK = function (path: string) {
   _AWS = require(path);
 };
 
-AWS.setSDKInstance = function (sdk: typeof _AWS_SDK) {
+AWS.setSDKInstance = function (sdk: typeof AWS_SDK) {
   _AWS = sdk;
 };
 
@@ -189,7 +205,10 @@ function mockService(service: ClientName) {
       // Once this has been triggered we can mock out all the registered methods.
       for (const key in service_obj.methodMocks) {
         const methodKey = key as MethodName<ClientName>;
-        mockServiceMethod(service, client, methodKey, service_obj.methodMocks[key].replace);
+        const objectMethodMock = service_obj.methodMocks[key]
+        if(objectMethodMock) {
+          mockServiceMethod(service, client, methodKey, objectMethodMock.replace);
+        }
       }
       return client;
     });
@@ -267,10 +286,15 @@ function mockServiceMethod(
 
   const service_obj = services[service];
 
-  // Service method type guard
+  // Service type guard
   if (!service_obj) return;
 
-  service_obj.methodMocks[method].stub = sinon.stub(client, method).callsFake(function () {
+  const serviceMethodMock = service_obj.methodMocks[method]
+
+  // Service method mock type guard
+  if (!serviceMethodMock) return;
+
+  serviceMethodMock.stub = sinon.stub(client, method).callsFake(function () {
     const args = Array.prototype.slice.call(arguments);
 
     let userArgs: string | Function[];
@@ -337,7 +361,7 @@ function mockServiceMethod(
           return replace;
         } else {
           const stream = new Readable();
-          stream._read = function (size) {
+          stream._read = function () {
             if (typeof replace === "string" || Buffer.isBuffer(replace)) {
               this.push(replace);
             }
@@ -453,24 +477,32 @@ function restoreAllMethods(service: ClientName) {
  */
 function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C, method: M) {
   const methodName = method as string;
-  if (services[service] && services[service]?.methodMocks[methodName]) {
-    if (services[service]?.methodMocks[methodName].stub) {
-      // restore this method on all clients
-      const serviceClients = services[service]?.clients;
-      if (serviceClients) {
-        // Iterate over each client and get the mocked method and restore it
-        serviceClients.forEach((client) => {
-          const mockedClientMethod = client[methodName as keyof typeof client] as SinonSpy;
-          if (mockedClientMethod && typeof mockedClientMethod.restore === "function") {
-            mockedClientMethod.restore();
-          }
-        });
-      }
-    }
-    delete services[service]?.methodMocks[methodName];
-  } else {
+
+  const serviceObj = services[service]
+
+  // Service type guard
+  if(!serviceObj) {
     console.log("Method " + service + " was never instantiated yet you try to restore it.");
+    return
   }
+
+  const serviceMethodMock = serviceObj.methodMocks[methodName]
+
+  // Service method mock type guard
+  if(!serviceMethodMock) return
+
+  // restore this method on all clients
+  const serviceClients = services[service]?.clients;
+  if (serviceClients) {
+    // Iterate over each client and get the mocked method and restore it
+    serviceClients.forEach((client) => {
+      const mockedClientMethod = client[methodName as keyof typeof client] as SinonSpy;
+      if (mockedClientMethod && typeof mockedClientMethod.restore === "function") {
+        mockedClientMethod.restore();
+      }
+    });
+  }
+  delete services[service]?.methodMocks[methodName];
 }
 
 (function () {

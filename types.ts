@@ -1,4 +1,7 @@
-import { Request, AWSError } from 'aws-sdk/lib/core';
+/* Don't make this a `d.ts` file - see https://www.youtube.com/watch?v=zu-EgnbmcLY&ab_channel=MattPocock 
+or https://github.com/microsoft/TypeScript/issues/52593#issuecomment-1419505081*/
+
+import { type Request, type AWSError } from 'aws-sdk/lib/core';
 import AWS = require('aws-sdk/clients/all');
 
 export type ClientName = keyof typeof AWS;

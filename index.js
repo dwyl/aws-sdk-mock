@@ -109,11 +109,10 @@ function mockService(service) {
 
   const service_obj = services[service]
 
-  if(service_obj) {
-    const serviceStub = sinon.stub(object, method).callsFake(function(...args) {
-
+  if (service_obj) {
+    const serviceStub = sinon.stub(object, method).callsFake(function (...args) {
       service_obj.invoked = true;
-  
+
       /**
        * Create an instance of the service by calling the real constructor
        * we stored before. E.g. const client = new AWS.SNS()
@@ -122,11 +121,15 @@ function mockService(service) {
       const client = new service_obj.Constructor(...args);
       service_obj.clients = service_obj.clients || [];
       service_obj.clients.push(client);
-  
+
       // Once this has been triggered we can mock out all the registered methods.
       for (const key in service_obj.methodMocks) {
-        mockServiceMethod(service, client, key, service_obj.methodMocks[key].replace);
-      };
+        const methodKey = key
+        const objectMethodMock = service_obj.methodMocks[key]
+        if(objectMethodMock) {
+          mockServiceMethod(service, client, methodKey, objectMethodMock.replace);
+        }
+      }
       return client;
     });
     service_obj.stub = serviceStub;
@@ -191,11 +194,15 @@ function mockServiceMethod(service, client,
 
   const service_obj = services[service]
   
-  // Service method type guard
-  if(!service_obj)
-    return
-  
-  service_obj.methodMocks[method].stub = sinon.stub(client, method).callsFake(function() {
+  // Service type guard
+  if (!service_obj) return;
+
+  const serviceMethodMock = service_obj.methodMocks[method]
+
+  // Service method mock type guard
+  if (!serviceMethodMock) return;
+
+  serviceMethodMock.stub = sinon.stub(client, method).callsFake(function () {
     const args = Array.prototype.slice.call(arguments);
 
     let userArgs
@@ -261,7 +268,7 @@ function mockServiceMethod(service, client,
           return replace;
         } else {
           const stream = new Readable();
-          stream._read = function(size) {
+          stream._read = function () {
             if (typeof replace === 'string' || Buffer.isBuffer(replace)) {
               this.push(replace);
             }
@@ -378,27 +385,33 @@ function restoreAllMethods(service) {
  * Restores a single mocked method on a service.
  */
 function restoreMethod(service, method) {
-  const methodName = method
-  if (services[service] && services[service]?.methodMocks[methodName]) {
-    if (services[service]?.methodMocks[methodName].stub) {
+  const methodName = method ;
 
-      // restore this method on all clients
-      const serviceClients = services[service]?.clients
-      if(serviceClients) {
-        // Iterate over each client and get the mocked method and restore it
-        serviceClients.forEach(client => {
-          const mockedClientMethod = client[methodName]
-          if (mockedClientMethod && typeof mockedClientMethod.restore === 'function') {
-            mockedClientMethod.restore();
-          }
-        })
+  const serviceObj = services[service]
 
-      }
-    }
-    delete services[service]?.methodMocks[methodName];
-  } else {
-    console.log('Method ' + service + ' was never instantiated yet you try to restore it.');
+  // Service type guard
+  if(!serviceObj) {
+    console.log("Method " + service + " was never instantiated yet you try to restore it.");
+    return
   }
+
+  const serviceMethodMock = serviceObj.methodMocks[methodName]
+
+  // Service method mock type guard
+  if(!serviceMethodMock) return
+
+  // restore this method on all clients
+  const serviceClients = services[service]?.clients;
+  if (serviceClients) {
+    // Iterate over each client and get the mocked method and restore it
+    serviceClients.forEach((client) => {
+      const mockedClientMethod = client[methodName];
+      if (mockedClientMethod && typeof mockedClientMethod.restore === "function") {
+        mockedClientMethod.restore();
+      }
+    });
+  }
+  delete services[service]?.methodMocks[methodName];
 }
 
 (function() {
