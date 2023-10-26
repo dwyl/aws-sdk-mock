@@ -12,7 +12,8 @@
     "lint": "eslint index.js test/index.test.js",
     "nocov": "tap test/*.js",
     "test": "nyc --reporter=lcov tap ./test/*.js && tsd",
-    "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
+    "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html",
+    "build": "tsup index.ts --format cjs, esm, --dts"
   },
   "repository": {
     "type": "git",
@@ -58,7 +59,8 @@
     "nyc": "^15.1.0",
     "tap": "^18.0.3",
     "tsd": "^0.29.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "tsup": "^7.2.0"
   },
   "engines": {
     "node": ">=14.0.0"
