@@ -1,16 +1,34 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es2015",
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "lib": [
-            "es6"
-        ],
-        "strict": true,
-        "noEmit": true,
-    },
-    "exclude": [
-        "node_modules/**/*"
-    ]
+  "compilerOptions": {
+    /* Check Matt Pocock's cheatsheet at https://www.totaltypescript.com/tsconfig-cheat-sheet */
+    /* Base Options: */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "verbatimModuleSyntax": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* If transpiling with TypeScript: */
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+    "outDir": "dist",
+    "sourceMap": true,
+
+    /* If your code doesn't run in the DOM: */
+    "lib": ["es2022"],
+
+    /* If you're building for a library: */
+    "declaration": true,
+
+    /* Misc */
+    "allowSyntheticDefaultImports": true,
+    "noEmit": true
+  },
+  "exclude": ["node_modules/**/*"]
 }

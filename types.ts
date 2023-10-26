@@ -4,50 +4,36 @@ or https://github.com/microsoft/TypeScript/issues/52593#issuecomment-1419505081*
 import { type Request, type AWSError } from 'aws-sdk/lib/core';
 import AWS = require('aws-sdk/clients/all');
 
+// AWS clients
 export type ClientName = keyof typeof AWS;
 export type Client<C extends ClientName> = InstanceType<(typeof AWS)[C]>;
 
+// Extract method utility type to get method from client
 export type ExtractMethod<T extends {}> = { [K in keyof T]: T[K] extends (...args: any[]) => any ? T[K] : never };
 
+// AWS Method types
 export type MethodName<C extends ClientName> = keyof ExtractMethod<Client<C>>;
 export type Method<C extends ClientName, M extends MethodName<C>> = ExtractMethod<Client<C>>[M];
 
+// AWS request type
 export type AWSRequest<C extends ClientName, M extends MethodName<C>> = Method<C, M> extends AWSMethod<infer P, any> ? P : never;
+
+// AWS callback type
 export type AWSCallback<C extends ClientName, M extends MethodName<C>> = Method<C, M> extends AWSMethod<any, infer D> ? {
   (err: undefined, data: D): void;
   (err: AWSError, data?: undefined): void;
 } : any;
 
+// Replace function in mock/remock/restore functions
+export type ReplaceFn<C extends ClientName, M extends MethodName<C>> = (params: AWSRequest<C, M>, callback: AWSCallback<C, M>) => Promise<any>;
+
+// Interface from AWS method type
+export type Callback<D> = (err: AWSError | undefined, data: D) => void;
 export interface AWSMethod<P, D> {
   (params: P, callback?: Callback<D>): Request<D, AWSError>;
   (callback?: Callback<D>): Request<D, AWSError>;
 }
 
-export type Callback<D> = (err: AWSError | undefined, data: D) => void;
-
-export type ReplaceFn<C extends ClientName, M extends MethodName<C>> = (params: AWSRequest<C, M>, callback: AWSCallback<C, M>) => Promise<any>
-
-export function mock<C extends ClientName, M extends MethodName<C>>(
-  service: C,
-  method: M,
-  replace: ReplaceFn<C, M>,
-): void;
-export function mock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
-export function mock<C extends ClientName>(service: C, method: MethodName<C>, replace: any): void;
-
-export function remock<C extends ClientName, M extends MethodName<C>>(
-  service: C,
-  method: M,
-  replace: ReplaceFn<C, M>,
-): void;
-export function remock<C extends ClientName>(service: C, method: MethodName<C>, replace: any): void;
-export function remock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
-
-export function restore<C extends ClientName>(service?: C, method?: MethodName<C>): void;
-export function restore<C extends ClientName, NC extends NestedClientName<C>>(service?: NestedClientFullName<C, NC>, method?: NestedMethodName<C, NC>): void;
-
-export function setSDK(path: string): void;
-export function setSDKInstance(instance: typeof import('aws-sdk')): void;
 
 /**
  * The SDK defines a class for each service as well as a namespace with the same name.

@@ -25,15 +25,14 @@ import {
   type ReplaceFn,
   type ClientName,
   type MethodName,
-  type mock,
-  type remock,
-  type restore,
-  type setSDK,
-  type setSDKInstance,
+  type NestedClientName,
+  type NestedClientFullName,
+  type NestedMethodName,
   type Client,
   type AWSCallback,
   type AWSRequest,
 } from "./types";
+
 
 // TYPES -----------------------------------
 // AWS type that is to serve as a mock
@@ -94,21 +93,27 @@ const services: Partial<SERVICES<ClientName>> = {};
 /**
  * Sets the aws-sdk to be mocked.
  */
-AWS.setSDK = function (path: string) {
+function setSDK(path: string): void {
   _AWS = require(path);
 };
 
-AWS.setSDKInstance = function (sdk: typeof AWS_SDK) {
+AWS.setSDK = setSDK
+
+
+function setSDKInstance(sdk: typeof AWS_SDK): void {
   _AWS = sdk;
 };
+
+AWS.setSDKInstance = setSDKInstance
 
 /**
  * Stubs the service and registers the method that needs to be mocked.
  */
-AWS.mock = function <C extends ClientName, M extends MethodName<C> & string>(
+function mock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
+function mock<C extends ClientName, M extends MethodName<C> & string>(
   service: C,
   method: M,
-  replace: ReplaceFn<ClientName, MethodName<ClientName>>
+  replace: ReplaceFn<C, MethodName<ClientName>>
 ) {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
@@ -143,10 +148,13 @@ AWS.mock = function <C extends ClientName, M extends MethodName<C> & string>(
   return service_obj?.methodMocks[method];
 };
 
+AWS.mock = mock
+
 /**
  * Stubs the service and registers the method that needs to be re-mocked.
  */
-AWS.remock = function <C extends ClientName, M extends MethodName<C> & string>(
+function remock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
+function remock<C extends ClientName, M extends MethodName<C> & string>(
   service: C,
   method: M,
   replace: ReplaceFn<ClientName, MethodName<ClientName>>
@@ -173,6 +181,8 @@ AWS.remock = function <C extends ClientName, M extends MethodName<C> & string>(
 
   return services[service]?.methodMocks[method];
 };
+
+AWS.remock = remock
 
 /**
  * Stub the constructor for the service on AWS.
@@ -419,7 +429,8 @@ function mockServiceMethod(
  * When only the service is passed, that specific service will be reset.
  * When a service and method are passed, only that method will be reset.
  */
-AWS.restore = function <C extends ClientName>(service?: C, method?: MethodName<C>) {
+function restore<C extends ClientName, NC extends NestedClientName<C>>(service?: NestedClientFullName<C, NC>, method?: NestedMethodName<C, NC>): void;
+function restore<C extends ClientName>(service?: C, method?: MethodName<C>) {
   if (!service) {
     restoreAllServices();
   } else {
@@ -430,6 +441,8 @@ AWS.restore = function <C extends ClientName>(service?: C, method?: MethodName<C
     }
   }
 };
+
+AWS.restore = restore;
 
 /**
  * Restores all mocked service and their corresponding methods.
@@ -518,4 +531,4 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
   }
 })();
 
-module.exports = AWS;
+export = AWS;
