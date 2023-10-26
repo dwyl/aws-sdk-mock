@@ -91,7 +91,8 @@ const AWS: AWS_MOCK = {
 const services: Partial<SERVICES<ClientName>> = {};
 
 /**
- * Sets the aws-sdk to be mocked.
+ * Explicitly sets the `aws-sdk` to be mocked.
+ * @param path path for the `aws-sdk`.
  */
 function setSDK(path: string): void {
   _AWS = require(path);
@@ -100,6 +101,10 @@ function setSDK(path: string): void {
 AWS.setSDK = setSDK
 
 
+/**
+ * Explicitly sets the `aws-sdk` instance to be used.
+ * @param sdk the `aws-sdk` instance.
+ */
 function setSDKInstance(sdk: typeof AWS_SDK): void {
   _AWS = sdk;
 };
@@ -108,6 +113,12 @@ AWS.setSDKInstance = setSDKInstance
 
 /**
  * Stubs the service and registers the method that needs to be mocked.
+ */
+/**
+ * Stubs the service and registers the method that needs to be mocked.
+ * @param service AWS service to mock (e.g. DynamoDB).
+ * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
+ * @param replace string or function to replace the method.
  */
 function mock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
 function mock<C extends ClientName, M extends MethodName<C> & string>(
@@ -150,8 +161,12 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
 
 AWS.mock = mock
 
+
 /**
  * Stubs the service and registers the method that needs to be re-mocked.
+ * @param service AWS service to mock (e.g. DynamoDB).
+ * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
+ * @param replace string or function to replace the method.
  */
 function remock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
 function remock<C extends ClientName, M extends MethodName<C> & string>(
@@ -184,9 +199,12 @@ function remock<C extends ClientName, M extends MethodName<C> & string>(
 
 AWS.remock = remock
 
+
 /**
  * Stub the constructor for the service on AWS.
- * E.g. calls of new AWS.SNS() are replaced.
+ * For example, calls of the new `AWS.SNS()` are replaced.
+ * @param service AWS service to mock (e.g. DynamoDB).
+ * @returns the stubbed service.
  */
 function mockService(service: ClientName) {
   const nestedServices: string[] = service.split(".");
@@ -226,14 +244,18 @@ function mockService(service: ClientName) {
   }
 }
 
+
 /**
- * Wraps a sinon stub or jest mock function as a fully functional replacement function
+ * Wraps a sinon stub or jest mock function as a fully functional replacement function.
  *
+ * **Note**:
+ * 
  * If you want to help us better define the `replace` function (without having to use any), please open a PR
  * (especially if you're a TS wizard 🧙‍♂️).
- *
- * We're not entirely sure if SinonStubbedInstance<any> is correct,
+ * We're not entirely sure if `SinonStubbedInstance<any>` is correct,
  * but we're adding this instead of `replace: any` to maintain specificity.
+ * @param replace function to wrap the stub with.
+ * @returns the stub wrapped with the given function.
  */
 function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientName>> | AWS_Stub | SinonStubbedInstance<any>) {
   if (typeof replace !== "function") {
@@ -285,6 +307,19 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
  * All AWS service methods take two argument:
  *  - params: an object.
  *  - callback: of the form 'function(err, data) {}'.
+ */
+
+/**
+ *  Stubs the method on a service.
+ *
+ *  All AWS service methods take two arguments:
+ *  - `params`: an object.
+ *  - `callback`: of the form 'function(err, data) {}'.
+ * @param service service in which the method to stub resides in.
+ * @param client AWS client.
+ * @param method method to stub.
+ * @param replace function to stub with.
+ * @returns the stubbed service method.
  */
 function mockServiceMethod(
   service: ClientName,
@@ -428,6 +463,9 @@ function mockServiceMethod(
  * When no parameters are passed, everything will be reset.
  * When only the service is passed, that specific service will be reset.
  * When a service and method are passed, only that method will be reset.
+ * 
+ * @param service service to be restored.
+ * @param method method of the service to be restored.
  */
 function restore<C extends ClientName, NC extends NestedClientName<C>>(service?: NestedClientFullName<C, NC>, method?: NestedMethodName<C, NC>): void;
 function restore<C extends ClientName>(service?: C, method?: MethodName<C>) {
@@ -454,8 +492,10 @@ function restoreAllServices() {
   }
 }
 
+
 /**
  * Restores a single mocked service and its corresponding methods.
+ * @param service service to be restored.
  */
 function restoreService(service: ClientName) {
   if (services[service]) {
@@ -475,8 +515,10 @@ function restoreService(service: ClientName) {
   }
 }
 
+
 /**
  * Restores all mocked methods on a service.
+ * @param service service with the methods to be restored.
  */
 function restoreAllMethods(service: ClientName) {
   for (const method in services[service]?.methodMocks) {
@@ -485,8 +527,12 @@ function restoreAllMethods(service: ClientName) {
   }
 }
 
+
 /**
  * Restores a single mocked method on a service.
+ * @param service service of the method to be restored.
+ * @param method method to be restored.
+ * @returns the restored method.
  */
 function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C, method: M) {
   const methodName = method as string;
@@ -530,5 +576,6 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
     };
   }
 })();
+
 
 export = AWS;
