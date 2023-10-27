@@ -86,12 +86,12 @@ function setSDKInstance(sdk: typeof AWS_SDK): void {
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
-function mock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
 function mock<C extends ClientName, M extends MethodName<C> & string>(
   service: C,
   method: M,
   replace: ReplaceFn<C, MethodName<ClientName>>
 ) {
+
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
     const service_to_add: Service = {
@@ -400,11 +400,11 @@ function mockServiceMethod(
     }
 
     // If the value of 'replace' is a function we call it with the arguments.
-    if (typeof replace === 'function') {
-      const concatUserArgs = userArgs.concat([callback]) as [params: never, callback: any];
+    if (replace instanceof Function) {
+      const concatUserArgs = userArgs.concat([callback]) as [params: never, options: any, callback: any];
       const result = replace.apply(replace, concatUserArgs);
       if (storedResult === undefined && result != null &&
-          (typeof result.then === 'function' || result instanceof Readable)) {
+        (typeof result === 'object' && result.then instanceof Function || result instanceof Readable)) {
         storedResult = result
       }
     }

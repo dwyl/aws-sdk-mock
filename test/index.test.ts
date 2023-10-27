@@ -1,8 +1,6 @@
 'use strict';
 
 const tap = require('tap');
-const test = tap.test;
-const awsMock = require('../index.js');
 const AWS = require('aws-sdk');
 const isNodeStream = require('is-node-stream');
 const concatStream = require('concat-stream');
@@ -10,17 +8,25 @@ const Readable = require('stream').Readable;
 const jest = require('jest-mock');
 const sinon = require('sinon');
 
+import awsMock = require('../index.ts');
+
+import type { Test } from "tap";
+import type { SNS, S3 } from "aws-sdk";
+
+
+const test = tap.test;
+
 AWS.config.paramValidation = false;
 
 tap.afterEach(() => {
   awsMock.restore();
 });
 
-test('AWS.mock function should mock AWS service and method on the service', function(t){
+test('AWS.mock function should mock AWS service and method on the service', function(t: Test){
   t.test('mock function replaces method with a function that returns replace string', function(st){
     awsMock.mock('SNS', 'publish', 'message');
-    const sns = new AWS.SNS();
-    sns.publish({}, function(err, data){
+    const sns: SNS = new AWS.SNS();
+    sns.publish({Message: ''}, function(err, data){
       st.equal(data, 'message');
       st.end();
     });
@@ -29,21 +35,23 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    const sns = new AWS.SNS();
-    sns.publish({}, function(err, data){
+    const sns: SNS = new AWS.SNS();
+    sns.publish({Message: ''}, function(err, data){
       st.equal(data, 'message');
       st.end();
     });
   });
   t.test('method which accepts any number of arguments can be mocked', function(st) {
     awsMock.mock('S3', 'getSignedUrl', 'message');
+
     const s3 = new AWS.S3();
-    s3.getSignedUrl('getObject', {}, function(err, data) {
+
+    s3.getSignedUrl('getObject', {}, function(err: any, data: any) {
       st.equal(data, 'message');
       awsMock.mock('S3', 'upload', function(params, options, callback) {
         callback(null, options);
       });
-      s3.upload({}, {test: 'message'}, function(err, data) {
+      s3.upload({Bucket: 'b', Key: 'k' }, {test: 'message'}, function(err: any, data: any) {
         st.equal(data.test, 'message');
         st.end();
       });
@@ -51,8 +59,10 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method fails on invalid input if paramValidation is set', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
-    const s3 = new AWS.S3({paramValidation: true});
-    s3.getObject({Bucket: 'b', notKey: 'k'}, function(err, data) {
+    const s3: S3 = new AWS.S3({paramValidation: true});
+    // We're ignoring because if using typescript, it will complain that `notKey` is not a valid property
+    // @ts-ignore
+    s3.getObject({Bucket: 'b', notKey: 'k'}, function(err: any, data: any) {
       st.ok(err);
       st.notOk(data);
       st.end();
@@ -60,7 +70,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method with no input rules can be mocked even if paramValidation is set', function(st) {
     awsMock.mock('S3', 'getSignedUrl', 'message');
-    const s3 = new AWS.S3({paramValidation: true});
+    const s3: S3 = new AWS.S3({paramValidation: true});
     s3.getSignedUrl('getObject', {}, function(err, data) {
       st.equal(data, 'message');
       st.end();
@@ -68,7 +78,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
   t.test('method succeeds on valid input when paramValidation is set', function(st) {
     awsMock.mock('S3', 'getObject', {Body: 'body'});
-    const s3 = new AWS.S3({paramValidation: true});
+    const s3: S3 = new AWS.S3({paramValidation: true});
     s3.getObject({Bucket: 'b', Key: 'k'}, function(err, data) {
       st.notOk(err);
       st.equal(data.Body, 'body');
@@ -79,11 +89,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    const sns = new AWS.SNS();
+    const sns: SNS = new AWS.SNS();
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'test');
     });
-    sns.publish({}, function(err, data){
+    sns.publish({Message: ''}, function(err, data){
       st.equal(data, 'message');
       st.end();
     });
@@ -92,11 +102,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'publish', function(params, callback){
       callback(null, 'message');
     });
-    const sns = new AWS.SNS();
+    const sns: SNS = new AWS.SNS();
     awsMock.mock('SNS', 'subscribe', function(params, callback){
       callback(null, 'test');
     });
-    sns.subscribe({}, function(err, data){
+    sns.subscribe({Protocol: "", TopicArn: ""}, function(err, data){
       st.equal(data, 'test');
       st.end();
     });
@@ -710,7 +720,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   t.end();
 });
 
-test('AWS.setSDK function should mock a specific AWS module', function(t) {
+test('AWS.setSDK function should mock a specific AWS module', function(t: Test) {
   t.test('Specific Modules can be set for mocking', function(st) {
     awsMock.setSDK('aws-sdk');
     awsMock.mock('SNS', 'publish', 'message');
@@ -740,7 +750,7 @@ test('AWS.setSDK function should mock a specific AWS module', function(t) {
   t.end();
 });
 
-test('AWS.setSDKInstance function should mock a specific AWS module', function(t) {
+test('AWS.setSDKInstance function should mock a specific AWS module', function(t: Test) {
   t.test('Specific Modules can be set for mocking', function(st) {
     const aws2 = require('aws-sdk');
     awsMock.setSDKInstance(aws2);

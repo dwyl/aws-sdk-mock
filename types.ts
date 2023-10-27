@@ -25,8 +25,8 @@ export type AWSCallback<C extends ClientName, M extends MethodName<C>> = Method<
   (err: AWSError, data?: undefined): void;
 } : any;
 
-// Replace function in mock/remock/restore functions
-export type ReplaceFn<C extends ClientName, M extends MethodName<C>> = (params: AWSRequest<C, M>, callback: AWSCallback<C, M>) => Promise<any>;
+// Replace function in mock/remock/restore functions. Can be a function, string or object
+export type ReplaceFn<C extends ClientName, M extends MethodName<C>> = ((params: AWSRequest<C, M>, options: any, callback: AWSCallback<C, M>) => any) | string | object;
 
 // Interface from AWS method type
 export type Callback<D> = (err: AWSError | undefined, data: D) => void;
