@@ -123,16 +123,15 @@ AWS.remock = remock
  * E.g. calls of new AWS.SNS() are replaced.
  */
 function mockService(service) {
-  const nestedServices = service.split('.');
+  const nestedServices = service.split(".");
 
   const method = nestedServices.pop();
   const object = traverse(_AWS).get(nestedServices);
 
   // Method type guard
-  if(!method)
-    return 
+  if (!method) return;
 
-  const service_obj = services[service]
+  const service_obj = services[service];
 
   if (service_obj) {
     const serviceStub = sinon.stub(object, method).callsFake(function (...args) {
@@ -159,9 +158,7 @@ function mockService(service) {
     });
     service_obj.stub = serviceStub;
   }
-  
-
-};
+}
 
 /**
  * Wraps a sinon stub or jest mock function as a fully functional replacement function
