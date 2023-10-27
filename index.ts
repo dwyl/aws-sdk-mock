@@ -8,7 +8,7 @@
  * - mock of the method on the service.
  **/
 
-import type { SinonExpectation, SinonSpy, SinonStubStatic, SinonStubbedInstance } from "sinon";
+import type { SinonExpectation, SinonSpy, SinonStubbedInstance } from "sinon";
 import sinon = require("sinon");
 
 import traverse = require("traverse");
@@ -37,11 +37,11 @@ import {
 // TYPES -----------------------------------
 // AWS type to be exported
 type AWS_MOCK = {
-  mock?: typeof mock;
-  remock?: typeof remock;
-  restore?: typeof restore;
-  setSDK?: typeof setSDK;
-  setSDKInstance?: typeof setSDKInstance;
+  mock: typeof mock;
+  remock: typeof remock;
+  restore: typeof restore;
+  setSDK: typeof setSDK;
+  setSDKInstance: typeof setSDKInstance;
   Promise: Awaited<Promise<any>>;
 };
 
@@ -53,6 +53,11 @@ let _AWS: typeof AWS_SDK = AWS_SDK;
 // AWS that is exported to the client
 const AWS: AWS_MOCK = {
   Promise: global.Promise,
+  mock: mock,
+  remock: remock,
+  restore: restore,
+  setSDK: setSDK,
+  setSDKInstance: setSDKInstance
 };
 const services: Partial<SERVICES<ClientName>> = {};
 
@@ -64,9 +69,6 @@ function setSDK(path: string): void {
   _AWS = require(path);
 };
 
-AWS.setSDK = setSDK
-
-
 /**
  * Explicitly sets the `aws-sdk` instance to be used.
  * @param sdk the `aws-sdk` instance.
@@ -74,8 +76,6 @@ AWS.setSDK = setSDK
 function setSDKInstance(sdk: typeof AWS_SDK): void {
   _AWS = sdk;
 };
-
-AWS.setSDKInstance = setSDKInstance
 
 /**
  * Stubs the service and registers the method that needs to be mocked.
@@ -125,8 +125,6 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
   return service_obj?.methodMocks[method];
 };
 
-AWS.mock = mock
-
 
 /**
  * Stubs the service and registers the method that needs to be re-mocked.
@@ -162,8 +160,6 @@ function remock<C extends ClientName, M extends MethodName<C> & string>(
 
   return services[service]?.methodMocks[method];
 };
-
-AWS.remock = remock
 
 
 /**
@@ -444,7 +440,6 @@ function restore<C extends ClientName>(service?: C, method?: MethodName<C>) {
   }
 };
 
-AWS.restore = restore;
 
 /**
  * Restores all mocked service and their corresponding methods.
