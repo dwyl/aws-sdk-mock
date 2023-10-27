@@ -3,6 +3,7 @@ or https://github.com/microsoft/TypeScript/issues/52593#issuecomment-1419505081*
 
 import { type Request, type AWSError } from 'aws-sdk/lib/core';
 import AWS = require('aws-sdk/clients/all');
+import { type SinonStubStatic } from 'sinon';
 
 // AWS clients
 export type ClientName = keyof typeof AWS;
@@ -34,6 +35,45 @@ export interface AWSMethod<P, D> {
   (callback?: Callback<D>): Request<D, AWSError>;
 }
 
+// AWS stub type that can possibly be used while stubbing the given replace function 
+export type AWS_Stub = {
+  _isMockFunction: boolean;
+  isSinonProxy: boolean;
+};
+
+type MethodMock = {
+  [key: string]: Replace<ClientName, MethodName<ClientName>>;
+};
+
+type Replace<C extends ClientName, M extends MethodName<C>> = {
+  replace: ReplaceFn<C, M>;
+  stub?: SinonStubStatic;
+};
+
+// AWS service object type
+export interface Service {
+  Constructor: new (...args: any[]) => any;
+  methodMocks: MethodMock;
+  invoked: boolean;
+  clients?: Client<ClientName>[];
+  stub?: SinonStubStatic;
+}
+
+// AWS client type with extended options (to cover edge cases)
+export type ExtendedClient = Client<ClientName> & {
+  options: {
+    attrValue: ClientName;
+    paramValidation: boolean;
+  };
+  api: {
+    operations: any;
+  };
+};
+
+// All possible services from `aws-sdk`
+export type SERVICES<T extends string> = {
+  [key in T]: Service;
+};
 
 /**
  * The SDK defines a class for each service as well as a namespace with the same name.

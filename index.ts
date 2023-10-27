@@ -3,13 +3,9 @@
 
 /**
  * Helpers to mock the AWS SDK Services using sinon.js under the hood
- * Export two functions:
- * - mock
- * - restore
- *
  * Mocking is done in two steps:
- * - mock of the constructor for the service on AWS
- * - mock of the method on the service
+ * - mock of the constructor for the service on AWS.
+ * - mock of the method on the service.
  **/
 
 import type { SinonExpectation, SinonSpy, SinonStubStatic, SinonStubbedInstance } from "sinon";
@@ -31,16 +27,15 @@ import {
   type Client,
   type AWSCallback,
   type AWSRequest,
+  type SERVICES,
+  type Service,
+  type ExtendedClient,
+  type AWS_Stub
 } from "./types";
 
 
 // TYPES -----------------------------------
-// AWS type that is to serve as a mock
-type AWS_Stub = {
-  _isMockFunction: boolean;
-  isSinonProxy: boolean;
-};
-
+// AWS type to be exported
 type AWS_MOCK = {
   mock?: typeof mock;
   remock?: typeof remock;
@@ -50,41 +45,12 @@ type AWS_MOCK = {
   Promise: Awaited<Promise<any>>;
 };
 
-type Replace<C extends ClientName, M extends MethodName<C>> = {
-  replace: ReplaceFn<C, M>;
-  stub?: SinonStubStatic;
-};
-
-type MethodMock = {
-  [key: string]: Replace<ClientName, MethodName<ClientName>>;
-};
-
-interface Service {
-  Constructor: new (...args: any[]) => any;
-  methodMocks: MethodMock;
-  invoked: boolean;
-  clients?: Client<ClientName>[];
-  stub?: SinonStubStatic;
-}
-
-type ExtendedClient = Client<ClientName> & {
-  options: {
-    attrValue: ClientName;
-    paramValidation: boolean;
-  };
-  api: {
-    operations: any;
-  };
-};
-
-type SERVICES<T extends string> = {
-  [key in T]: Service;
-};
 
 // PACKAGE ---------------------------------
 // Real AWS instance from 'aws-sdk'
 let _AWS: typeof AWS_SDK = AWS_SDK;
 
+// AWS that is exported to the client
 const AWS: AWS_MOCK = {
   Promise: global.Promise,
 };
