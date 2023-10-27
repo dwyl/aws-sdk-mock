@@ -12,59 +12,78 @@
 
 const sinon = require('sinon');
 const traverse = require('traverse');
-let _AWS = require('aws-sdk');
+let AWS_SDK = require('aws-sdk');
 const Readable = require('stream').Readable;
 
-const AWS = {};
+let _AWS = AWS_SDK;
+
+// AWS that is exported to the client
+const AWS = {
+  Promise: global.Promise,
+};
 const services = {};
 
 /**
  * Sets the aws-sdk to be mocked.
  */
-AWS.setSDK = function(path) {
+function setSDK(path) {
   _AWS = require(path);
 };
 
-AWS.setSDKInstance = function(sdk) {
+AWS.setSDK = setSDK
+
+
+function setSDKInstance(sdk) {
   _AWS = sdk;
 };
+
+AWS.setSDKInstance = setSDKInstance
+
 
 /**
  * Stubs the service and registers the method that needs to be mocked.
  */
-AWS.mock = function(service, method, replace) {
+function mock(
+  service,
+  method,
+  replace
+) {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
-
     const service_to_add = {
       // Save the real constructor so we can invoke it later on.
       // Uses traverse for easy access to nested services (dot-separated)
-      Constructor: traverse(_AWS).get(service.split('.')),   
+      Constructor: traverse(_AWS).get(service.split(".")),
       methodMocks: {},
-      invoked: false
-    }
+      invoked: false,
+    };
 
     services[service] = service_to_add;
     mockService(service);
   }
 
-  const service_obj = services[service]
+  const service_obj = services[service];
+  const methodName = method
+
   // Register the method to be mocked out.
-  if (!service_obj?.methodMocks[method]) {
-      
-    if(service_obj !== undefined)
-      service_obj.methodMocks[method] = { replace: replace };
+  if (!service_obj?.methodMocks[methodName]) {
+    // Adding passed mock method
+    if (service_obj !== undefined) service_obj.methodMocks[methodName] = { replace: replace };
 
     // If the constructor was already invoked, we need to mock the method here.
     if (service_obj?.invoked) {
-      service_obj?.clients.forEach(client => {
-        mockServiceMethod(service, client, method, replace);
-      })
+      service_obj?.clients?.forEach((client) => {
+        mockServiceMethod(service, client, methodName, replace);
+      });
     }
   }
 
   return service_obj?.methodMocks[method];
 };
+
+AWS.mock = mock
+
+
 
 /**
  * Stubs the service and registers the method that needs to be re-mocked.
