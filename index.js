@@ -380,17 +380,17 @@ function restoreService(service) {
   if (services[service]) {
     restoreAllMethods(service);
 
-    const serviceObj = services[service]
-    if(serviceObj) {
-      const stubFun = services[service]?.stub
-      if(stubFun) {
+    const serviceObj = services[service];
+    if (serviceObj) {
+      const stubFun = services[service]?.stub;
+      if (stubFun) {
         stubFun.restore();
       }
     }
-    
+
     delete services[service];
   } else {
-    console.log('Service ' + service + ' was never instantiated yet you try to restore it.');
+    console.log("Service " + service + " was never instantiated yet you try to restore it.");
   }
 }
 /**
@@ -398,8 +398,8 @@ function restoreService(service) {
  */
 function restoreAllMethods(service) {
   for (const method in services[service]?.methodMocks) {
-    const methodName = method
-    restoreMethod(service, methodName );
+    const methodName = method;
+    restoreMethod(service, methodName);
   }
 }
 
@@ -407,8 +407,7 @@ function restoreAllMethods(service) {
  * Restores a single mocked method on a service.
  */
 function restoreMethod(service, method) {
-  const methodName = method ;
-
+  const methodName = method
   const serviceObj = services[service]
 
   // Service type guard
