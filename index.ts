@@ -224,47 +224,42 @@ function mockService(service: ClientName) {
  * @returns the stub wrapped with the given function.
  */
 function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientName>> | AWS_Stub | SinonStubbedInstance<any>) {
-  if (typeof replace !== "function") {
-    if (!(replace._isMockFunction || replace.isSinonProxy)) {
-      return replace;
-    }
-  } else {
-    return (params: AWSRequest<ClientName, MethodName<ClientName>>, cb: AWSCallback<ClientName, MethodName<ClientName>> | undefined) => {
-      // If only one argument is provided, it is the callback.
-      // So we make the callback equal the params.
-      let callback: typeof params | AWSCallback<ClientName, MethodName<ClientName>>;
-      if (cb === undefined || !cb) {
-        callback = params;
-      }
 
-      // If not, the callback is the passed cb
-      else {
-        callback = cb;
-      }
-
-      // Spy on the users callback so we can later on determine if it has been called in their replace
-      const cbSpy = sinon.spy(callback) as SinonSpy;
-      try {
-        // The replace function can also be a `functionStub`.
-        // Call the users replace, check how many parameters it expects to determine if we should pass in callback only, or also parameters
-        const result = replace.length === 1 ? replace(cbSpy) : replace(params, cbSpy);
-        // If the users replace already called the callback, there's no more need for us do it.
-        if (cbSpy.called) {
-          return;
-        }
-        if (typeof result.then === "function") {
-          result.then(
-            (val: any) => callback(undefined, val),
-            (err: any) => callback(err)
-          );
-        } else {
-          callback(undefined, result);
-        }
-      } catch (err) {
-        callback(err);
-      }
-    };
+  if (typeof replace !== 'function' || !(replace._isMockFunction || replace.isSinonProxy)) {
+    return replace;
   }
+
+  return (params: AWSRequest<ClientName, MethodName<ClientName>>, cb: AWSCallback<ClientName, MethodName<ClientName>> | undefined) => {
+    // If only one argument is provided, it is the callback
+    let callback: typeof params | AWSCallback<ClientName, MethodName<ClientName>>;
+    if(cb === undefined || !cb) {
+      callback = params;
+    } 
+    
+    // If not, the callback is the passed cb
+    else {
+      callback = cb
+    }
+    
+    // Spy on the users callback so we can later on determine if it has been called in their replace
+    const cbSpy = sinon.spy(callback);
+    try {
+      // The replace function can also be a `functionStub`.
+      // Call the users replace, check how many parameters it expects to determine if we should pass in callback only, or also parameters
+      const result = replace.length === 1 ? replace(cbSpy) : replace(params, cbSpy);
+      // If the users replace already called the callback, there's no more need for us do it.
+      if (cbSpy.called) {
+          return;
+      }
+      if (typeof result.then === 'function') {
+        result.then((val: any) => callback(undefined, val), (err: any) => callback(err));
+      } else {
+        callback(undefined, result);
+      }
+    } catch (err) {
+      callback(err);
+    }
+  };
 }
 
 /**

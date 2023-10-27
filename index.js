@@ -170,7 +170,7 @@ function wrapTestStubReplaceFn(replace) {
 
   return (params, cb) => {
     // If only one argument is provided, it is the callback
-    let callback;
+    let callback
     if(cb === undefined || !cb) {
       callback = params;
     } 
@@ -191,7 +191,7 @@ function wrapTestStubReplaceFn(replace) {
           return;
       }
       if (typeof result.then === 'function') {
-        result.then(val => callback(undefined, val), err => callback(err));
+        result.then((val) => callback(undefined, val), (err) => callback(err));
       } else {
         callback(undefined, result);
       }
