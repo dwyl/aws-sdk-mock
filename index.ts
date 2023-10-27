@@ -290,8 +290,8 @@ function mockServiceMethod(
 ) {
   replace = wrapTestStubReplaceFn(replace);
 
-  const service_obj = services[service];
-
+  const service_obj = services[service]
+  
   // Service type guard
   if (!service_obj) return;
 
@@ -306,24 +306,24 @@ function mockServiceMethod(
     let userArgs: string | Function[];
     let userCallback: Function;
 
-    if (typeof args[(args.length || 1) - 1] === "function") {
+    if (typeof args[(args.length || 1) - 1] === 'function') {
       userArgs = args.slice(0, -1);
       userCallback = args[(args.length || 1) - 1];
     } else {
       userArgs = args;
     }
 
-    const havePromises = typeof AWS.Promise === "function";
+    const havePromises = typeof AWS.Promise === 'function';
 
     let promise: typeof AWS.Promise;
     let resolve: (value: any) => any;
     let reject: (value: any) => any;
     let storedResult: Awaited<Promise<any>>;
 
-    const tryResolveFromStored = function () {
+    const tryResolveFromStored = function() {
       if (storedResult && promise) {
-        if (typeof storedResult.then === "function") {
-          storedResult.then(resolve, reject);
+        if (typeof storedResult.then === 'function') {
+          storedResult.then(resolve, reject)
         } else if (storedResult.reject) {
           reject(storedResult.reject);
         } else {
@@ -335,9 +335,9 @@ function mockServiceMethod(
     const callback = function (err: unknown, data: unknown) {
       if (!storedResult) {
         if (err) {
-          storedResult = { reject: err };
+          storedResult = {reject: err};
         } else {
-          storedResult = { resolve: data };
+          storedResult = {resolve: data};
         }
       }
       if (userCallback) {
@@ -345,21 +345,20 @@ function mockServiceMethod(
       }
       tryResolveFromStored();
     };
-
+    
     const request = {
-      promise: havePromises
-        ? function () {
-            if (!promise) {
-              promise = new AWS.Promise(function (resolve_: any, reject_: any) {
-                resolve = resolve_;
-                reject = reject_;
-              });
-            }
-            tryResolveFromStored();
-            return promise;
-          }
-        : undefined,
-      createReadStream: function () {
+      promise: havePromises ? function() {
+        if (!promise) {
+          // @ts-ignore
+          promise = new AWS.Promise(function (resolve_, reject_) {
+            resolve = resolve_;
+            reject = reject_;
+          });
+        }
+        tryResolveFromStored();
+        return promise;
+      } : undefined,
+      createReadStream: function() {
         if (storedResult instanceof Readable) {
           return storedResult;
         }
@@ -368,7 +367,7 @@ function mockServiceMethod(
         } else {
           const stream = new Readable();
           stream._read = function () {
-            if (typeof replace === "string" || Buffer.isBuffer(replace)) {
+            if (typeof replace === 'string' || Buffer.isBuffer(replace)) {
               this.push(replace);
             }
             this.push(null);
@@ -382,32 +381,35 @@ function mockServiceMethod(
       send: function (callback: Function) {
         callback(storedResult.reject, storedResult.resolve);
       },
+      abort: function(){}
     };
 
     // different locations for the paramValidation property
     const _client = client as ExtendedClient;
-    const config = _client.config || _client.options || _AWS.config;
+    const config = (_client.config || _client.options || _AWS.config);
     if (config.paramValidation) {
       try {
         // different strategies to find method, depending on whether the service is nested/unnested
-        const inputRules = ((_client.api && _client.api.operations[method as keyof typeof _client.api.operations]) || _client[method] || {}).input;
+        const inputRules =
+          ((_client.api && _client.api.operations[method]) || _client[method] || {}).input;
         if (inputRules) {
           const params = userArgs[(userArgs.length || 1) - 1];
           // @ts-ignore
           new _AWS.ParamValidator((_client.config || _AWS.config).paramValidation).validate(inputRules, params);
         }
-      } catch (e: unknown) {
+      } catch (e) {
         callback(e, null);
         return request;
       }
     }
 
     // If the value of 'replace' is a function we call it with the arguments.
-    if (typeof replace === "function") {
+    if (typeof replace === 'function') {
       const concatUserArgs = userArgs.concat([callback]) as [params: never, callback: any];
       const result = replace.apply(replace, concatUserArgs);
-      if (storedResult === undefined && result != null && (typeof result.then === "function" || result instanceof Readable)) {
-        storedResult = result;
+      if (storedResult === undefined && result != null &&
+          (typeof result.then === 'function' || result instanceof Readable)) {
+        storedResult = result
       }
     }
     // Else we call the callback with the value of 'replace'.
@@ -416,6 +418,7 @@ function mockServiceMethod(
     }
     return request;
   });
+
 }
 
 /**

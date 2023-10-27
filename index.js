@@ -239,7 +239,7 @@ function mockServiceMethod(service, client,
 
     const havePromises = typeof AWS.Promise === 'function';
 
-    let promise 
+    let promise
     let resolve
     let reject
     let storedResult
@@ -256,7 +256,7 @@ function mockServiceMethod(service, client,
       }
     };
 
-    const callback = function(err, data) {
+    const callback = function (err, data) {
       if (!storedResult) {
         if (err) {
           storedResult = {reject: err};
@@ -299,10 +299,10 @@ function mockServiceMethod(service, client,
           return stream;
         }
       },
-      on: function(eventName, callback) {
+      on: function (eventName, callback) {
         return this;
       },
-      send: function(callback) {
+      send: function (callback) {
         callback(storedResult.reject, storedResult.resolve);
       },
       abort: function(){}
