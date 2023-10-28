@@ -128,17 +128,17 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 1');
     });
-    const sns1 = new AWS.SNS();
-    const sns2 = new AWS.SNS();
+    const sns1: SNS = new AWS.SNS();
+    const sns2: SNS = new AWS.SNS();
 
     awsMock.remock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 2');
     });
 
-    sns1.subscribe({}, function(err, data){
+    sns1.subscribe({Protocol: "", TopicArn: ""}, function(err, data){
       st.equal(data, 'message 2');
 
-      sns2.subscribe({}, function(err, data){
+      sns2.subscribe({Protocol: "", TopicArn: ""}, function(err, data){
         st.equal(data, 'message 2');
         st.end();
       });
@@ -152,9 +152,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
       callback(null, 'message');
     });
     const lambda = new AWS.Lambda();
-    lambda.getFunction({}, function(err, data) {
+    lambda.getFunction({}, function(err: any, data: any) {
       st.equal(data, 'message');
-      lambda.createFunction({}, function(err, data) {
+      lambda.createFunction({}, function(err: any, data: any) {
         st.equal(data, 'message');
         st.end();
       });
@@ -170,11 +170,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
         callback(error, 'message');
       });
       const lambda = new AWS.Lambda();
-      lambda.getFunction({}).promise().then(function(data) {
+      lambda.getFunction({}).promise().then(function(data: any) {
         st.equal(data, 'message');
       }).then(function(){
         return lambda.createFunction({}).promise();
-      }).catch(function(data){
+      }).catch(function(data: any){
         st.equal(data, error);
         st.end();
       });
@@ -188,11 +188,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
         return Promise.reject(error)
       });
       const lambda = new AWS.Lambda();
-      lambda.getFunction({}).promise().then(function(data) {
+      lambda.getFunction({}).promise().then(function(data: any) {
         st.equal(data, 'message');
       }).then(function(){
         return lambda.createFunction({}).promise();
-      }).catch(function(data){
+      }).catch(function(data: any){
         st.equal(data, error);
         st.end();
       });
@@ -205,24 +205,24 @@ test('AWS.mock function should mock AWS service and method on the service', func
       awsMock.mock('S3', 'getObject', function(params, callback) {
         callback('This is a test error to see if promise rejections go unhandled');
       });
-      const S3 = new AWS.S3();
-      S3.getObject({}, function(err, data) {});
+      const S3: S3 = new AWS.S3();
+      S3.getObject({Bucket: '', Key: ''}, function(err, data) {});
       st.end();
     });
     t.test('promises work with async completion', function(st){
       const error = new Error('on purpose');
-      awsMock.mock('Lambda', 'getFunction', function(params, callback) {
+      awsMock.mock('Lambda', 'getFunction', function(this: any, params, callback) {
         setTimeout(callback.bind(this, null, 'message'), 10);
       });
-      awsMock.mock('Lambda', 'createFunction', function(params, callback) {
+      awsMock.mock('Lambda', 'createFunction', function(this: any, params, callback) {
         setTimeout(callback.bind(this, error, 'message'), 10);
       });
       const lambda = new AWS.Lambda();
-      lambda.getFunction({}).promise().then(function(data) {
+      lambda.getFunction({}).promise().then(function(data: any) {
         st.equal(data, 'message');
       }).then(function(){
         return lambda.createFunction({}).promise();
-      }).catch(function(data){
+      }).catch(function(data: any){
         st.equal(data, error);
         st.end();
       });
