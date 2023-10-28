@@ -132,7 +132,6 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
-function remock<C extends ClientName, NC extends NestedClientName<C>>(service: NestedClientFullName<C, NC>, method: NestedMethodName<C, NC>, replace: any): void;
 function remock<C extends ClientName, M extends MethodName<C> & string>(
   service: C,
   method: M,

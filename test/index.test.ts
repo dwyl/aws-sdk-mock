@@ -115,11 +115,11 @@ test('AWS.mock function should mock AWS service and method on the service', func
     awsMock.mock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 1');
     });
-    const sns = new AWS.SNS();
+    const sns: SNS = new AWS.SNS();
     awsMock.remock('SNS', 'subscribe', function(params, callback){
       callback(null, 'message 2');
     });
-    sns.subscribe({}, function(err, data){
+    sns.subscribe({Protocol: "", TopicArn: ""}, function(err, data){
       st.equal(data, 'message 2');
       st.end();
     });
