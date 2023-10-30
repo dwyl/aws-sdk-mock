@@ -344,8 +344,7 @@ function mockServiceMethod(
     const request = {
       promise: havePromises ? function() {
         if (!promise) {
-          // @ts-ignore
-          promise = new AWS.Promise(function (resolve_, reject_) {
+          promise = new AWS.Promise(function (resolve_: any, reject_: any) {
             resolve = resolve_;
             reject = reject_;
           });
@@ -426,7 +425,6 @@ function mockServiceMethod(
  * @param service service to be restored.
  * @param method method of the service to be restored.
  */
-function restore<C extends ClientName, NC extends NestedClientName<C>>(service?: NestedClientFullName<C, NC>, method?: NestedMethodName<C, NC>): void;
 function restore<C extends ClientName>(service?: C, method?: MethodName<C>) {
   if (!service) {
     restoreAllServices();
