@@ -1,11 +1,11 @@
 'use strict';
 
-const tap = require('tap');
+import tap = require('tap');
 const AWS = require('aws-sdk');
 const isNodeStream = require('is-node-stream');
 const concatStream = require('concat-stream');
 const Readable = require('stream').Readable;
-const jest = require('jest-mock');
+import jest = require('jest-mock');
 const sinon = require('sinon');
 
 import awsMock = require('../index.ts');
@@ -643,7 +643,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
 
   t.test('mock function replaces method with a jest mock and resolves successfully', function(st) {
-    const jestMock = jest.fn().mockResolvedValue('message');
+    const jestMock = jest.fn().mockReturnValueOnce('message');
     awsMock.mock('DynamoDB', 'getItem', jestMock);
     const db: DynamoDB = new AWS.DynamoDB();
     db.getItem({TableName: '', Key: {}}, function(err, data){
@@ -667,7 +667,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
 
   t.test('mock function replaces method with a jest mock and rejects successfully', function(st) {
-    const jestMock = jest.fn().mockRejectedValue(new Error('something went wrong'));
+    const jestMock = jest
+    .fn<() => Promise<string>>()
+    .mockRejectedValueOnce(new Error('something went wrong'));
     awsMock.mock('DynamoDB', 'getItem', jestMock);
     const db: DynamoDB = new AWS.DynamoDB();
     db.getItem({TableName: '', Key: {}}, function(err){
@@ -678,7 +680,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
 
   t.test('mock function replaces method with a jest mock with implementation', function(st) {
-    const jestMock = jest.fn((params, cb) => cb(null, 'item'));
+    const jestMock: jest.Mock<(params: any, cb: any) => any> = jest.fn((params, cb) => cb(null, 'item'));
     awsMock.mock('DynamoDB', 'getItem', jestMock);
     const db: DynamoDB = new AWS.DynamoDB();
     db.getItem({TableName: '', Key: {}}, function(err, data){
@@ -689,7 +691,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
 
   t.test('mock function replaces method with a jest mock with implementation and allows mocked method to be called with only callback', function(st) {
-    const jestMock = jest.fn((params, cb) => cb(null, 'item'));
+    const jestMock: jest.Mock<(params: any, cb: any) => any> = jest.fn((params, cb) => cb(null, 'item'));
     awsMock.mock('DynamoDB', 'getItem', jestMock);
     const db: DynamoDB = new AWS.DynamoDB();
     db.getItem(function(err, data){
@@ -700,7 +702,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
   });
 
   t.test('mock function replaces method with a jest mock with implementation expecting only a callback', function(st) {
-    const jestMock = jest.fn((cb) => cb(null, 'item'));
+    const jestMock: jest.Mock<(params: any, cb: any) => any> = jest.fn((cb) => cb(null, 'item'));
     awsMock.mock('DynamoDB', 'getItem', jestMock);
     const db: DynamoDB = new AWS.DynamoDB();
     db.getItem(function(err, data){
