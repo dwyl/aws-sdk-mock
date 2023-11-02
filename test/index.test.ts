@@ -1,15 +1,21 @@
 'use strict';
 
+// Library imports
 import tap = require('tap');
-const AWS = require('aws-sdk');
-const isNodeStream = require('is-node-stream');
-const concatStream = require('concat-stream');
-const Readable = require('stream').Readable;
+import isNodeStream = require('is-node-stream');
+import concatStream = require('concat-stream');
+import stream = require('stream');
 import jest = require('jest-mock');
-const sinon = require('sinon');
+import sinon = require('sinon');
 
+// `aws-sdk-mock` import
 import awsMock = require('../index.ts');
 
+// Const imports
+const AWS = require('aws-sdk');
+const Readable = stream.Readable;
+
+// Type imports
 import type { Test } from "tap";
 import type { SNS, S3, CloudSearchDomain, DynamoDB } from "aws-sdk";
 import type { Readable as ReadableType } from "stream";
