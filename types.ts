@@ -84,10 +84,4 @@ export type SERVICES<T extends string> = {
  * 
  * We add the ts-ignore comments to avoid the type system to trip over the many possible values for NestedClientName<C>
  */
-export type NestedClientName<C extends ClientName> = keyof typeof AWS[C];
-// @ts-ignore
-export type NestedClientFullName<C extends ClientName, NC extends NestedClientName<C>> = `${C}.${NC}`;
-// @ts-ignore
-export type NestedClient<C extends ClientName, NC extends NestedClientName<C>> = InstanceType<(typeof AWS)[C][NC]>;
-// @ts-ignore
-export type NestedMethodName<C extends ClientName, NC extends NestedClientName<C>> = keyof ExtractMethod<NestedClient<C, NC>>;
+//export type NestedClientName<C extends ClientName> = keyof typeof AWS[C];//// @ts-ignore//export type NestedClientFullName<C extends ClientName, NC extends NestedClientName<C>> = `${C}.${NC}`;//// @ts-ignore//export type NestedClient<C extends ClientName, NC extends NestedClientName<C>> = InstanceType<(typeof AWS)[C][NC]>;//// @ts-ignore//export type NestedMethodName<C extends ClientName, NC extends NestedClientName<C>> = keyof ExtractMethod<NestedClient<C, NC>>;
