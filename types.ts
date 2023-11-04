@@ -3,7 +3,7 @@ or https://github.com/microsoft/TypeScript/issues/52593#issuecomment-1419505081*
 
 import { type Request, type AWSError } from 'aws-sdk/lib/core';
 import AWS = require('aws-sdk/clients/all');
-import { type SinonStubStatic } from 'sinon';
+import { type SinonStubStatic } from 'sinon'
 
 // AWS clients
 export type ClientName = keyof typeof AWS;
@@ -75,7 +75,32 @@ export type SERVICES<T extends string> = {
   [key in T]: Service;
 };
 
+
+// Nested clients and nested methods types
+
+/** 
+ * You can find in the commented block below the first implementation of nested types.
+ * They *don't work* because it's impossible. The `aws-sdk` library exports clients and each "method" is a type, not a value.
+ * Therefore, it's impossible to get these as string literals.
+ * See our question on Stack Overflow answered in https://stackoverflow.com/questions/77413867/how-to-create-a-type-that-yields-a-dot-notation-of-nested-class-properties-as-st.
+ * 
+ * Because we still want the Typescript compiler to show the original clients as suggestions
+ * when using an IDE, we're using `OtherString` as a branded primitive type.
+ * It allows us the compiler to not reduce the `ClientName` string literals to `string`
+ * but still accept any string, all the while suggesting the string literals from `ClientName`.
+ * 
+ * For more detailed explanation on this, check https://stackoverflow.com/questions/67757457/make-typescript-show-type-hint-for-string-literal-when-union-with-string-primiti.
+ * For a simple explanation, check https://github.com/microsoft/TypeScript/issues/29729#issuecomment-567871939.
+ */
+
+type OtherString = string & {};
+export type NestedClientName = ClientName | OtherString;
+export type NestedMethodName = OtherString;
+
+
 /**
+ * This is the first implementation attempt.
+ * 
  * The SDK defines a class for each service as well as a namespace with the same name.
  * Nested clients, e.g. DynamoDB.DocumentClient, are defined on the namespace, not the class.
  * That is why we need to fetch these separately as defined below in the NestedClientName<C> type
@@ -84,4 +109,10 @@ export type SERVICES<T extends string> = {
  * 
  * We add the ts-ignore comments to avoid the type system to trip over the many possible values for NestedClientName<C>
  */
-//export type NestedClientName<C extends ClientName> = keyof typeof AWS[C];//// @ts-ignore//export type NestedClientFullName<C extends ClientName, NC extends NestedClientName<C>> = `${C}.${NC}`;//// @ts-ignore//export type NestedClient<C extends ClientName, NC extends NestedClientName<C>> = InstanceType<(typeof AWS)[C][NC]>;//// @ts-ignore//export type NestedMethodName<C extends ClientName, NC extends NestedClientName<C>> = keyof ExtractMethod<NestedClient<C, NC>>;
+//export type NestedClientName<C extends ClientName> = keyof typeof AWS[C];
+//// @ts-ignore
+//export type NestedClientFullName<C extends ClientName, NC extends NestedClientName<C>> = `${C}.${NC}`;
+//// @ts-ignore
+//export type NestedClient<C extends ClientName, NC extends NestedClientName<C>> = InstanceType<(typeof AWS)[C][NC]>;
+//// @ts-ignore
+//export type NestedMethodName<C extends ClientName, NC extends NestedClientName<C>> = keyof ExtractMethod<NestedClient<C, NC>>;
