@@ -458,9 +458,9 @@ test('AWS.mock function should mock AWS service and method on the service', func
     st.equal(docClient.put.isSinonProxy, true);
     st.equal(docClient.get.isSinonProxy, true);
 
-    docClient.put({}, function(err, data){
+    docClient.put({}, function(err: any, data: any){
       st.equal(data, 'message');
-      docClient.get({}, function(err, data){
+      docClient.get({}, function(err: any, data: any){
         st.equal(data, 'test');
 
         awsMock.restore('DynamoDB.DocumentClient', 'get');
@@ -482,7 +482,7 @@ test('AWS.mock function should mock AWS service and method on the service', func
 
     st.equal(AWS.DynamoDB.DocumentClient.isSinonProxy, true);
     st.equal(docClient.query.isSinonProxy, true);
-    docClient.query({}, function(err, data){
+    docClient.query({}, function(err: any, data: any){
       st.equal(err, null);
       st.equal(data, 'test');
       st.end();

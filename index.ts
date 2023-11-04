@@ -22,7 +22,6 @@ import {
   type ClientName,
   type MethodName,
   type NestedClientName,
-  type NestedClientFullName,
   type NestedMethodName,
   type Client,
   type AWSCallback,
@@ -86,6 +85,11 @@ function setSDKInstance(sdk: typeof AWS_SDK): void {
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
+function mock<C extends ClientName>(
+  service: NestedClientName,
+  method: NestedMethodName,
+  replace: ReplaceFn<C, MethodName<ClientName>>
+) : void
 function mock<C extends ClientName, M extends MethodName<C> & string>(
   service: C,
   method: M,
@@ -132,6 +136,11 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
+function remock<C extends ClientName>(
+  service: NestedClientName,
+  method: NestedMethodName,
+  replace: ReplaceFn<C, MethodName<ClientName>>
+) : void
 function remock<C extends ClientName, M extends MethodName<C> & string>(
   service: C,
   method: M,
@@ -215,6 +224,7 @@ function mockService(service: ClientName) {
  * (especially if you're a TS wizard 🧙‍♂️).
  * We're not entirely sure if `SinonStubbedInstance<any>` is correct,
  * but we're adding this instead of `replace: any` to maintain specificity.
+ * 
  * @param replace function to wrap the stub with.
  * @returns the stub wrapped with the given function.
  */
@@ -257,13 +267,6 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
   };
 }
 
-/**
- *  Stubs the method on a service.
- *
- * All AWS service methods take two argument:
- *  - params: an object.
- *  - callback: of the form 'function(err, data) {}'.
- */
 
 /**
  *  Stubs the method on a service.
@@ -425,6 +428,10 @@ function mockServiceMethod(
  * @param service service to be restored.
  * @param method method of the service to be restored.
  */
+function restore<C extends ClientName>(
+  service?: NestedClientName,
+  method?: NestedMethodName
+) : void
 function restore<C extends ClientName>(service?: C, method?: MethodName<C>) {
   if (!service) {
     restoreAllServices();
