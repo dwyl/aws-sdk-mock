@@ -29,9 +29,8 @@ import {
   type SERVICES,
   type Service,
   type ExtendedClient,
-  type AWS_Stub
+  type AWS_Stub,
 } from "./types";
-
 
 // TYPES -----------------------------------
 // AWS type to be exported
@@ -44,7 +43,6 @@ type AWS_MOCK = {
   Promise: Awaited<Promise<any>>;
 };
 
-
 // PACKAGE ---------------------------------
 // Real AWS instance from 'aws-sdk'
 let _AWS: typeof AWS_SDK = AWS_SDK;
@@ -56,7 +54,7 @@ const AWS: AWS_MOCK = {
   remock: remock,
   restore: restore,
   setSDK: setSDK,
-  setSDKInstance: setSDKInstance
+  setSDKInstance: setSDKInstance,
 };
 const services: Partial<SERVICES<ClientName>> = {};
 
@@ -66,7 +64,7 @@ const services: Partial<SERVICES<ClientName>> = {};
  */
 function setSDK(path: string): void {
   _AWS = require(path);
-};
+}
 
 /**
  * Explicitly sets the `aws-sdk` instance to be used.
@@ -74,27 +72,17 @@ function setSDK(path: string): void {
  */
 function setSDKInstance(sdk: typeof AWS_SDK): void {
   _AWS = sdk;
-};
-
+}
 
 /**
  * Stubs the service and registers the method that needs to be mocked.
- * 
+ *
  * @param service AWS service to mock (e.g. DynamoDB).
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
-function mock<C extends ClientName>(
-  service: NestedClientName,
-  method: NestedMethodName,
-  replace: ReplaceFn<C, MethodName<ClientName>>
-) : void
-function mock<C extends ClientName, M extends MethodName<C> & string>(
-  service: C,
-  method: M,
-  replace: ReplaceFn<C, MethodName<ClientName>>
-) {
-
+function mock<C extends ClientName>(service: NestedClientName, method: NestedMethodName, replace: ReplaceFn<C, MethodName<ClientName>>): void;
+function mock<C extends ClientName, M extends MethodName<C> & string>(service: C, method: M, replace: ReplaceFn<C, MethodName<ClientName>>) {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
     const service_to_add: Service = {
@@ -126,21 +114,16 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
   }
 
   return service_obj?.methodMocks[method];
-};
-
+}
 
 /**
  * Stubs the service and registers the method that needs to be re-mocked.
- * 
+ *
  * @param service AWS service to mock (e.g. DynamoDB).
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
-function remock<C extends ClientName>(
-  service: NestedClientName,
-  method: NestedMethodName,
-  replace: ReplaceFn<C, MethodName<ClientName>>
-) : void
+function remock<C extends ClientName>(service: NestedClientName, method: NestedMethodName, replace: ReplaceFn<C, MethodName<ClientName>>): void;
 function remock<C extends ClientName, M extends MethodName<C> & string>(
   service: C,
   method: M,
@@ -167,13 +150,12 @@ function remock<C extends ClientName, M extends MethodName<C> & string>(
   }
 
   return services[service]?.methodMocks[method];
-};
-
+}
 
 /**
  * Stub the constructor for the service on AWS.
  * For example, calls of the new `AWS.SNS()` are replaced.
- * 
+ *
  * @param service AWS service to mock (e.g. DynamoDB).
  * @returns the stubbed service.
  */
@@ -204,8 +186,8 @@ function mockService(service: ClientName) {
       // Once this has been triggered we can mock out all the registered methods.
       for (const key in service_obj.methodMocks) {
         const methodKey = key as MethodName<ClientName>;
-        const objectMethodMock = service_obj.methodMocks[key]
-        if(objectMethodMock) {
+        const objectMethodMock = service_obj.methodMocks[key];
+        if (objectMethodMock) {
           mockServiceMethod(service, client, methodKey, objectMethodMock.replace);
         }
       }
@@ -215,38 +197,36 @@ function mockService(service: ClientName) {
   }
 }
 
-
 /**
  * Wraps a sinon stub or jest mock function as a fully functional replacement function.
  *
  * **Note**:
- * 
+ *
  * If you want to help us better define the `replace` function (without having to use any), please open a PR
  * (especially if you're a TS wizard 🧙‍♂️).
  * We're not entirely sure if `SinonStubbedInstance<any>` is correct,
  * but we're adding this instead of `replace: any` to maintain specificity.
- * 
+ *
  * @param replace function to wrap the stub with.
  * @returns the stub wrapped with the given function.
  */
 function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientName>> | AWS_Stub | SinonStubbedInstance<any>) {
-
-  if (typeof replace !== 'function' || !(replace._isMockFunction || replace.isSinonProxy)) {
+  if (typeof replace !== "function" || !(replace._isMockFunction || replace.isSinonProxy)) {
     return replace;
   }
 
   return (params: AWSRequest<ClientName, MethodName<ClientName>>, cb: AWSCallback<ClientName, MethodName<ClientName>> | undefined) => {
     // If only one argument is provided, it is the callback
     let callback: typeof params | AWSCallback<ClientName, MethodName<ClientName>>;
-    if(cb === undefined || !cb) {
+    if (cb === undefined || !cb) {
       callback = params;
-    } 
-    
+    }
+
     // If not, the callback is the passed cb
     else {
-      callback = cb
+      callback = cb;
     }
-    
+
     // Spy on the users callback so we can later on determine if it has been called in their replace
     const cbSpy = sinon.spy(callback);
     try {
@@ -255,10 +235,13 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
       const result = replace.length === 1 ? replace(cbSpy) : replace(params, cbSpy);
       // If the users replace already called the callback, there's no more need for us do it.
       if (cbSpy.called) {
-          return;
+        return;
       }
-      if (typeof result.then === 'function') {
-        result.then((val: any) => callback(undefined, val), (err: any) => callback(err));
+      if (typeof result.then === "function") {
+        result.then(
+          (val: any) => callback(undefined, val),
+          (err: any) => callback(err)
+        );
       } else {
         callback(undefined, result);
       }
@@ -268,14 +251,13 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
   };
 }
 
-
 /**
  *  Stubs the method on a service.
  *
  *  All AWS service methods take two arguments:
  *  - `params`: an object.
  *  - `callback`: of the form 'function(err, data) {}'.
- * 
+ *
  * @param service service in which the method to stub resides in.
  * @param client AWS client.
  * @param method method to stub.
@@ -290,12 +272,12 @@ function mockServiceMethod(
 ) {
   replace = wrapTestStubReplaceFn(replace);
 
-  const service_obj = services[service]
-  
+  const service_obj = services[service];
+
   // Service type guard
   if (!service_obj) return;
 
-  const serviceMethodMock = service_obj.methodMocks[method]
+  const serviceMethodMock = service_obj.methodMocks[method];
 
   // Service method mock type guard
   if (!serviceMethodMock) return;
@@ -306,24 +288,24 @@ function mockServiceMethod(
     let userArgs: string | Function[];
     let userCallback: Function;
 
-    if (typeof args[(args.length || 1) - 1] === 'function') {
+    if (typeof args[(args.length || 1) - 1] === "function") {
       userArgs = args.slice(0, -1);
       userCallback = args[(args.length || 1) - 1];
     } else {
       userArgs = args;
     }
 
-    const havePromises = typeof AWS.Promise === 'function';
+    const havePromises = typeof AWS.Promise === "function";
 
     let promise: typeof AWS.Promise;
     let resolve: (value: any) => any;
     let reject: (value: any) => any;
     let storedResult: Awaited<Promise<any>>;
 
-    const tryResolveFromStored = function() {
+    const tryResolveFromStored = function () {
       if (storedResult && promise) {
-        if (typeof storedResult.then === 'function') {
-          storedResult.then(resolve, reject)
+        if (typeof storedResult.then === "function") {
+          storedResult.then(resolve, reject);
         } else if (storedResult.reject) {
           reject(storedResult.reject);
         } else {
@@ -335,9 +317,9 @@ function mockServiceMethod(
     const callback = function (err: unknown, data: unknown) {
       if (!storedResult) {
         if (err) {
-          storedResult = {reject: err};
+          storedResult = { reject: err };
         } else {
-          storedResult = {resolve: data};
+          storedResult = { resolve: data };
         }
       }
       if (userCallback) {
@@ -345,19 +327,21 @@ function mockServiceMethod(
       }
       tryResolveFromStored();
     };
-    
+
     const request = {
-      promise: havePromises ? function() {
-        if (!promise) {
-          promise = new AWS.Promise(function (resolve_: any, reject_: any) {
-            resolve = resolve_;
-            reject = reject_;
-          });
-        }
-        tryResolveFromStored();
-        return promise;
-      } : undefined,
-      createReadStream: function() {
+      promise: havePromises
+        ? function () {
+            if (!promise) {
+              promise = new AWS.Promise(function (resolve_: any, reject_: any) {
+                resolve = resolve_;
+                reject = reject_;
+              });
+            }
+            tryResolveFromStored();
+            return promise;
+          }
+        : undefined,
+      createReadStream: function () {
         if (storedResult instanceof Readable) {
           return storedResult;
         }
@@ -366,7 +350,7 @@ function mockServiceMethod(
         } else {
           const stream = new Readable();
           stream._read = function () {
-            if (typeof replace === 'string' || Buffer.isBuffer(replace)) {
+            if (typeof replace === "string" || Buffer.isBuffer(replace)) {
               this.push(replace);
             }
             this.push(null);
@@ -380,17 +364,16 @@ function mockServiceMethod(
       send: function (callback: Function) {
         callback(storedResult.reject, storedResult.resolve);
       },
-      abort: function(){}
+      abort: function () {},
     };
 
     // different locations for the paramValidation property
     const _client = client as ExtendedClient;
-    const config = (_client.config || _client.options || _AWS.config);
+    const config = _client.config || _client.options || _AWS.config;
     if (config.paramValidation) {
       try {
         // different strategies to find method, depending on whether the service is nested/unnested
-        const inputRules =
-          ((_client.api && _client.api.operations[method]) || _client[method] || {}).input;
+        const inputRules = ((_client.api && _client.api.operations[method]) || _client[method] || {}).input;
         if (inputRules) {
           const params = userArgs[(userArgs.length || 1) - 1];
           // @ts-ignore
@@ -406,9 +389,12 @@ function mockServiceMethod(
     if (replace instanceof Function) {
       const concatUserArgs = userArgs.concat([callback]) as [params: never, options: any, callback: any];
       const result = replace.apply(replace, concatUserArgs);
-      if (storedResult === undefined && result != null &&
-        (typeof result === 'object' && result.then instanceof Function || result instanceof Readable)) {
-        storedResult = result
+      if (
+        storedResult === undefined &&
+        result != null &&
+        ((typeof result === "object" && result.then instanceof Function) || result instanceof Readable)
+      ) {
+        storedResult = result;
       }
     }
     // Else we call the callback with the value of 'replace'.
@@ -417,7 +403,6 @@ function mockServiceMethod(
     }
     return request;
   });
-
 }
 
 /**
@@ -426,14 +411,11 @@ function mockServiceMethod(
  * When no parameters are passed, everything will be reset.
  * When only the service is passed, that specific service will be reset.
  * When a service and method are passed, only that method will be reset.
- * 
+ *
  * @param service service to be restored.
  * @param method method of the service to be restored.
  */
-function restore<C extends ClientName>(
-  service?: NestedClientName,
-  method?: NestedMethodName
-) : void
+function restore<C extends ClientName>(service?: NestedClientName, method?: NestedMethodName): void;
 function restore<C extends ClientName>(service?: C, method?: MethodName<C>) {
   if (!service) {
     restoreAllServices();
@@ -444,8 +426,7 @@ function restore<C extends ClientName>(service?: C, method?: MethodName<C>) {
       restoreService(service);
     }
   }
-};
-
+}
 
 /**
  * Restores all mocked service and their corresponding methods.
@@ -456,7 +437,6 @@ function restoreAllServices() {
     restoreService(service);
   }
 }
-
 
 /**
  * Restores a single mocked service and its corresponding methods.
@@ -480,7 +460,6 @@ function restoreService(service: ClientName) {
   }
 }
 
-
 /**
  * Restores all mocked methods on a service.
  * @param service service with the methods to be restored.
@@ -492,7 +471,6 @@ function restoreAllMethods(service: ClientName) {
   }
 }
 
-
 /**
  * Restores a single mocked method on a service.
  * @param service service of the method to be restored.
@@ -502,18 +480,18 @@ function restoreAllMethods(service: ClientName) {
 function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C, method: M) {
   const methodName = method as string;
 
-  const serviceObj = services[service]
+  const serviceObj = services[service];
 
   // Service type guard
-  if(!serviceObj) {
+  if (!serviceObj) {
     console.log("Method " + service + " was never instantiated yet you try to restore it.");
-    return
+    return;
   }
 
-  const serviceMethodMock = serviceObj.methodMocks[methodName]
+  const serviceMethodMock = serviceObj.methodMocks[methodName];
 
   // Service method mock type guard
-  if(!serviceMethodMock) return
+  if (!serviceMethodMock) return;
 
   // restore this method on all clients
   const serviceClients = services[service]?.clients;
@@ -541,6 +519,5 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
     };
   }
 })();
-
 
 export = AWS;

@@ -1,9 +1,9 @@
 /* Don't make this a `d.ts` file - see https://www.youtube.com/watch?v=zu-EgnbmcLY&ab_channel=MattPocock 
 or https://github.com/microsoft/TypeScript/issues/52593#issuecomment-1419505081*/
 
-import { type Request, type AWSError } from 'aws-sdk/lib/core';
-import AWS = require('aws-sdk/clients/all');
-import { type SinonStubStatic } from 'sinon'
+import { type Request, type AWSError } from "aws-sdk/lib/core";
+import AWS = require("aws-sdk/clients/all");
+import { type SinonStubStatic } from "sinon";
 
 // AWS clients
 export type ClientName = keyof typeof AWS;
@@ -20,13 +20,18 @@ export type Method<C extends ClientName, M extends MethodName<C>> = ExtractMetho
 export type AWSRequest<C extends ClientName, M extends MethodName<C>> = Method<C, M> extends AWSMethod<infer P, any> ? P : never;
 
 // AWS callback type
-export type AWSCallback<C extends ClientName, M extends MethodName<C>> = Method<C, M> extends AWSMethod<any, infer D> ? {
-  (err: undefined, data: D): void;
-  (err: AWSError, data?: undefined): void;
-} : any;
+export type AWSCallback<C extends ClientName, M extends MethodName<C>> = Method<C, M> extends AWSMethod<any, infer D>
+  ? {
+      (err: undefined, data: D): void;
+      (err: AWSError, data?: undefined): void;
+    }
+  : any;
 
 // Replace function in mock/remock/restore functions. Can be a function, string or object
-export type ReplaceFn<C extends ClientName, M extends MethodName<C>> = ((params: AWSRequest<C, M>, options: any, callback: AWSCallback<C, M>) => any) | string | object;
+export type ReplaceFn<C extends ClientName, M extends MethodName<C>> =
+  | ((params: AWSRequest<C, M>, options: any, callback: AWSCallback<C, M>) => any)
+  | string
+  | object;
 
 // Interface from AWS method type
 export type Callback<D> = (err: AWSError | undefined, data: D) => void;
@@ -35,7 +40,7 @@ export interface AWSMethod<P, D> {
   (callback?: Callback<D>): Request<D, AWSError>;
 }
 
-// AWS stub type that can possibly be used while stubbing the given replace function 
+// AWS stub type that can possibly be used while stubbing the given replace function
 export type AWS_Stub = {
   _isMockFunction: boolean;
   isSinonProxy: boolean;
@@ -75,20 +80,19 @@ export type SERVICES<T extends string> = {
   [key in T]: Service;
 };
 
-
 // Nested clients and nested methods types
 
-/** 
+/**
  * You can find in the commented block below the first implementation of nested types.
  * They *don't work* because it's impossible. The `aws-sdk` library exports clients and each "method" is a type, not a value.
  * Therefore, it's impossible to get these as string literals.
  * See our question on Stack Overflow answered in https://stackoverflow.com/questions/77413867/how-to-create-a-type-that-yields-a-dot-notation-of-nested-class-properties-as-st.
- * 
+ *
  * Because we still want the Typescript compiler to show the original clients as suggestions
  * when using an IDE, we're using `OtherString` as a branded primitive type.
  * It allows us the compiler to not reduce the `ClientName` string literals to `string`
  * but still accept any string, all the while suggesting the string literals from `ClientName`.
- * 
+ *
  * For more detailed explanation on this, check https://stackoverflow.com/questions/67757457/make-typescript-show-type-hint-for-string-literal-when-union-with-string-primiti.
  * For a simple explanation, check https://github.com/microsoft/TypeScript/issues/29729#issuecomment-567871939.
  */
@@ -97,16 +101,15 @@ type OtherString = string & {};
 export type NestedClientName = ClientName | OtherString;
 export type NestedMethodName = OtherString;
 
-
 /**
  * This is the first implementation attempt.
- * 
+ *
  * The SDK defines a class for each service as well as a namespace with the same name.
  * Nested clients, e.g. DynamoDB.DocumentClient, are defined on the namespace, not the class.
  * That is why we need to fetch these separately as defined below in the NestedClientName<C> type
- * 
+ *
  * The NestedClientFullName type supports validating strings representing a nested clients name in dot notation
- * 
+ *
  * We add the ts-ignore comments to avoid the type system to trip over the many possible values for NestedClientName<C>
  */
 //export type NestedClientName<C extends ClientName> = keyof typeof AWS[C];
