@@ -76,11 +76,10 @@ function setSDKInstance(sdk: typeof AWS_SDK): void {
   _AWS = sdk;
 };
 
+
 /**
  * Stubs the service and registers the method that needs to be mocked.
- */
-/**
- * Stubs the service and registers the method that needs to be mocked.
+ * 
  * @param service AWS service to mock (e.g. DynamoDB).
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
@@ -132,6 +131,7 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
 
 /**
  * Stubs the service and registers the method that needs to be re-mocked.
+ * 
  * @param service AWS service to mock (e.g. DynamoDB).
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
@@ -173,6 +173,7 @@ function remock<C extends ClientName, M extends MethodName<C> & string>(
 /**
  * Stub the constructor for the service on AWS.
  * For example, calls of the new `AWS.SNS()` are replaced.
+ * 
  * @param service AWS service to mock (e.g. DynamoDB).
  * @returns the stubbed service.
  */
@@ -274,6 +275,7 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
  *  All AWS service methods take two arguments:
  *  - `params`: an object.
  *  - `callback`: of the form 'function(err, data) {}'.
+ * 
  * @param service service in which the method to stub resides in.
  * @param client AWS client.
  * @param method method to stub.
