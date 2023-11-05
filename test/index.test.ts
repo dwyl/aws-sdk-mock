@@ -2,7 +2,6 @@
 
 // Library imports
 import tap = require("tap");
-import isNodeStream = require("is-node-stream");
 import concatStream = require("concat-stream");
 import stream = require("stream");
 import jest = require("jest-mock");
@@ -12,6 +11,7 @@ import sinon = require("sinon");
 import awsMock = require("../src/index.ts");
 
 // Const imports
+const isNodeStream = require("is-node-stream");
 const AWS = require("aws-sdk");
 const Readable = stream.Readable;
 
