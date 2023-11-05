@@ -10,7 +10,7 @@
     "nocov": "tap test/*.js",
     "test": "nyc --reporter=lcov tap ./test/*.ts && tsd",
     "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html",
-    "build": "tsup index.ts --format cjs, esm, --dts"
+    "build": "tsup src/index.ts --format cjs, esm, --dts"
   },
   "repository": {
     "type": "git",

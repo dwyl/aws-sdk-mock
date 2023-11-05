@@ -9,7 +9,7 @@ import jest = require("jest-mock");
 import sinon = require("sinon");
 
 // `aws-sdk-mock` import
-import awsMock = require("../index.ts");
+import awsMock = require("../src/index.ts");
 
 // Const imports
 const AWS = require("aws-sdk");
