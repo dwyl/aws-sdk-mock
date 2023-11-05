@@ -29,7 +29,10 @@ import {
   type SERVICES,
   type Service,
   type ExtendedClient,
-  type AWS_Stub,
+  type MaybeSoninProxy,
+  type Replace,
+  type ValueType,
+  type MethodMock,
 } from "./types";
 
 // TYPES -----------------------------------
@@ -81,8 +84,8 @@ function setSDKInstance(sdk: typeof AWS_SDK): void {
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
-function mock<C extends ClientName>(service: NestedClientName, method: NestedMethodName, replace: ReplaceFn<C, MethodName<ClientName>>): void;
-function mock<C extends ClientName, M extends MethodName<C> & string>(service: C, method: M, replace: ReplaceFn<C, MethodName<ClientName>>) {
+function mock<C extends ClientName>(service: NestedClientName, method: NestedMethodName, replace: ReplaceFn<C, MethodName<ClientName>>): Replace<ClientName, MethodName<ClientName>>;
+function mock<C extends ClientName, M extends MethodName<C> & string>(service: C, method: M, replace: ReplaceFn<C, MethodName<ClientName>>): Replace<ClientName, MethodName<ClientName>> {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
     const service_to_add: Service = {
@@ -97,23 +100,26 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(service: C
     mockService(service);
   }
 
-  const service_obj = services[service];
+  const serviceObj = services[service] as Service; // we know it's `Service` because `services[service]` is defined here
   const methodName = method as MethodName<ClientName>;
 
   // Register the method to be mocked out.
-  if (!service_obj?.methodMocks[methodName]) {
+  if (!serviceObj.methodMocks[methodName]) {
     // Adding passed mock method
-    if (service_obj !== undefined) service_obj.methodMocks[methodName] = { replace: replace };
+    if (serviceObj !== undefined) serviceObj.methodMocks[methodName] = { replace: replace };
 
     // If the constructor was already invoked, we need to mock the method here.
-    if (service_obj?.invoked) {
-      service_obj?.clients?.forEach((client) => {
+    if (serviceObj.invoked) {
+      serviceObj.clients?.forEach((client) => {
         mockServiceMethod(service, client, methodName, replace);
       });
     }
   }
 
-  return service_obj?.methodMocks[method];
+  // we know it's defined because we've defined `serviceObj.methodMocks[methodName]` above.
+  const methodMockObj = serviceObj.methodMocks[methodName] as ValueType<MethodMock, keyof MethodMock>
+
+  return methodMockObj;
 }
 
 /**
@@ -210,7 +216,7 @@ function mockService(service: ClientName) {
  * @param replace function to wrap the stub with.
  * @returns the stub wrapped with the given function.
  */
-function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientName>> | AWS_Stub | SinonStubbedInstance<any>) {
+function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientName>> | MaybeSoninProxy | SinonStubbedInstance<any>) {
   if (typeof replace !== "function" || !(replace._isMockFunction || replace.isSinonProxy)) {
     return replace;
   }
