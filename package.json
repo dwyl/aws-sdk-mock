@@ -3,7 +3,6 @@
   "version": "5.8.0",
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "lint": "tsc",
