@@ -168,11 +168,12 @@ function remock<C extends ClientName, M extends MethodName<C> & string>(
 function mockService(service: ClientName) {
   const nestedServices: string[] = service.split(".");
 
-  const method = nestedServices.pop();
-  const object = traverse(_AWS).get(nestedServices);
-
+  //TODO check for undefined behaviour. If "" is passed, it will be undefined
+  const method = nestedServices.pop() as string; 
   // Method type guard
-  if (!method) return;
+  //if (!method) return;
+
+  const object = traverse(_AWS).get(nestedServices);
 
   const service_obj = services[service];
 
@@ -278,15 +279,16 @@ function mockServiceMethod(
 ) {
   replace = wrapTestStubReplaceFn(replace);
 
-  const service_obj = services[service];
-
+  //TODO check for undefined behaviour. If "" is passed, it will be undefined
+  const service_obj = services[service] as Service;
   // Service type guard
-  if (!service_obj) return;
+  //if (!service_obj) return;
 
-  const serviceMethodMock = service_obj.methodMocks[method];
 
+  //TODO check for undefined behaviour. If "" is passed, it will be undefined
+  const serviceMethodMock = service_obj.methodMocks[method] as Replace<ClientName, MethodName<ClientName>>;
   // Service method mock type guard
-  if (!serviceMethodMock) return;
+  //if (!serviceMethodMock) return;
 
   serviceMethodMock.stub = sinon.stub(client, method).callsFake(function () {
     const args = Array.prototype.slice.call(arguments);
@@ -493,11 +495,6 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
     console.log("Method " + service + " was never instantiated yet you try to restore it.");
     return;
   }
-
-  const serviceMethodMock = serviceObj.methodMocks[methodName];
-
-  // Service method mock type guard
-  if (!serviceMethodMock) return;
 
   // restore this method on all clients
   const serviceClients = services[service]?.clients;
