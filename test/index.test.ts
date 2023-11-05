@@ -582,8 +582,8 @@ test("AWS.mock function should mock AWS service and method on the service", func
   });
   t.skip("Mocked service should return the sinon stub", function (st) {
     // TODO: the stub is only returned if an instance was already constructed
-    const stub = awsMock.mock("CloudSearchDomain", "search");
-    st.equal(stub.stub.isSinonProxy, true);
+    const stub = awsMock.mock("CloudSearchDomain", "search", "");
+    st.equal(stub.stub?.isSinonProxy, true);
     st.end();
   });
 
@@ -611,7 +611,7 @@ test("AWS.mock function should mock AWS service and method on the service", func
   });
 
   t.test("Mocked service should allow chained calls after listening to events", function (st) {
-    awsMock.mock("S3", "getObject");
+    awsMock.mock("S3", "getObject", "");
     const s3 = new AWS.S3();
     const req = s3.getObject({ Bucket: "b", notKey: "k" });
     st.equal(
@@ -756,7 +756,7 @@ test("AWS.mock function should mock AWS service and method on the service", func
   });
 
   t.test("Mocked service should allow abort call", function (st) {
-    awsMock.mock("S3", "upload");
+    awsMock.mock("S3", "upload", "");
     const s3 = new AWS.S3();
     const req = s3.upload({}, { message: "test" });
     req.abort();
@@ -779,7 +779,7 @@ test("AWS.setSDK function should mock a specific AWS module", function (t: Test)
 
   t.test("Modules with multi-parameter constructors can be set for mocking", function (st) {
     awsMock.setSDK("aws-sdk");
-    awsMock.mock("CloudFront.Signer", "getSignedUrl");
+    awsMock.mock("CloudFront.Signer", "getSignedUrl", "");
     const signer = new AWS.CloudFront.Signer("key-pair-id", "private-key");
     st.type(signer, "Signer");
     st.end();
@@ -810,6 +810,7 @@ test("AWS.setSDKInstance function should mock a specific AWS module", function (
 
   t.test("Setting the aws-sdk to the wrong instance can cause an exception when mocking", function (st) {
     const bad = {};
+    //@ts-ignore This won't be possible with typescript but in case someone tries to override it, we'll test it this way
     awsMock.setSDKInstance(bad);
     st.throws(function () {
       awsMock.mock("SNS", "publish", "message");
