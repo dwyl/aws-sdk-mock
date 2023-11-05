@@ -84,8 +84,16 @@ function setSDKInstance(sdk: typeof AWS_SDK): void {
  * @param method method on AWS service to mock (e.g. `putItem` for DynamoDB).
  * @param replace string or function to replace the method.
  */
-function mock<C extends ClientName>(service: NestedClientName, method: NestedMethodName, replace: ReplaceFn<C, MethodName<ClientName>>): Replace<ClientName, MethodName<ClientName>>;
-function mock<C extends ClientName, M extends MethodName<C> & string>(service: C, method: M, replace: ReplaceFn<C, MethodName<ClientName>>): Replace<ClientName, MethodName<ClientName>> {
+function mock<C extends ClientName>(
+  service: NestedClientName,
+  method: NestedMethodName,
+  replace: ReplaceFn<C, MethodName<ClientName>>
+): Replace<ClientName, MethodName<ClientName>>;
+function mock<C extends ClientName, M extends MethodName<C> & string>(
+  service: C,
+  method: M,
+  replace: ReplaceFn<C, MethodName<ClientName>>
+): Replace<ClientName, MethodName<ClientName>> {
   // If the service does not exist yet, we need to create and stub it.
   if (!services[service]) {
     const service_to_add: Service = {
@@ -117,7 +125,7 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(service: C
   }
 
   // we know it's defined because we've defined `serviceObj.methodMocks[methodName]` above.
-  const methodMockObj = serviceObj.methodMocks[methodName] as ValueType<MethodMock, keyof MethodMock>
+  const methodMockObj = serviceObj.methodMocks[methodName] as ValueType<MethodMock, keyof MethodMock>;
 
   return methodMockObj;
 }
@@ -169,7 +177,7 @@ function mockService(service: ClientName) {
   const nestedServices: string[] = service.split(".");
 
   //TODO check for undefined behaviour. If "" is passed, it will be undefined
-  const method = nestedServices.pop() as string; 
+  const method = nestedServices.pop() as string;
   // Method type guard
   //if (!method) return;
 
@@ -283,7 +291,6 @@ function mockServiceMethod(
   const service_obj = services[service] as Service;
   // Service type guard
   //if (!service_obj) return;
-
 
   //TODO check for undefined behaviour. If "" is passed, it will be undefined
   const serviceMethodMock = service_obj.methodMocks[method] as Replace<ClientName, MethodName<ClientName>>;
