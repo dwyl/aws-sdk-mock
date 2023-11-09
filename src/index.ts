@@ -257,7 +257,6 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
           /* istanbul ignore next */
           (val: any) => cb(undefined, val),
           (err: any) => {
-            console.log(err)
             return cb(err)}
         );
       } else {
