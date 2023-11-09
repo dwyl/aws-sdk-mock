@@ -230,20 +230,20 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
     return replace;
   }
 
-  return (params: AWSRequest<ClientName, MethodName<ClientName>>, cb: AWSCallback<ClientName, MethodName<ClientName>> | undefined) => {
+  return (params: AWSRequest<ClientName, MethodName<ClientName>>, callback: AWSCallback<ClientName, MethodName<ClientName>> | undefined) => {
     // If only one argument is provided, it is the callback
-    let callback: typeof params | AWSCallback<ClientName, MethodName<ClientName>>;
-    if (cb === undefined || !cb) {
-      callback = params;
+    let cb: typeof params | AWSCallback<ClientName, MethodName<ClientName>>;
+    if (callback === undefined || !callback) {
+      cb = params;
     }
 
     // If not, the callback is the passed cb
     else {
-      callback = cb;
+      cb = callback;
     }
 
     // Spy on the users callback so we can later on determine if it has been called in their replace
-    const cbSpy = sinon.spy(callback);
+    const cbSpy = sinon.spy(cb);
     try {
       // The replace function can also be a `functionStub`.
       // Call the users replace, check how many parameters it expects to determine if we should pass in callback only, or also parameters
@@ -254,14 +254,17 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
       }
       if (typeof result.then === "function") {
         result.then(
-          (val: any) => callback(undefined, val),
-          (err: any) => callback(err)
+          /* istanbul ignore next */
+          (val: any) => cb(undefined, val),
+          (err: any) => {
+            console.log(err)
+            return cb(err)}
         );
       } else {
-        callback(undefined, result);
+        cb(undefined, result);
       }
     } catch (err) {
-      callback(err);
+      cb(err);
     }
   };
 }
