@@ -358,7 +358,7 @@ function mockServiceMethod(
             tryResolveFromStored();
             return promise;
           }
-        : undefined,
+        /* istanbul ignore next */ : undefined,
       createReadStream: function () {
         if (storedResult instanceof Readable) {
           return storedResult;
@@ -522,7 +522,6 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
 
 (function () {
   const setPromisesDependency = _AWS.config.setPromisesDependency;
-  /* istanbul ignore next */
   /* only to support for older versions of aws-sdk */
   if (typeof setPromisesDependency === "function") {
     AWS.Promise = global.Promise;
