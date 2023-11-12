@@ -6,6 +6,7 @@
         "src/**/*.ts"
     ],
 
-    "branches": 93,
+    "check-coverage": true,
+    "branches": 80,
     "lines": 100
 }
