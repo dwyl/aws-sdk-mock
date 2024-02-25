@@ -1,6 +1,6 @@
 {
   "name": "aws-sdk-mock",
-  "version": "5.8.0",
+  "version": "5.9.0",
   "description": "Functions to mock the JavaScript aws-sdk ",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -60,11 +60,11 @@
     "tap": "^18.5.2",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
-    "tsd": "^0.29.0",
+    "tsd": "^0.30.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   }
 }

@@ -1,34 +1,20 @@
-<div align="center">
-
 # aws-sdk-mock
 
-AWSome mocks for Javascript `aws-sdk` `v2` services.
-
+AWSome mocks for Javascript aws-sdk services.
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/aws-sdk-mock/ci.yml?label=build&style=flat-square&branch=main)](https://github.com/dwyl/aws-sdk-mock/actions/workflows/ci.yml)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/aws-sdk-mock/master.svg?style=flat-square)](http://codecov.io/github/dwyl/aws-sdk-mock?branch=master)
-[![npm package version](https://img.shields.io/npm/v/aws-sdk-mock.svg?style=flat-square&color=bright-green)](https://www.npmjs.com/package/aws-sdk-mock)
-
-
-
 [![Known Vulnerabilities](https://snyk.io/test/github/dwyl/aws-sdk-mock/badge.svg?targetFile=package.json&style=flat-square)](https://snyk.io/test/github/dwyl/aws-sdk-mock?targetFile=package.json)
+[![npm package version](https://img.shields.io/npm/v/aws-sdk-mock.svg?style=flat-square&color=bright-green)](https://www.npmjs.com/package/aws-sdk-mock)
+[![Node.js Version](https://img.shields.io/node/v/aws-sdk-mock.svg?style=flat-square "Node.js 14.x, 16.x & 18.x supported")](http://nodejs.org/download/)
 ![npm monthly downloads](https://img.shields.io/npm/dm/aws-sdk-mock?style=flat-square)
 [![HitCount](https://hits.dwyl.com/dwyl/aws-sdk-mock.svg?style=flat-square)](http://hits.dwyl.com/dwyl/aws-sdk-mock)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/aws-sdk-mock/issues)
 
 </div>
+</div>
 
 
-<!-- broken see: https://github.com/dwyl/aws-sdk-mock/issues/161#issuecomment-444181270
-[![NPM](https://nodei.co/npm-dl/aws-sdk-mock.png?months=3)](https://nodei.co/npm/aws-sdk-mock/)
-
-Broken: https://github.com/dwyl/technology-stack/issues/88
-[![Dependency Status](https://david-dm.org/dwyl/aws-sdk-mock.svg?style=flat-square)](https://david-dm.org/dwyl/aws-sdk-mock)
-[![devDependency Status](https://david-dm.org/dwyl/aws-sdk-mock/dev-status.svg?style=flat-square)](https://david-dm.org/dwyl/aws-sdk-mock#info=devDependencies)
-
-Inch CI still not working ... https://inch-ci.org/github/dwyl/aws-sdk-mock
-[![Inline docs](http://inch-ci.org/github/dwyl/aws-sdk-mock.svg?branch=main&style=flat-square)](http://inch-ci.org/github/dwyl/aws-sdk-mock)
--->
 
 This module was created to help test AWS Lambda functions but can be used in any situation where the AWS SDK needs to be mocked.
 
