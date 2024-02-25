@@ -9,11 +9,10 @@
  **/
 
 import type { SinonExpectation, SinonSpy, SinonStubbedInstance } from "sinon";
-import sinon = require("sinon");
+import sinon from "sinon";
+import traverse from "traverse";
 
-import traverse = require("traverse");
-
-import AWS_SDK = require("aws-sdk");
+import AWS_SDK from 'aws-sdk';
 
 const { Readable } = require("stream");
 
@@ -33,7 +32,7 @@ import {
   type Replace,
   type ValueType,
   type MethodMock,
-} from "./types";
+} from "./types.js";
 
 // TYPES -----------------------------------
 // AWS type to be exported
@@ -118,7 +117,7 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
 
     // If the constructor was already invoked, we need to mock the method here.
     if (serviceObj.invoked) {
-      serviceObj.clients?.forEach((client) => {
+      serviceObj.clients?.forEach((client: Client<ClientName>) => {
         mockServiceMethod(service, client, methodName, replace);
       });
     }
@@ -158,7 +157,7 @@ function remock<C extends ClientName, M extends MethodName<C> & string>(
   const methodName = method as MethodName<ClientName>;
   // We check if the service was invoked or not. If it was, we mock the service method with the `replace` function
   if (services[service]?.invoked) {
-    services[service]?.clients?.forEach((client) => {
+    services[service]?.clients?.forEach((client: Client<ClientName>) => {
       mockServiceMethod(service, client, methodName, replace);
     });
   }
@@ -510,7 +509,7 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
   const serviceClients = services[service]?.clients;
   if (serviceClients) {
     // Iterate over each client and get the mocked method and restore it
-    serviceClients.forEach((client) => {
+    serviceClients.forEach((client: Client<ClientName>) => {
       const mockedClientMethod = client[methodName as keyof typeof client] as SinonSpy;
       if (mockedClientMethod && typeof mockedClientMethod.restore === "function") {
         mockedClientMethod.restore();
@@ -532,4 +531,4 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
   }
 })();
 
-export = AWS;
+export default AWS;

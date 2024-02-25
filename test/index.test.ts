@@ -1,14 +1,14 @@
 "use strict";
 
 // Library imports
-import tap = require("tap");
-import concatStream = require("concat-stream");
-import stream = require("stream");
-import jest = require("jest-mock");
-import sinon = require("sinon");
+import tap from "tap";
+import concatStream from "concat-stream";
+import stream from "stream";
+import jest from "jest-mock";
+import sinon from "sinon";
 
 // `aws-sdk-mock` import
-import awsMock = require("../src/index.ts");
+import awsMock from "../src/index.ts";
 
 // Const imports
 const isNodeStream = require("is-node-stream");

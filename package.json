@@ -2,6 +2,7 @@
   "name": "aws-sdk-mock",
   "version": "5.9.0",
   "description": "Functions to mock the JavaScript aws-sdk ",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -43,7 +44,9 @@
     "directory": "test"
   },
   "devDependencies": {
+    "@babel/core": "^7.23.9",
     "@babel/eslint-parser": "^7.22.15",
+    "@babel/preset-env": "^7.23.9",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/concat-stream": "^2.0.1",
     "@types/jest": "^29.5.6",
@@ -51,8 +54,10 @@
     "@types/sinon": "^10.0.13",
     "@types/tap": "^15.0.10",
     "@types/traverse": "^0.6.32",
+    "@typescript-eslint/eslint-plugin": "^7.0.2",
+    "@typescript-eslint/parser": "^7.0.2",
     "concat-stream": "^2.0.0",
-    "eslint": "^8.25.0",
+    "eslint": "^8.57.0",
     "is-node-stream": "^1.0.0",
     "jest": "^29.7.0",
     "nyc": "^15.1.0",

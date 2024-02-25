@@ -1,4 +1,4 @@
-import { type Request, type AWSError } from "aws-sdk/lib/core";
+import { type Request, type AWSError } from "aws-sdk/lib/core.js";
 import AWS = require("aws-sdk/clients/all");
 import {type SinonStub } from "sinon";
 

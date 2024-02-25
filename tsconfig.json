@@ -28,8 +28,11 @@
 
     /* Misc */
     "allowSyntheticDefaultImports": true,
-    "noEmit": true,
-    "allowImportingTsExtensions": true
+    "noEmit": true
   },
-  "exclude": ["node_modules/**/*"]
+  "exclude": [
+    "test/**",
+    "babel.config.cjs",
+    "node_modules/**/*"
+  ]
 }
