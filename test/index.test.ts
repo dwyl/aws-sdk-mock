@@ -8,12 +8,14 @@ import jest from "jest-mock";
 import sinon from "sinon";
 
 // `aws-sdk-mock` import
-import awsMock from "../src/index.ts";
+import awsMock from "../src/index.js";
+// AWS import to be used in a test
+import aws2 from 'aws-sdk';
 
 // Const imports
-const isNodeStream = require("is-node-stream");
-const AWS = require("aws-sdk");
-const Readable = stream.Readable;
+import isNodeStream from 'is-node-stream';
+import AWS from 'aws-sdk';
+import { Readable } from "stream";
 
 // Type imports
 import type { Test } from "tap";
@@ -787,12 +789,15 @@ test("AWS.setSDK function should mock a specific AWS module", function (t: Test)
     st.end();
   });
 
-  t.test("Setting the aws-sdk to the wrong module can cause an exception when mocking", function (st) {
-    awsMock.setSDK("sinon");
-    st.throws(function () {
-      awsMock.mock("SNS", "publish", "message");
-    });
-    awsMock.setSDK("aws-sdk");
+  t.test("Setting the aws-sdk to the wrong module can cause an exception when mocking", async function (st) {
+    await awsMock.setSDK("sinon");
+    try {
+      awsMock.mock("SNS", "publish", "message"); 
+      st.fail("Mocking should have thrown an error for an invalid module");
+    } catch (error) {
+      st.pass("Mocking threw an error for an invalid module as expected");
+    }
+    await awsMock.setSDK("aws-sdk");
     st.end();
   });
   t.end();
@@ -800,7 +805,6 @@ test("AWS.setSDK function should mock a specific AWS module", function (t: Test)
 
 test("AWS.setSDKInstance function should mock a specific AWS module", function (t: Test) {
   t.test("Specific Modules can be set for mocking", function (st) {
-    const aws2 = require("aws-sdk");
     awsMock.setSDKInstance(aws2);
     awsMock.mock("SNS", "publish", "message2");
     const sns: SNS = new AWS.SNS();

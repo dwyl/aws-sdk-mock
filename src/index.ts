@@ -14,7 +14,7 @@ import traverse from "traverse";
 
 import AWS_SDK from 'aws-sdk';
 
-const { Readable } = require("stream");
+import { Readable } from "stream";
 
 import {
   type ReplaceFn,
@@ -64,8 +64,8 @@ const services: Partial<SERVICES<ClientName>> = {};
  * Explicitly sets the `aws-sdk` to be mocked.
  * @param path path for the `aws-sdk`.
  */
-function setSDK(path: string): void {
-  _AWS = require(path);
+async function setSDK(path: string): Promise<void> {
+  _AWS = await import(path);
 }
 
 /**
