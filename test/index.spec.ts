@@ -21,8 +21,8 @@ import type { Readable as ReadableType } from 'stream';
 AWS.config.paramValidation = false;
 
 describe('TESTS', function () {
-  afterEach(async () => {
-    await awsMock.restore();
+  afterEach(() => {
+    awsMock.restore();
   });
 
   describe('AWS.mock function should mock AWS service and method on the service', function () {
@@ -711,7 +711,7 @@ describe('TESTS', function () {
 
   describe('AWS.setSDK function should mock a specific AWS module', function () {
     it('Specific Modules can be set for mocking', async function () {
-      await awsMock.setSDK('aws-sdk');
+      awsMock.setSDK('aws-sdk');
       awsMock.mock('SNS', 'publish', 'message');
       const sns: SNS = new AWS.SNS();
       sns.publish({ Message: '' }, function (err, data) {
@@ -720,14 +720,14 @@ describe('TESTS', function () {
     });
 
     it('Modules with multi-parameter constructors can be set for mocking', async function () {
-      await awsMock.setSDK('aws-sdk');
+      awsMock.setSDK('aws-sdk');
       awsMock.mock('CloudFront.Signer', 'getSignedUrl', '');
       const signer = new AWS.CloudFront.Signer('key-pair-id', 'private-key');
       expect(signer).toBeDefined();
     });
 
     it('Setting the aws-sdk to the wrong module can cause an exception when mocking', async function () {
-      await awsMock.setSDK('sinon');
+      awsMock.setSDK('sinon');
       try {
         awsMock.mock('SNS', 'publish', 'message');
         fail('Mocking should have thrown an error for an invalid module');
@@ -735,7 +735,7 @@ describe('TESTS', function () {
         // No error was tossed
         expect(true).toBeTruthy();
       }
-      await awsMock.setSDK('aws-sdk');
+      awsMock.setSDK('aws-sdk');
     });
   });
 

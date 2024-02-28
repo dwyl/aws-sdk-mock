@@ -65,7 +65,7 @@ const services: Partial<SERVICES<ClientName>> = {};
  * @param path path for the `aws-sdk`.
  */
 async function setSDK(path: string): Promise<void> {
-  _AWS = await import(path);
+  _AWS = require(path);
 }
 
 /**
