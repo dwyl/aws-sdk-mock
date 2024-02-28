@@ -1,5 +1,5 @@
 /// <reference path="types.ts"" />
-"use strict";
+'use strict';
 
 /**
  * Helpers to mock the AWS SDK Services using sinon.js under the hood
@@ -8,13 +8,13 @@
  * - mock of the method on the service.
  **/
 
-import type { SinonExpectation, SinonSpy, SinonStubbedInstance } from "sinon";
-import sinon from "sinon";
-import traverse from "traverse";
+import type { SinonExpectation, SinonSpy, SinonStubbedInstance } from 'sinon';
+import sinon from 'sinon';
+import traverse from 'traverse';
 
 import AWS_SDK from 'aws-sdk';
 
-import { Readable } from "stream";
+import { Readable } from 'stream';
 
 import {
   type ReplaceFn,
@@ -32,7 +32,7 @@ import {
   type Replace,
   type ValueType,
   type MethodMock,
-} from "./types.js";
+} from './types.js';
 
 // TYPES -----------------------------------
 // AWS type to be exported
@@ -98,7 +98,7 @@ function mock<C extends ClientName, M extends MethodName<C> & string>(
     const service_to_add: Service = {
       // Save the real constructor so we can invoke it later on.
       // Uses traverse for easy access to nested services (dot-separated)
-      Constructor: traverse(_AWS).get(service.split(".")),
+      Constructor: traverse(_AWS).get(service.split('.')),
       methodMocks: {},
       invoked: false,
     };
@@ -173,7 +173,7 @@ function remock<C extends ClientName, M extends MethodName<C> & string>(
  * @returns the stubbed service.
  */
 function mockService(service: ClientName) {
-  const nestedServices: string[] = service.split(".");
+  const nestedServices: string[] = service.split('.');
 
   //TODO check for undefined behaviour. If "" is passed, it will be undefined
   const method = nestedServices.pop() as string;
@@ -225,7 +225,7 @@ function mockService(service: ClientName) {
  * @returns the stub wrapped with the given function.
  */
 function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientName>> | MaybeSoninProxy | SinonStubbedInstance<any>) {
-  if (typeof replace !== "function" || !(replace._isMockFunction || replace.isSinonProxy)) {
+  if (typeof replace !== 'function' || !(replace._isMockFunction || replace.isSinonProxy)) {
     return replace;
   }
 
@@ -251,7 +251,7 @@ function wrapTestStubReplaceFn(replace: ReplaceFn<ClientName, MethodName<ClientN
       if (cbSpy.called) {
         return;
       }
-      if (typeof result.then === "function") {
+      if (typeof result.then === 'function') {
         result.then(
           /* istanbul ignore next */
           (val: any) => cb(undefined, val),
@@ -305,14 +305,14 @@ function mockServiceMethod(
     let userArgs: string | Function[];
     let userCallback: Function;
 
-    if (typeof args[(args.length || 1) - 1] === "function") {
+    if (typeof args[(args.length || 1) - 1] === 'function') {
       userArgs = args.slice(0, -1);
       userCallback = args[(args.length || 1) - 1];
     } else {
       userArgs = args;
     }
 
-    const havePromises = typeof AWS.Promise === "function";
+    const havePromises = typeof AWS.Promise === 'function';
 
     let promise: typeof AWS.Promise;
     let resolve: (value: any) => any;
@@ -321,7 +321,7 @@ function mockServiceMethod(
 
     const tryResolveFromStored = function () {
       if (storedResult && promise) {
-        if (typeof storedResult.then === "function") {
+        if (typeof storedResult.then === 'function') {
           storedResult.then(resolve, reject);
         } else if (storedResult.reject) {
           reject(storedResult.reject);
@@ -367,7 +367,7 @@ function mockServiceMethod(
         } else {
           const stream = new Readable();
           stream._read = function () {
-            if (typeof replace === "string" || Buffer.isBuffer(replace)) {
+            if (typeof replace === 'string' || Buffer.isBuffer(replace)) {
               this.push(replace);
             }
             this.push(null);
@@ -409,7 +409,7 @@ function mockServiceMethod(
       if (
         storedResult === undefined &&
         result != null &&
-        ((typeof result === "object" && result.then instanceof Function) || result instanceof Readable)
+        ((typeof result === 'object' && result.then instanceof Function) || result instanceof Readable)
       ) {
         storedResult = result;
       }
@@ -473,7 +473,7 @@ function restoreService(service: ClientName) {
 
     delete services[service];
   } else {
-    console.log("Service " + service + " was never instantiated yet you try to restore it.");
+    console.log('Service ' + service + ' was never instantiated yet you try to restore it.');
   }
 }
 
@@ -501,7 +501,7 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
 
   // Service type guard
   if (!serviceObj) {
-    console.log("Method " + service + " was never instantiated yet you try to restore it.");
+    console.log('Method ' + service + ' was never instantiated yet you try to restore it.');
     return;
   }
 
@@ -511,7 +511,7 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
     // Iterate over each client and get the mocked method and restore it
     serviceClients.forEach((client: Client<ClientName>) => {
       const mockedClientMethod = client[methodName as keyof typeof client] as SinonSpy;
-      if (mockedClientMethod && typeof mockedClientMethod.restore === "function") {
+      if (mockedClientMethod && typeof mockedClientMethod.restore === 'function') {
         mockedClientMethod.restore();
       }
     });
@@ -522,7 +522,7 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
 (function () {
   const setPromisesDependency = _AWS.config.setPromisesDependency;
   /* only to support for older versions of aws-sdk */
-  if (typeof setPromisesDependency === "function") {
+  if (typeof setPromisesDependency === 'function') {
     AWS.Promise = global.Promise;
     _AWS.config.setPromisesDependency = function (p) {
       AWS.Promise = p;

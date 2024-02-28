@@ -749,7 +749,7 @@ describe('AWS.mock function should mock AWS service and method on the service', 
 
 describe('AWS.setSDK function should mock a specific AWS module', function () {
   it('Specific Modules can be set for mocking', function () {
-    await awsMock.setSDK('aws-sdk');
+    awsMock.setSDK('aws-sdk');
     awsMock.mock('SNS', 'publish', 'message');
     const sns: SNS = new AWS.SNS();
     sns.publish({ Message: '' }, function (err, data) {
