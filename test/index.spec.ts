@@ -208,7 +208,7 @@ describe('TESTS', function () {
       });
       it('no unhandled promise rejections when promises are not used', function () {
         process.on('unhandledRejection', function (reason, promise) {
-          fail('unhandledRejection, reason follows');
+          throw 'unhandledRejection: ' + reason;
         });
         awsMock.mock('S3', 'getObject', function (params, callback) {
           callback('This is a test error to see if promise rejections go unhandled');
@@ -549,6 +549,7 @@ describe('TESTS', function () {
       });
     });
 
+    //TODO check here
     //it('Mocked service should return the sinon stub', function () {
     //  // TODO: the stub is only returned if an instance was already constructed
     //  const stub = awsMock.mock('CloudSearchDomain', 'search', '');
@@ -730,7 +731,7 @@ describe('TESTS', function () {
       awsMock.setSDK('sinon');
       try {
         awsMock.mock('SNS', 'publish', 'message');
-        fail('Mocking should have thrown an error for an invalid module');
+        throw 'Mocking should have thrown an error for an invalid module'
       } catch (error) {
         // No error was tossed
         expect(true).toBeTruthy();
