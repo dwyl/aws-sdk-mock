@@ -1,7 +1,7 @@
 {
   "name": "aws-sdk-mock",
   "version": "5.9.0",
-  "description": "Functions to mock the JavaScript aws-sdk ",
+  "description": "Functions to mock the JavaScript aws-sdk",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,8 +9,8 @@
     "lint": "tsc",
     "nocov": "ts-mocha test/**/*.spec.ts",
     "test": "nyc ts-mocha test/**/*.spec.ts && tsd",
-    "coverage": "nyc --report html ts-mocha test/**/*.spec.ts",
-    "build": "tsup src/index.ts --format cjs, esm, --dts"
+    "coverage": "nyc --report html ts-mocha test/**/*.spec.ts && open coverage/index.html",
+    "build": "rm -r dist && tsup src/index.ts --format cjs, esm, --dts"
   },
   "repository": {
     "type": "git",
@@ -54,8 +54,6 @@
     "@types/node": "^18.11.2",
     "@types/sinon": "^10.0.13",
     "@types/traverse": "^0.6.32",
-    "@typescript-eslint/eslint-plugin": "^7.0.2",
-    "@typescript-eslint/parser": "^7.0.2",
     "c8": "^9.1.0",
     "concat-stream": "^2.0.0",
     "eslint": "^8.57.0",
@@ -63,7 +61,6 @@
     "is-node-stream": "^1.0.0",
     "mocha": "^10.3.0",
     "nyc": "^15.1.0",
-    "source-map-support": "^0.5.21",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
     "tsd": "^0.30.0",

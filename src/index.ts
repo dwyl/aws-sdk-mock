@@ -393,7 +393,7 @@ function mockServiceMethod(
         const inputRules = ((_client.api && _client.api.operations[method]) || _client[method] || {}).input;
         if (inputRules) {
           const params = userArgs[(userArgs.length || 1) - 1];
-          // @ts-ignore
+          // @ts-expect-error
           new _AWS.ParamValidator((_client.config || _AWS.config).paramValidation).validate(inputRules, params);
         }
       } catch (e) {
