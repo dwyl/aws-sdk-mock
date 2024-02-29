@@ -154,9 +154,9 @@ describe('TESTS', function () {
         callback(null, 'message');
       });
       const lambda = new AWS.Lambda();
-      lambda.getFunction({FunctionName: ''}, function (err: any, data: any) {
+      lambda.getFunction({ FunctionName: '' }, function (err: any, data: any) {
         expect(data).toEqual('message');
-        lambda.createFunction({Role: '', Code: {}, FunctionName: '', }, function (err: any, data: any) {
+        lambda.createFunction({ Role: '', Code: {}, FunctionName: '' }, function (err: any, data: any) {
           expect(data).toEqual('message');
         });
       });
@@ -172,13 +172,13 @@ describe('TESTS', function () {
         });
         const lambda = new AWS.Lambda();
         lambda
-          .getFunction({FunctionName: ''})
+          .getFunction({ FunctionName: '' })
           .promise()
           .then(function (data: any) {
             expect(data).toEqual('message');
           })
           .then(function () {
-            return lambda.createFunction({Role: '', Code: {}, FunctionName: '', }).promise();
+            return lambda.createFunction({ Role: '', Code: {}, FunctionName: '' }).promise();
           })
           .catch(function (data: any) {
             expect(data).toEqual(error);
@@ -194,13 +194,13 @@ describe('TESTS', function () {
         });
         const lambda = new AWS.Lambda();
         lambda
-          .getFunction({FunctionName: ''})
+          .getFunction({ FunctionName: '' })
           .promise()
           .then(function (data: any) {
             expect(data).toEqual('message');
           })
           .then(function () {
-            return lambda.createFunction({Role: '', Code: {}, FunctionName: '', }).promise();
+            return lambda.createFunction({ Role: '', Code: {}, FunctionName: '' }).promise();
           })
           .catch(function (data: any) {
             expect(data).toEqual(error);
@@ -226,13 +226,13 @@ describe('TESTS', function () {
         });
         const lambda = new AWS.Lambda();
         lambda
-          .getFunction({FunctionName: ''})
+          .getFunction({ FunctionName: '' })
           .promise()
           .then(function (data: any) {
             expect(data).toEqual('message');
           })
           .then(function () {
-            return lambda.createFunction({Role: '', Code: {}, FunctionName: '', }).promise();
+            return lambda.createFunction({ Role: '', Code: {}, FunctionName: '' }).promise();
           })
           .catch(function (data: any) {
             expect(data).toEqual(error);
@@ -254,7 +254,7 @@ describe('TESTS', function () {
           if (this.value) yay(this.value);
         };
         AWS.config.setPromisesDependency(P);
-        const promise = lambda.getFunction({FunctionName: ''}).promise();
+        const promise = lambda.getFunction({ FunctionName: '' }).promise();
         expect(promise.constructor.name).toEqual('P');
         promise.then(function (data: any) {
           expect(data).toEqual('message');
@@ -264,14 +264,14 @@ describe('TESTS', function () {
     it('request object supports createReadStream', function () {
       awsMock.mock('S3', 'getObject', 'body');
       const s3 = new AWS.S3();
-      let req = s3.getObject({Bucket: '', Key: ''}, function (err: any, data: any) {});
+      let req = s3.getObject({ Bucket: '', Key: '' }, function (err: any, data: any) {});
       expect(isNodeStream(req.createReadStream())).toBeTruthy();
       // with or without callback
-      req = s3.getObject({Bucket: '', Key: ''});
+      req = s3.getObject({ Bucket: '', Key: '' });
       expect(isNodeStream(req.createReadStream())).toBeTruthy();
       // stream is currently always empty but that's subject to change.
       // let's just consume it and ignore the contents
-      req = s3.getObject({Bucket: '', Key: ''});
+      req = s3.getObject({ Bucket: '', Key: '' });
       const stream = req.createReadStream();
       stream.pipe(concatStream(function () {}));
     });
@@ -280,7 +280,7 @@ describe('TESTS', function () {
       bodyStream.push('body');
       bodyStream.push(null);
       awsMock.mock('S3', 'getObject', bodyStream);
-      const stream = new AWS.S3().getObject({Bucket: '', Key: ''}).createReadStream();
+      const stream = new AWS.S3().getObject({ Bucket: '', Key: '' }).createReadStream();
       stream.pipe(
         concatStream(function (actual: any) {
           expect(actual.toString()).toEqual('body');
@@ -294,7 +294,7 @@ describe('TESTS', function () {
         bodyStream.push(null);
         return bodyStream;
       });
-      const stream = new AWS.S3().getObject({Bucket: '', Key: ''}).createReadStream();
+      const stream = new AWS.S3().getObject({ Bucket: '', Key: '' }).createReadStream();
       stream.pipe(
         concatStream(function (actual: any) {
           expect(actual.toString()).toEqual('body');
@@ -348,20 +348,20 @@ describe('TESTS', function () {
     it('call on method of request object', function () {
       awsMock.mock('S3', 'getObject', { Body: 'body' });
       const s3 = new AWS.S3();
-      const req = s3.getObject({Bucket: '', Key: ''}, () => {});
+      const req = s3.getObject({ Bucket: '', Key: '' }, () => {});
       expect(typeof req.on).toEqual('function');
     });
     it('call send method of request object', function () {
       awsMock.mock('S3', 'getObject', { Body: 'body' });
       const s3 = new AWS.S3();
-      const req = s3.getObject({Bucket: '', Key: ''}, () => {});
+      const req = s3.getObject({ Bucket: '', Key: '' }, () => {});
       expect(typeof req.on).toEqual('function');
     });
     it('all the methods on a service are restored', function () {
       awsMock.mock('SNS', 'publish', function (params, callback) {
         callback(null, 'message');
       });
-      expect(AWS.SNS.isSinonProxy as MaybeSoninProxy).toEqual(true);
+      expect((AWS.SNS as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore('SNS');
 
@@ -372,8 +372,8 @@ describe('TESTS', function () {
         callback(null, 'message');
       });
       const sns = new AWS.SNS();
-      expect(AWS.SNS.isSinonProxy).toEqual(true);
-      expect(sns.publish.isSinonProxy).toEqual(true);
+      expect((AWS.SNS as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((sns.publish as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore('SNS', 'publish');
 
@@ -388,9 +388,9 @@ describe('TESTS', function () {
       const sns1 = new AWS.SNS();
       const sns2 = new AWS.SNS();
 
-      expect(AWS.SNS.isSinonProxy).toEqual(true);
-      expect(sns1.publish.isSinonProxy).toEqual(true);
-      expect(sns2.publish.isSinonProxy).toEqual(true);
+      expect((AWS.SNS as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((sns1.publish as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((sns2.publish as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore('SNS', 'publish');
 
@@ -406,9 +406,9 @@ describe('TESTS', function () {
       const sns1 = new AWS.SNS();
       const sns2 = new AWS.SNS();
 
-      expect(AWS.SNS.isSinonProxy).toEqual(true);
-      expect(sns1.publish.isSinonProxy).toEqual(true);
-      expect(sns2.publish.isSinonProxy).toEqual(true);
+      expect((AWS.SNS as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((sns1.publish as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((sns2.publish as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore('SNS');
 
@@ -430,12 +430,12 @@ describe('TESTS', function () {
       const docClient = new AWS.DynamoDB.DocumentClient();
       const dynamoDb = new AWS.DynamoDB();
 
-      expect(AWS.SNS.isSinonProxy).toEqual(true);
-      expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
-      expect(AWS.DynamoDB.isSinonProxy).toEqual(true);
-      expect(sns.publish.isSinonProxy).toEqual(true);
-      expect(docClient.put.isSinonProxy).toEqual(true);
-      expect(dynamoDb.putItem.isSinonProxy).toEqual(true);
+      expect((AWS.SNS as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB.DocumentClient as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((sns.publish as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((docClient.put as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((dynamoDb.putItem as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore();
 
@@ -456,17 +456,17 @@ describe('TESTS', function () {
         callback(null, 'test');
       });
 
-      expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
-      expect(docClient.put.isSinonProxy).toEqual(true);
-      expect(docClient.get.isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB.DocumentClient as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((docClient.put as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((docClient.get as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
-      docClient.put({Item: {}, TableName: ''}, function (err: any, data: any) {
+      docClient.put({ Item: {}, TableName: '' }, function (err: any, data: any) {
         expect(data).toEqual('message');
-        docClient.get({Key: {}, TableName: ''}, function (err: any, data: any) {
+        docClient.get({ Key: {}, TableName: '' }, function (err: any, data: any) {
           expect(data).toEqual('test');
 
           awsMock.restore('DynamoDB.DocumentClient', 'get');
-          expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
+          expect((AWS.DynamoDB.DocumentClient as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
           expect(docClient.get.hasOwnProperty('isSinonProxy')).toEqual(false);
 
           awsMock.restore('DynamoDB.DocumentClient');
@@ -481,9 +481,9 @@ describe('TESTS', function () {
       });
       const docClient = new AWS.DynamoDB.DocumentClient({ paramValidation: true });
 
-      expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
-      expect(docClient.query.isSinonProxy).toEqual(true);
-      docClient.query({TableName: ''}, function (err: any, data: any) {
+      expect((AWS.DynamoDB.DocumentClient as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((docClient.query as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      docClient.query({ TableName: '' }, function (err: any, data: any) {
         expect(err).toEqual(null);
         expect(data).toEqual('test');
       });
@@ -494,31 +494,31 @@ describe('TESTS', function () {
       const docClient = new AWS.DynamoDB.DocumentClient();
       let dynamoDb = new AWS.DynamoDB();
 
-      expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
-      expect(AWS.DynamoDB.isSinonProxy).toEqual(true);
-      expect(docClient.get.isSinonProxy).toEqual(true);
-      expect(dynamoDb.getItem.isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB.DocumentClient as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((docClient.get as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((dynamoDb.getItem as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore('DynamoDB');
-      expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB.DocumentClient as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
       expect(AWS.DynamoDB.hasOwnProperty('isSinonProxy')).toEqual(false);
-      expect(docClient.get.isSinonProxy).toEqual(true);
+      expect((docClient.get as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
       expect(dynamoDb.getItem.hasOwnProperty('isSinonProxy')).toEqual(false);
 
       awsMock.mock('DynamoDB', 'getItem', 'test');
       dynamoDb = new AWS.DynamoDB();
-      expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
-      expect(AWS.DynamoDB.isSinonProxy).toEqual(true);
-      expect(docClient.get.isSinonProxy).toEqual(true);
-      expect(dynamoDb.getItem.isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB.DocumentClient as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((docClient.get as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
+      expect((dynamoDb.getItem as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore('DynamoDB.DocumentClient');
 
       // the first assertion is true because DynamoDB is still mocked
       expect(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy')).toEqual(true);
-      expect(AWS.DynamoDB.isSinonProxy).toEqual(true);
+      expect((AWS.DynamoDB as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
       expect(docClient.get.hasOwnProperty('isSinonProxy')).toEqual(false);
-      expect(dynamoDb.getItem.isSinonProxy).toEqual(true);
+      expect((dynamoDb.getItem as unknown as MaybeSoninProxy).isSinonProxy).toEqual(true);
 
       awsMock.restore('DynamoDB');
       expect(AWS.DynamoDB.DocumentClient.hasOwnProperty('isSinonProxy')).toEqual(false);
@@ -704,7 +704,7 @@ describe('TESTS', function () {
     it('Mocked service should allow abort call', function () {
       awsMock.mock('S3', 'upload', '');
       const s3 = new AWS.S3();
-      const req = s3.upload({}, { message: 'test' });
+      const req = s3.upload({Bucket: '', Key: ''}, { leavePartsOnError: true }, function () {});
       req.abort();
     });
   });
