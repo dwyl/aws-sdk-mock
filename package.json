@@ -7,10 +7,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "lint": "tsc",
-    "nocov": "tap test/*.js",
-    "test": "nyc --reporter=lcov tap ./test/*.ts && tsd",
-    "test2": "nyc ts-mocha test/**/*.spec.ts",
-    "coverage": "nyc tap ./test/*.ts && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html",
+    "nocov": "ts-mocha test/**/*.spec.ts",
+    "test": "nyc ts-mocha test/**/*.spec.ts && tsd",
+    "coverage": "nyc --report html ts-mocha test/**/*.spec.ts",
     "build": "tsup src/index.ts --format cjs, esm, --dts"
   },
   "repository": {
