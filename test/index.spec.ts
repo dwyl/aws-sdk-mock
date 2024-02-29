@@ -17,6 +17,7 @@ import { Readable } from 'stream';
 // Type imports
 import type { SNS, S3, CloudSearchDomain, DynamoDB } from 'aws-sdk';
 import type { Readable as ReadableType } from 'stream';
+import type { MaybeSoninProxy } from '../src/types.ts';
 
 AWS.config.paramValidation = false;
 
@@ -54,8 +55,8 @@ describe('TESTS', function () {
         awsMock.mock('S3', 'upload', function (params, options, callback) {
           callback(null, options);
         });
-        s3.upload({ Bucket: 'b', Key: 'k' }, { test: 'message' }, function (err: any, data: any) {
-          expect(data.test).toEqual('message');
+        s3.upload({ Bucket: 'b', Key: 'k' }, { partSize: 1 }, function (err: any, data: any) {
+          expect(data.partSize).toEqual(1);
         });
       });
     });
@@ -153,9 +154,9 @@ describe('TESTS', function () {
         callback(null, 'message');
       });
       const lambda = new AWS.Lambda();
-      lambda.getFunction({}, function (err: any, data: any) {
+      lambda.getFunction({FunctionName: ''}, function (err: any, data: any) {
         expect(data).toEqual('message');
-        lambda.createFunction({}, function (err: any, data: any) {
+        lambda.createFunction({Role: '', Code: {}, FunctionName: '', }, function (err: any, data: any) {
           expect(data).toEqual('message');
         });
       });
@@ -171,13 +172,13 @@ describe('TESTS', function () {
         });
         const lambda = new AWS.Lambda();
         lambda
-          .getFunction({})
+          .getFunction({FunctionName: ''})
           .promise()
           .then(function (data: any) {
             expect(data).toEqual('message');
           })
           .then(function () {
-            return lambda.createFunction({}).promise();
+            return lambda.createFunction({Role: '', Code: {}, FunctionName: '', }).promise();
           })
           .catch(function (data: any) {
             expect(data).toEqual(error);
@@ -193,13 +194,13 @@ describe('TESTS', function () {
         });
         const lambda = new AWS.Lambda();
         lambda
-          .getFunction({})
+          .getFunction({FunctionName: ''})
           .promise()
           .then(function (data: any) {
             expect(data).toEqual('message');
           })
           .then(function () {
-            return lambda.createFunction({}).promise();
+            return lambda.createFunction({Role: '', Code: {}, FunctionName: '', }).promise();
           })
           .catch(function (data: any) {
             expect(data).toEqual(error);
@@ -207,8 +208,7 @@ describe('TESTS', function () {
       });
       it('no unhandled promise rejections when promises are not used', function () {
         process.on('unhandledRejection', function (reason, promise) {
-          st.fail('unhandledRejection, reason follows');
-          st.error(reason);
+          fail('unhandledRejection, reason follows');
         });
         awsMock.mock('S3', 'getObject', function (params, callback) {
           callback('This is a test error to see if promise rejections go unhandled');
@@ -226,13 +226,13 @@ describe('TESTS', function () {
         });
         const lambda = new AWS.Lambda();
         lambda
-          .getFunction({})
+          .getFunction({FunctionName: ''})
           .promise()
           .then(function (data: any) {
             expect(data).toEqual('message');
           })
           .then(function () {
-            return lambda.createFunction({}).promise();
+            return lambda.createFunction({Role: '', Code: {}, FunctionName: '', }).promise();
           })
           .catch(function (data: any) {
             expect(data).toEqual(error);
@@ -254,7 +254,7 @@ describe('TESTS', function () {
           if (this.value) yay(this.value);
         };
         AWS.config.setPromisesDependency(P);
-        const promise = lambda.getFunction({}).promise();
+        const promise = lambda.getFunction({FunctionName: ''}).promise();
         expect(promise.constructor.name).toEqual('P');
         promise.then(function (data: any) {
           expect(data).toEqual('message');
@@ -264,14 +264,14 @@ describe('TESTS', function () {
     it('request object supports createReadStream', function () {
       awsMock.mock('S3', 'getObject', 'body');
       const s3 = new AWS.S3();
-      let req = s3.getObject('getObject', function (err: any, data: any) {});
+      let req = s3.getObject({Bucket: '', Key: ''}, function (err: any, data: any) {});
       expect(isNodeStream(req.createReadStream())).toBeTruthy();
       // with or without callback
-      req = s3.getObject('getObject');
+      req = s3.getObject({Bucket: '', Key: ''});
       expect(isNodeStream(req.createReadStream())).toBeTruthy();
       // stream is currently always empty but that's subject to change.
       // let's just consume it and ignore the contents
-      req = s3.getObject('getObject');
+      req = s3.getObject({Bucket: '', Key: ''});
       const stream = req.createReadStream();
       stream.pipe(concatStream(function () {}));
     });
@@ -280,7 +280,7 @@ describe('TESTS', function () {
       bodyStream.push('body');
       bodyStream.push(null);
       awsMock.mock('S3', 'getObject', bodyStream);
-      const stream = new AWS.S3().getObject('getObject').createReadStream();
+      const stream = new AWS.S3().getObject({Bucket: '', Key: ''}).createReadStream();
       stream.pipe(
         concatStream(function (actual: any) {
           expect(actual.toString()).toEqual('body');
@@ -294,7 +294,7 @@ describe('TESTS', function () {
         bodyStream.push(null);
         return bodyStream;
       });
-      const stream = new AWS.S3().getObject('getObject').createReadStream();
+      const stream = new AWS.S3().getObject({Bucket: '', Key: ''}).createReadStream();
       stream.pipe(
         concatStream(function (actual: any) {
           expect(actual.toString()).toEqual('body');
@@ -348,20 +348,20 @@ describe('TESTS', function () {
     it('call on method of request object', function () {
       awsMock.mock('S3', 'getObject', { Body: 'body' });
       const s3 = new AWS.S3();
-      const req = s3.getObject('getObject', {});
+      const req = s3.getObject({Bucket: '', Key: ''}, () => {});
       expect(typeof req.on).toEqual('function');
     });
     it('call send method of request object', function () {
       awsMock.mock('S3', 'getObject', { Body: 'body' });
       const s3 = new AWS.S3();
-      const req = s3.getObject('getObject', {});
+      const req = s3.getObject({Bucket: '', Key: ''}, () => {});
       expect(typeof req.on).toEqual('function');
     });
     it('all the methods on a service are restored', function () {
       awsMock.mock('SNS', 'publish', function (params, callback) {
         callback(null, 'message');
       });
-      expect(AWS.SNS.isSinonProxy).toEqual(true);
+      expect(AWS.SNS.isSinonProxy as MaybeSoninProxy).toEqual(true);
 
       awsMock.restore('SNS');
 
@@ -460,9 +460,9 @@ describe('TESTS', function () {
       expect(docClient.put.isSinonProxy).toEqual(true);
       expect(docClient.get.isSinonProxy).toEqual(true);
 
-      docClient.put({}, function (err: any, data: any) {
+      docClient.put({Item: {}, TableName: ''}, function (err: any, data: any) {
         expect(data).toEqual('message');
-        docClient.get({}, function (err: any, data: any) {
+        docClient.get({Key: {}, TableName: ''}, function (err: any, data: any) {
           expect(data).toEqual('test');
 
           awsMock.restore('DynamoDB.DocumentClient', 'get');
@@ -483,7 +483,7 @@ describe('TESTS', function () {
 
       expect(AWS.DynamoDB.DocumentClient.isSinonProxy).toEqual(true);
       expect(docClient.query.isSinonProxy).toEqual(true);
-      docClient.query({}, function (err: any, data: any) {
+      docClient.query({TableName: ''}, function (err: any, data: any) {
         expect(err).toEqual(null);
         expect(data).toEqual('test');
       });
@@ -582,7 +582,7 @@ describe('TESTS', function () {
     it('Mocked service should allow chained calls after listening to events', function () {
       awsMock.mock('S3', 'getObject', '');
       const s3 = new AWS.S3();
-      const req = s3.getObject({ Bucket: 'b', notKey: 'k' });
+      const req = s3.getObject({ Bucket: 'b', Key: '' });
       expect(req.on('httpHeaders', () => {})).toEqual(req);
     });
 
@@ -590,7 +590,7 @@ describe('TESTS', function () {
       awsMock.mock('S3', 'getObject', { Body: 'body' });
       let returnedValue = '';
       const s3 = new AWS.S3();
-      const req = s3.getObject('getObject', {});
+      const req = s3.getObject({ Bucket: 'b', Key: '' }, () => {});
       req.send(async (err: any, data: any) => {
         returnedValue = data.Body;
       });

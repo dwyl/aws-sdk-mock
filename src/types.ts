@@ -1,9 +1,9 @@
-import { type Request, type AWSError } from "aws-sdk/lib/core.js";
-import AWS = require("aws-sdk/clients/all");
-import {type SinonStub } from "sinon";
+import { type Request, type AWSError } from 'aws-sdk/lib/core.js';
+import AWS = require('aws-sdk/clients/all');
+import {type SinonStub } from 'sinon';
 
-/* 
-* Don't make this a `d.ts` file - see https://www.youtube.com/watch?v=zu-EgnbmcLY&ab_channel=MattPocock 
+/*
+* Don't make this a `d.ts` file - see https://www.youtube.com/watch?v=zu-EgnbmcLY&ab_channel=MattPocock
 * or https://github.com/microsoft/TypeScript/issues/52593#issuecomment-1419505081
 */
 
