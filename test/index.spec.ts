@@ -10,7 +10,7 @@ import awsMock from '../src/index.ts';
 import aws2 from 'aws-sdk';
 
 // Const imports
-import isNodeStream from 'is-node-stream';
+const isNodeStream = require('is-node-stream');
 import AWS from 'aws-sdk';
 import { Readable } from 'stream';
 

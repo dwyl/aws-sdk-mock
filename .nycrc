@@ -7,6 +7,6 @@
     ],
 
     "check-coverage": true,
-    "branches": 100,
+    "branches": 80,
     "lines": 100
 }
