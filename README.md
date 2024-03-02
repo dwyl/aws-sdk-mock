@@ -1,6 +1,8 @@
 # aws-sdk-mock
 
-AWSome mocks for Javascript aws-sdk services.
+<div style="text-align: center">
+
+AWSome mocks for Javascript `aws-sdk` services.
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/aws-sdk-mock/ci.yml?label=build&style=flat-square&branch=main)](https://github.com/dwyl/aws-sdk-mock/actions/workflows/ci.yml)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/aws-sdk-mock/master.svg?style=flat-square)](http://codecov.io/github/dwyl/aws-sdk-mock?branch=master)
@@ -12,13 +14,12 @@ AWSome mocks for Javascript aws-sdk services.
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/aws-sdk-mock/issues)
 
 </div>
-</div>
-
 
 
 This module was created to help test AWS Lambda functions but can be used in any situation where the AWS SDK needs to be mocked.
 
-This library is best suited for `AWS SDK for Javascript (v2)` - see the [introductory post on the AWS blog](https://aws.amazon.com/blogs/developer/mocking-modular-aws-sdk-for-javascript-v3-in-unit-tests/) for more context.
+This library is best suited for `AWS SDK for Javascript (v2)` - see the [introductory post on the AWS blog](https://aws.amazon.com/blogs/developer/mocking-modular-aws-sdk-for-javascript-v3-in-unit-tests/) for more context. 
+**If you are using `AWS SDK for Javascript (v3)`, we recommend you use [`aws-sdk-client-mock`](https://www.npmjs.com/package/aws-sdk-client-mock).**
 
 
 If you are *new* to Amazon WebServices Lambda
