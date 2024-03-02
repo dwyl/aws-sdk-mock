@@ -32,8 +32,6 @@
     "allowImportingTsExtensions": true
   },
   "exclude": [
-    //TODO consider removing the test exclusion to get `tsc` compiler error sorted. Not doing so because the typescript migration is big as it is.
-    "test/**",
     "babel.config.cjs",
     "node_modules/**/*"
   ]

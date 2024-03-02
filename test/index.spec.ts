@@ -549,8 +549,7 @@ describe('TESTS', function () {
       });
     });
 
-    //TODO check here
-    //it('Mocked service should return the sinon stub', function () {
+    //it.skip('Mocked service should return the sinon stub', function () {
     //  // TODO: the stub is only returned if an instance was already constructed
     //  const stub = awsMock.mock('CloudSearchDomain', 'search', '');
     //  st.equal(stub.stub?.isSinonProxy, true);
