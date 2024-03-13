@@ -7,8 +7,13 @@
     "Buffer": true,
     "escape": true
   },
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "parserOptions": {
-    "ecmaVersion": 2017
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   },
   "rules": {
     "quotes": [2, "single"],
