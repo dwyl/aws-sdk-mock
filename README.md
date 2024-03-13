@@ -19,6 +19,8 @@ AWSome mocks for `Javascript` `aws-sdk` services.
 This module was created to help test AWS Lambda functions but can be used in any situation where the AWS SDK needs to be mocked.
 
 This library is best suited for `AWS SDK for Javascript (v2)` - see the [introductory post on the AWS blog](https://aws.amazon.com/blogs/developer/mocking-modular-aws-sdk-for-javascript-v3-in-unit-tests/) for more context. 
+If you are using `AWS SDK v3` you might not _need_ this library, see:
+[aws-sdk-mock/issues#209](https://github.com/dwyl/aws-sdk-mock/issues/209#issuecomment-764841699)
 
 
 If you are *new* to Amazon WebServices Lambda
