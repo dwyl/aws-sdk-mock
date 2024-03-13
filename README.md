@@ -5,7 +5,7 @@
 AWSome mocks for Javascript `aws-sdk` services.
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/aws-sdk-mock/ci.yml?label=build&style=flat-square&branch=main)](https://github.com/dwyl/aws-sdk-mock/actions/workflows/ci.yml)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/aws-sdk-mock/master.svg?style=flat-square)](http://codecov.io/github/dwyl/aws-sdk-mock?branch=master)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/aws-sdk-mock/main.svg?style=flat-square)](http://codecov.io/github/dwyl/aws-sdk-mock?branch=main)
 [![Known Vulnerabilities](https://snyk.io/test/github/dwyl/aws-sdk-mock/badge.svg?targetFile=package.json&style=flat-square)](https://snyk.io/test/github/dwyl/aws-sdk-mock?targetFile=package.json)
 [![npm package version](https://img.shields.io/npm/v/aws-sdk-mock.svg?style=flat-square&color=bright-green)](https://www.npmjs.com/package/aws-sdk-mock)
 [![Node.js Version](https://img.shields.io/node/v/aws-sdk-mock.svg?style=flat-square "Node.js 14.x, 16.x & 18.x supported")](http://nodejs.org/download/)
