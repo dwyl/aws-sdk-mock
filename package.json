@@ -1,18 +1,16 @@
 {
   "name": "aws-sdk-mock",
-  "version": "5.9.0",
-  "description": "Functions to mock the JavaScript aws-sdk ",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "files": [
-    "index.js",
-    "index.d.ts"
-  ],
+  "version": "6.0.0",
+  "description": "Functions to mock the JavaScript aws-sdk",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "lint": "eslint index.js test/index.test.js",
-    "nocov": "tap test/*.js",
-    "test": "nyc --reporter=lcov tap ./test/*.js && tsd",
-    "coverage": "nyc tap ./test/*.js && nyc check-coverage --statements 100 --functions 100 --lines 100 --branches 100 --report html"
+    "lint": "tsc",
+    "nocov": "ts-mocha test/**/*.spec.ts",
+    "test": "nyc ts-mocha test/**/*.spec.ts && tsd",
+    "coverage": "nyc --report html ts-mocha test/**/*.spec.ts && open coverage/index.html",
+    "build": "tsup src/index.ts --format cjs, esm, --dts"
   },
   "repository": {
     "type": "git",
@@ -45,15 +43,29 @@
   "tsd": {
     "directory": "test"
   },
+  "mocha": {
+    "require": "expectations"
+  },
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/concat-stream": "^2.0.1",
+    "@types/expectations": "^0.2.32",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^18.11.2",
+    "@types/sinon": "^10.0.13",
+    "@types/traverse": "^0.6.32",
+    "c8": "^9.1.0",
     "concat-stream": "^2.0.0",
-    "eslint": "^8.25.0",
+    "eslint": "^8.57.0",
+    "expectations": "^1.0.0",
     "is-node-stream": "^1.0.0",
-    "jest": "^29.1.2",
+    "mocha": "^10.3.0",
     "nyc": "^15.1.0",
-    "tap": "^18.0.3",
+    "ts-mocha": "^10.0.0",
+    "ts-node": "^10.9.1",
     "tsd": "^0.31.0",
-    "typescript": "^5.1.6"
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
   },
   "engines": {
     "node": ">=18.0.0"

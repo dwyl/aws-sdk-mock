@@ -1,27 +1,34 @@
 <div align="center">
 
-# `aws-sdk-mock`
+# aws-sdk-mock
 
-AWSome mocks for `JavaScript` `aws-sdk` services.
+AWSome mocks for `Javascript` `aws-sdk` services.
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/aws-sdk-mock/ci.yml?label=build&style=flat-square&branch=main)](https://github.com/dwyl/aws-sdk-mock/actions/workflows/ci.yml)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/aws-sdk-mock/main.svg?style=flat-square)](http://codecov.io/github/dwyl/aws-sdk-mock?branch=main)
 [![Known Vulnerabilities](https://snyk.io/test/github/dwyl/aws-sdk-mock/badge.svg?targetFile=package.json&style=flat-square)](https://snyk.io/test/github/dwyl/aws-sdk-mock?targetFile=package.json)
-[![Node.js Version](https://img.shields.io/node/v/aws-sdk-mock.svg?style=flat-square "Node.js 18.x, 20.x & 21.x supported")](http://nodejs.org/download/)
 [![npm package version](https://img.shields.io/npm/v/aws-sdk-mock.svg?style=flat-square&color=bright-green)](https://www.npmjs.com/package/aws-sdk-mock)
+[![Node.js Version](https://img.shields.io/node/v/aws-sdk-mock.svg?style=flat-square "Node.js 18.x, 20.x & 21.x supported")](http://nodejs.org/download/)
 ![npm monthly downloads](https://img.shields.io/npm/dm/aws-sdk-mock?style=flat-square)
 [![HitCount](https://hits.dwyl.com/dwyl/aws-sdk-mock.svg?style=flat-square)](http://hits.dwyl.com/dwyl/aws-sdk-mock)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/aws-sdk-mock/issues)
 
 </div>
 
+
 This module was created to help test AWS Lambda functions but can be used in any situation where the AWS SDK needs to be mocked.
+
+This library is best suited for `AWS SDK for Javascript (v2)` - see the [introductory post on the AWS blog](https://aws.amazon.com/blogs/developer/mocking-modular-aws-sdk-for-javascript-v3-in-unit-tests/) for more context. 
+If you are using `AWS SDK v3` you might not _need_ this library, see:
+[aws-sdk-mock/issues#209](https://github.com/dwyl/aws-sdk-mock/issues/209#issuecomment-764841699)
+
 
 If you are *new* to Amazon WebServices Lambda
 (*or need a refresher*),
 please checkout our our  
 ***Beginners Guide to AWS Lambda***:
 <https://github.com/dwyl/learn-aws-lambda>
+
 
 * [Why](#why)
 * [What](#what)
@@ -38,6 +45,57 @@ Using stubs means you can prevent a specific method from being called directly. 
 ## What?
 
 Uses [Sinon.js](https://sinonjs.org/) under the hood to mock the AWS SDK services and their associated methods.
+
+## Documentation
+
+### `AWS.mock(service, method, replace)`
+
+Replaces a method on an AWS service with a replacement function or string.
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `service`      | string    | Required     | AWS service to mock e.g. SNS, DynamoDB, S3     |
+| `method`      | string    | Required     | method on AWS service to mock e.g. 'publish' (for SNS), 'putItem' for 'DynamoDB'     |
+| `replace`      | string or function    | Required     | A string or function to replace the method   |
+
+### `AWS.restore(service, method)`
+
+Removes the mock to restore the specified AWS service
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `service`      | string    | Optional     | AWS service to restore - If only the service is specified, all the methods are restored     |
+| `method`      | string    | Optional     | Method on AWS service to restore    |
+
+If `AWS.restore` is called without arguments (`AWS.restore()`) then all the services and their associated methods are restored
+i.e. equivalent to a 'restore all' function.
+
+### `AWS.remock(service, method, replace)`
+
+Updates the `replace` method on an existing mocked service.
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `service`      | string    | Required     | AWS service to mock e.g. SNS, DynamoDB, S3     |
+| `method`      | string    | Required     | method on AWS service to mock e.g. 'publish' (for SNS), 'putItem' for 'DynamoDB'     |
+| `replace`      | string or function    | Required     | A string or function to replace the method   |
+
+### `AWS.setSDK(path)`
+
+Explicitly set the require path for the `aws-sdk`
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `path`      | string    | Required     | Path to a nested AWS SDK node module     |
+
+### `AWS.setSDKInstance(sdk)`
+
+Explicitly set the `aws-sdk` instance to use
+
+| Param | Type | Optional/Required | Description     |
+| :------------- | :------------- | :------------- | :------------- |
+| `sdk`      | object    | Required     | The AWS SDK object     |
+
 
 ## *How*? (*Usage*)
 
@@ -294,56 +352,6 @@ AWS.Promise = Q.Promise;
     TESTS
 **/
 ```
-
-## Documentation
-
-### `AWS.mock(service, method, replace)`
-
-Replaces a method on an AWS service with a replacement function or string.
-
-| Param | Type | Optional/Required | Description     |
-| :------------- | :------------- | :------------- | :------------- |
-| `service`      | string    | Required     | AWS service to mock e.g. SNS, DynamoDB, S3     |
-| `method`      | string    | Required     | method on AWS service to mock e.g. 'publish' (for SNS), 'putItem' for 'DynamoDB'     |
-| `replace`      | string or function    | Required     | A string or function to replace the method   |
-
-### `AWS.restore(service, method)`
-
-Removes the mock to restore the specified AWS service
-
-| Param | Type | Optional/Required | Description     |
-| :------------- | :------------- | :------------- | :------------- |
-| `service`      | string    | Optional     | AWS service to restore - If only the service is specified, all the methods are restored     |
-| `method`      | string    | Optional     | Method on AWS service to restore    |
-
-If `AWS.restore` is called without arguments (`AWS.restore()`) then all the services and their associated methods are restored
-i.e. equivalent to a 'restore all' function.
-
-### `AWS.remock(service, method, replace)`
-
-Updates the `replace` method on an existing mocked service.
-
-| Param | Type | Optional/Required | Description     |
-| :------------- | :------------- | :------------- | :------------- |
-| `service`      | string    | Required     | AWS service to mock e.g. SNS, DynamoDB, S3     |
-| `method`      | string    | Required     | method on AWS service to mock e.g. 'publish' (for SNS), 'putItem' for 'DynamoDB'     |
-| `replace`      | string or function    | Required     | A string or function to replace the method   |
-
-### `AWS.setSDK(path)`
-
-Explicitly set the require path for the `aws-sdk`
-
-| Param | Type | Optional/Required | Description     |
-| :------------- | :------------- | :------------- | :------------- |
-| `path`      | string    | Required     | Path to a nested AWS SDK node module     |
-
-### `AWS.setSDKInstance(sdk)`
-
-Explicitly set the `aws-sdk` instance to use
-
-| Param | Type | Optional/Required | Description     |
-| :------------- | :------------- | :------------- | :------------- |
-| `sdk`      | object    | Required     | The AWS SDK object     |
 
 ## Background Reading
 
