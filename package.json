@@ -3,8 +3,9 @@
   "version": "6.0.0",
   "description": "Functions to mock the JavaScript aws-sdk",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "lint": "tsc",
     "nocov": "ts-mocha test/**/*.spec.ts",
