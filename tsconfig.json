@@ -33,6 +33,7 @@
   },
   "exclude": [
     "babel.config.cjs",
-    "node_modules/**/*"
+    "node_modules/**/*",
+    "dist/**/*",
   ]
 }
