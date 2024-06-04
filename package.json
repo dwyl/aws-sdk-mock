@@ -1,9 +1,9 @@
 {
   "name": "aws-sdk-mock",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "description": "Functions to mock the JavaScript aws-sdk",
-  "type": "module",
-  "main": "dist/index.cjs",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "files": [
     "dist",
@@ -15,7 +15,7 @@
     "nocov": "ts-mocha test/**/*.spec.ts",
     "test": "nyc ts-mocha test/**/*.spec.ts && tsd",
     "coverage": "nyc --report html ts-mocha test/**/*.spec.ts && open coverage/index.html",
-    "build": "tsup src/index.ts --format cjs, esm, --dts"
+    "build": "tsup src/index.ts --format esm,cjs --dts"
   },
   "repository": {
     "type": "git",
