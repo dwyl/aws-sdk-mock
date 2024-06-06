@@ -15,7 +15,7 @@
     "nocov": "ts-mocha test/**/*.spec.ts",
     "test": "nyc ts-mocha test/**/*.spec.ts && tsd",
     "coverage": "nyc --report html ts-mocha test/**/*.spec.ts && open coverage/index.html",
-    "build": "tsup src/index.ts --format esm,cjs --dts"
+    "build": "tsup"
   },
   "repository": {
     "type": "git",

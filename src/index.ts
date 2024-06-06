@@ -11,10 +11,9 @@
 import type { SinonExpectation, SinonSpy, SinonStubbedInstance } from 'sinon';
 import sinon from 'sinon';
 import traverse from 'traverse';
+import { Readable } from 'stream';
 
 import AWS_SDK from 'aws-sdk';
-
-import { Readable } from 'stream';
 
 import {
   type ReplaceFn,
@@ -531,4 +530,4 @@ function restoreMethod<C extends ClientName, M extends MethodName<C>>(service: C
   }
 })();
 
-export default AWS;
+export = AWS;
