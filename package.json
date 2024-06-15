@@ -1,6 +1,6 @@
 {
   "name": "aws-sdk-mock",
-  "version": "6.0.3",
+  "version": "6.0.4",
   "description": "Functions to mock the JavaScript aws-sdk",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
