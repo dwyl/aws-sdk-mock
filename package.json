@@ -42,8 +42,8 @@
   "homepage": "https://github.com/dwyl/aws-sdk-mock#readme",
   "dependencies": {
     "aws-sdk": "^2.1231.0",
-    "sinon": "^18.0.0",
-    "traverse": "^0.6.6"
+    "neotraverse": "^0.6.11",
+    "sinon": "^18.0.0"
   },
   "tsd": {
     "directory": "test"
@@ -58,7 +58,6 @@
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.12.12",
     "@types/sinon": "^17.0.3",
-    "@types/traverse": "^0.6.32",
     "c8": "^10.0.0",
     "concat-stream": "^2.0.0",
     "eslint": "^9.3.0",

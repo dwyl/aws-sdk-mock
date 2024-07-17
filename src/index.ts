@@ -10,7 +10,7 @@
 
 import type { SinonExpectation, SinonSpy, SinonStubbedInstance } from 'sinon';
 import sinon from 'sinon';
-import traverse from 'traverse';
+import traverse from 'neotraverse/legacy';
 import { Readable } from 'stream';
 
 import AWS_SDK from 'aws-sdk';
