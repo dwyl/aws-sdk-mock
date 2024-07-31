@@ -1,6 +1,6 @@
 {
   "name": "aws-sdk-mock",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "Functions to mock the JavaScript aws-sdk",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -15,6 +15,7 @@
     "nocov": "ts-mocha test/**/*.spec.ts",
     "test": "nyc ts-mocha test/**/*.spec.ts && tsd",
     "coverage": "nyc --report html ts-mocha test/**/*.spec.ts && open coverage/index.html",
+    "prepublishOnly": "npm run build",
     "build": "tsup"
   },
   "repository": {
