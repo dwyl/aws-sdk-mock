@@ -64,7 +64,7 @@
     "eslint": "^9.3.0",
     "expectations": "^1.0.0",
     "is-node-stream": "^1.0.0",
-    "mocha": "^10.3.0",
+    "mocha": "^11.0.1",
     "nyc": "^17.0.0",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
