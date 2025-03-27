@@ -298,9 +298,7 @@ function mockServiceMethod(
   // Service method mock type guard
   //if (!serviceMethodMock) return;
 
-  serviceMethodMock.stub = sinon.stub(client, method).callsFake(function () {
-    const args = Array.prototype.slice.call(arguments);
-
+  serviceMethodMock.stub = sinon.stub(client, method).callsFake(function(this: any, ...args: any[]) {
     let userArgs: string | Function[];
     let userCallback: Function;
 
@@ -417,7 +415,7 @@ function mockServiceMethod(
     else {
       callback(null, replace);
     }
-    return request;
+    return request as any;
   });
 }
 
