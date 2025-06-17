@@ -44,7 +44,7 @@
   "dependencies": {
     "aws-sdk": "^2.1231.0",
     "neotraverse": "^0.6.15",
-    "sinon": "^20.0.0"
+    "sinon": "^21.0.0"
   },
   "tsd": {
     "directory": "test"
