@@ -409,6 +409,11 @@ function mockServiceMethod(
         ((typeof result === 'object' && result.then instanceof Function) || result instanceof Readable)
       ) {
         storedResult = result;
+        // Suppress potential unhandledRejection in Node.js v20+ by attaching a no-op catch handler.
+        // The rejection is still forwarded correctly via tryResolveFromStored -> storedResult.then(resolve, reject).
+        if (typeof (storedResult as any).catch === 'function') {
+          (storedResult as Promise<any>).catch(() => {});
+        }
       }
     }
     // Else we call the callback with the value of 'replace'.
