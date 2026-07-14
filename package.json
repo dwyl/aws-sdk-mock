@@ -58,7 +58,7 @@
     "@types/expectations": "^0.2.32",
     "@types/mocha": "^10.0.6",
     "@types/node": "^26.0.0",
-    "@types/sinon": "^21.0.0",
+    "@types/sinon": "^22.0.0",
     "c8": "^11.0.0",
     "concat-stream": "^2.0.0",
     "eslint": "^10.0.0",
