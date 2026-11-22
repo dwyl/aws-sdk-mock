@@ -6,3 +6,9 @@ updates:
     interval: weekly
     time: "17:00"
     timezone: Europe/London
+  ignore:
+    # TypeScript 7 (native port) ships no JS compiler API, which tsup (DTS),
+    # ts-node and nyc rely on. TS 7 is installed as the "typescript-7" alias and
+    # used for `npm run lint`; keep "typescript" on 6.x until those tools support 7.
+    - dependency-name: "typescript"
+      update-types: ["version-update:semver-major"]
