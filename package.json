@@ -11,7 +11,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "lint": "tsc",
+    "lint": "node node_modules/typescript-7/bin/tsc",
     "nocov": "mocha --require ts-node/register test/**/*.spec.ts",
     "test": "nyc mocha --require ts-node/register test/**/*.spec.ts && tsd",
     "coverage": "nyc --report html mocha --require ts-node/register test/**/*.spec.ts && open coverage/index.html",
@@ -64,12 +64,13 @@
     "eslint": "^10.0.0",
     "expectations": "^1.0.0",
     "is-node-stream": "^1.0.0",
-    "mocha": "^11.1.0",
+    "mocha": "^12.0.3",
     "nyc": "^18.0.0",
     "ts-node": "^10.9.1",
     "tsd": "^0.33.0",
-    "tsup": "^8.0.2",
-    "typescript": "^6.0.2"
+    "tsup": "^9.0.0",
+    "typescript": "^6.0.2",
+    "typescript-7": "npm:typescript@^7.0.2"
   },
   "engines": {
     "node": ">=18.0.0"
